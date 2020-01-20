@@ -43,13 +43,13 @@ public class DebugAgentEnvironmentPostProcessor implements EnvironmentPostProces
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 		if (ClassUtils.isPresent(REACTOR_DEBUGAGENT_CLASS, null)) {
 			Boolean agentEnabled = environment.getProperty(DEBUGAGENT_ENABLED_CONFIG_KEY, Boolean.class);
-			if (agentEnabled != Boolean.FALSE) {
+			if (Boolean.TRUE.equals(agentEnabled)) {
 				try {
 					Class<?> debugAgent = Class.forName(REACTOR_DEBUGAGENT_CLASS);
 					debugAgent.getMethod("init").invoke(null);
 				}
 				catch (Exception ex) {
-					throw new RuntimeException("Failed to init Reactor's debug agent");
+					throw new RuntimeException("Failed to init Reactor's debug agent", ex);
 				}
 			}
 		}
