@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.web.servlet;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class WebMvcEndpointChildContextConfigurationIntegrationTests {
+public class WebMvcEndpointChildContextConfigurationIntegrationTests {
 
 	@Test // gh-17938
-	void errorPageAndErrorControllerAreUsed() {
+	public void errorPageAndErrorControllerAreUsed() {
 		new WebApplicationContextRunner(AnnotationConfigServletWebServerApplicationContext::new)
 				.withConfiguration(AutoConfigurations.of(ManagementContextAutoConfiguration.class,
 						ServletWebServerFactoryAutoConfiguration.class, ServletManagementContextAutoConfiguration.class,
@@ -65,10 +65,10 @@ class WebMvcEndpointChildContextConfigurationIntegrationTests {
 
 	@Component
 	@Endpoint(id = "fail")
-	static class FailingEndpoint {
+	public static class FailingEndpoint {
 
 		@ReadOperation
-		String fail() {
+		public String fail() {
 			throw new IllegalStateException("Epic Fail");
 		}
 

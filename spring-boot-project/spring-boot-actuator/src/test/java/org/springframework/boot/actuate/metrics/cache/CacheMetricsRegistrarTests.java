@@ -21,7 +21,7 @@ import java.util.Collections;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.transaction.TransactionAwareCacheDecorator;
@@ -33,12 +33,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class CacheMetricsRegistrarTests {
+public class CacheMetricsRegistrarTests {
 
 	private final MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
 	@Test
-	void bindToSupportedCache() {
+	public void bindToSupportedCache() {
 		CacheMetricsRegistrar registrar = new CacheMetricsRegistrar(this.meterRegistry,
 				Collections.singleton(new CaffeineCacheMeterBinderProvider()));
 		assertThat(registrar.bindCacheToRegistry(new CaffeineCache("test", Caffeine.newBuilder().build()))).isTrue();
@@ -46,7 +46,7 @@ class CacheMetricsRegistrarTests {
 	}
 
 	@Test
-	void bindToSupportedCacheWrappedInTransactionProxy() {
+	public void bindToSupportedCacheWrappedInTransactionProxy() {
 		CacheMetricsRegistrar registrar = new CacheMetricsRegistrar(this.meterRegistry,
 				Collections.singleton(new CaffeineCacheMeterBinderProvider()));
 		assertThat(registrar.bindCacheToRegistry(
@@ -55,7 +55,7 @@ class CacheMetricsRegistrarTests {
 	}
 
 	@Test
-	void bindToUnsupportedCache() {
+	public void bindToUnsupportedCache() {
 		CacheMetricsRegistrar registrar = new CacheMetricsRegistrar(this.meterRegistry, Collections.emptyList());
 		assertThat(registrar.bindCacheToRegistry(new CaffeineCache("test", Caffeine.newBuilder().build()))).isFalse();
 		assertThat(this.meterRegistry.find("cache.gets").tags("name", "test").meter()).isNull();

@@ -37,13 +37,13 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
  *
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnMissingBean(MongoDbFactory.class)
 @Conditional(AnyMongoClientAvailable.class)
 class MongoDbFactoryConfiguration {
 
 	@Bean
-	MongoDbFactorySupport<?> mongoDbFactory(ObjectProvider<MongoClient> mongo,
+	public MongoDbFactorySupport<?> mongoDbFactory(ObjectProvider<MongoClient> mongo,
 			ObjectProvider<com.mongodb.client.MongoClient> mongoClient, MongoProperties properties) {
 		MongoClient preferredClient = mongo.getIfAvailable();
 		if (preferredClient != null) {

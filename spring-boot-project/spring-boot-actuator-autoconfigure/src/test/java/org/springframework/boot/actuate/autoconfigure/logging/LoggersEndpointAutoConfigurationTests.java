@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.logging;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -33,40 +33,34 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class LoggersEndpointAutoConfigurationTests {
+public class LoggersEndpointAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(LoggersEndpointAutoConfiguration.class))
 			.withUserConfiguration(LoggingConfiguration.class);
 
 	@Test
-	void runShouldHaveEndpointBean() {
-		this.contextRunner.withPropertyValues("management.endpoints.web.exposure.include=loggers")
-				.run((context) -> assertThat(context).hasSingleBean(LoggersEndpoint.class));
+	public void runShouldHaveEndpointBean() {
+		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(LoggersEndpoint.class));
 	}
 
 	@Test
-	void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
+	public void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
 		this.contextRunner.withPropertyValues("management.endpoint.loggers.enabled:false")
 				.run((context) -> assertThat(context).doesNotHaveBean(LoggersEndpoint.class));
 	}
 
 	@Test
-	void runWhenNotExposedShouldNotHaveEndpointBean() {
-		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(LoggersEndpoint.class));
-	}
-
-	@Test
-	void runWithNoneLoggingSystemShouldNotHaveEndpointBean() {
+	public void runWithNoneLoggingSystemShouldNotHaveEndpointBean() {
 		this.contextRunner.withSystemProperties("org.springframework.boot.logging.LoggingSystem=none")
 				.run((context) -> assertThat(context).doesNotHaveBean(LoggersEndpoint.class));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class LoggingConfiguration {
 
 		@Bean
-		LoggingSystem loggingSystem() {
+		public LoggingSystem loggingSystem() {
 			return mock(LoggingSystem.class);
 		}
 

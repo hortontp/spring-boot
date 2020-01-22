@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Meang Akira Tanaka
  * @author Andy Wilkinson
  */
-class InfoEndpointTests {
+public class InfoEndpointTests {
 
 	@Test
-	void info() {
+	public void info() {
 		InfoEndpoint endpoint = new InfoEndpoint(Arrays.asList((builder) -> builder.withDetail("key1", "value1"),
 				(builder) -> builder.withDetail("key2", "value2")));
 		Map<String, Object> info = endpoint.info();
@@ -45,7 +45,7 @@ class InfoEndpointTests {
 	}
 
 	@Test
-	void infoWithNoContributorsProducesEmptyMap() {
+	public void infoWithNoContributorsProducesEmptyMap() {
 		InfoEndpoint endpoint = new InfoEndpoint(Collections.emptyList());
 		Map<String, Object> info = endpoint.info();
 		assertThat(info).isEmpty();

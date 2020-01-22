@@ -16,7 +16,8 @@
 
 package org.springframework.boot.autoconfigure.batch;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -27,7 +28,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.boot.testsupport.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -39,17 +41,18 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  */
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("spring-jdbc-*.jar")
-class BatchAutoConfigurationWithoutJdbcTests {
+public class BatchAutoConfigurationWithoutJdbcTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(BatchAutoConfiguration.class, TransactionAutoConfiguration.class))
 			.withUserConfiguration(BatchConfiguration.class);
 
 	@Test
-	void whenThereIsNoJdbcOnTheClasspathThenComponentsAreStillAutoConfigured() {
+	public void whenThereIsNoJdbcOnTheClasspathThenComponentsAreStillAutoConfigured() {
 		this.contextRunner.run((context) -> {
-			assertThat(context).hasSingleBean(JobLauncherApplicationRunner.class);
+			assertThat(context).hasSingleBean(JobLauncherCommandLineRunner.class);
 			assertThat(context).hasSingleBean(JobExecutionExitCodeGenerator.class);
 			assertThat(context).hasSingleBean(SimpleJobOperator.class);
 		});

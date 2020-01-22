@@ -24,7 +24,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -43,7 +43,7 @@ import org.springframework.jmx.export.MBeanExporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link SpringApplicationAdminJmxAutoConfiguration}.
@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-class SpringApplicationAdminJmxAutoConfigurationTests {
+public class SpringApplicationAdminJmxAutoConfigurationTests {
 
 	private static final String ENABLE_ADMIN_PROP = "spring.application.admin.enabled=true";
 
@@ -64,13 +64,13 @@ class SpringApplicationAdminJmxAutoConfigurationTests {
 					SpringApplicationAdminJmxAutoConfiguration.class));
 
 	@Test
-	void notRegisteredByDefault() {
+	public void notRegisteredByDefault() {
 		this.contextRunner.run((context) -> assertThatExceptionOfType(InstanceNotFoundException.class)
 				.isThrownBy(() -> this.server.getObjectInstance(createDefaultObjectName())));
 	}
 
 	@Test
-	void registeredWithProperty() {
+	public void registeredWithProperty() {
 		this.contextRunner.withPropertyValues(ENABLE_ADMIN_PROP).run((context) -> {
 			ObjectName objectName = createDefaultObjectName();
 			ObjectInstance objectInstance = this.server.getObjectInstance(objectName);
@@ -79,7 +79,7 @@ class SpringApplicationAdminJmxAutoConfigurationTests {
 	}
 
 	@Test
-	void registerWithCustomJmxName() {
+	public void registerWithCustomJmxName() {
 		String customJmxName = "org.acme:name=FooBar";
 		this.contextRunner.withSystemProperties("spring.application.admin.jmx-name=" + customJmxName)
 				.withPropertyValues(ENABLE_ADMIN_PROP).run((context) -> {
@@ -95,7 +95,7 @@ class SpringApplicationAdminJmxAutoConfigurationTests {
 	}
 
 	@Test
-	void registerWithSimpleWebApp() throws Exception {
+	public void registerWithSimpleWebApp() throws Exception {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.sources(ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
 						MultipleMBeanExportersConfiguration.class, SpringApplicationAdminJmxAutoConfiguration.class)
@@ -110,7 +110,7 @@ class SpringApplicationAdminJmxAutoConfigurationTests {
 	}
 
 	@Test
-	void onlyRegisteredOnceWhenThereIsAChildContext() {
+	public void onlyRegisteredOnceWhenThereIsAChildContext() {
 		SpringApplicationBuilder parentBuilder = new SpringApplicationBuilder().web(WebApplicationType.NONE)
 				.sources(MultipleMBeanExportersConfiguration.class, SpringApplicationAdminJmxAutoConfiguration.class);
 		SpringApplicationBuilder childBuilder = parentBuilder
@@ -142,16 +142,16 @@ class SpringApplicationAdminJmxAutoConfigurationTests {
 				new String[] { String.class.getName() });
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultipleMBeanExportersConfiguration {
 
 		@Bean
-		MBeanExporter firstMBeanExporter() {
+		public MBeanExporter firstMBeanExporter() {
 			return new MBeanExporter();
 		}
 
 		@Bean
-		MBeanExporter secondMBeanExporter() {
+		public MBeanExporter secondMBeanExporter() {
 			return new MBeanExporter();
 		}
 

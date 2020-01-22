@@ -58,36 +58,64 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author Stephane Nicoll
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ Scheduler.class, SchedulerFactoryBean.class, PlatformTransactionManager.class })
 @EnableConfigurationProperties(QuartzProperties.class)
 @AutoConfigureAfter({ DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
 		LiquibaseAutoConfiguration.class, FlywayAutoConfiguration.class })
 public class QuartzAutoConfiguration {
 
+	private final QuartzProperties properties;
+
+	private final ObjectProvider<SchedulerFactoryBeanCustomizer> customizers;
+
+	private final JobDetail[] jobDetails;
+
+	private final Map<String, Calendar> calendars;
+
+	private final Trigger[] triggers;
+
+	private final ApplicationContext applicationContext;
+
+	public QuartzAutoConfiguration(QuartzProperties properties,
+			ObjectProvider<SchedulerFactoryBeanCustomizer> customizers, ObjectProvider<JobDetail[]> jobDetails,
+			Map<String, Calendar> calendars, ObjectProvider<Trigger[]> triggers,
+			ApplicationContext applicationContext) {
+		this.properties = properties;
+		this.customizers = customizers;
+		this.jobDetails = jobDetails.getIfAvailable();
+		this.calendars = calendars;
+		this.triggers = triggers.getIfAvailable();
+		this.applicationContext = applicationContext;
+	}
+
 	@Bean
 	@ConditionalOnMissingBean
-	public SchedulerFactoryBean quartzScheduler(QuartzProperties properties,
-			ObjectProvider<SchedulerFactoryBeanCustomizer> customizers, ObjectProvider<JobDetail> jobDetails,
-			Map<String, Calendar> calendars, ObjectProvider<Trigger> triggers, ApplicationContext applicationContext) {
+	public SchedulerFactoryBean quartzScheduler() {
 		SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
 		SpringBeanJobFactory jobFactory = new SpringBeanJobFactory();
-		jobFactory.setApplicationContext(applicationContext);
+		jobFactory.setApplicationContext(this.applicationContext);
 		schedulerFactoryBean.setJobFactory(jobFactory);
-		if (properties.getSchedulerName() != null) {
-			schedulerFactoryBean.setSchedulerName(properties.getSchedulerName());
+		if (this.properties.getSchedulerName() != null) {
+			schedulerFactoryBean.setSchedulerName(this.properties.getSchedulerName());
 		}
-		schedulerFactoryBean.setAutoStartup(properties.isAutoStartup());
-		schedulerFactoryBean.setStartupDelay((int) properties.getStartupDelay().getSeconds());
-		schedulerFactoryBean.setWaitForJobsToCompleteOnShutdown(properties.isWaitForJobsToCompleteOnShutdown());
-		schedulerFactoryBean.setOverwriteExistingJobs(properties.isOverwriteExistingJobs());
-		if (!properties.getProperties().isEmpty()) {
-			schedulerFactoryBean.setQuartzProperties(asProperties(properties.getProperties()));
+		schedulerFactoryBean.setAutoStartup(this.properties.isAutoStartup());
+		schedulerFactoryBean.setStartupDelay((int) this.properties.getStartupDelay().getSeconds());
+		schedulerFactoryBean.setWaitForJobsToCompleteOnShutdown(this.properties.isWaitForJobsToCompleteOnShutdown());
+		schedulerFactoryBean.setOverwriteExistingJobs(this.properties.isOverwriteExistingJobs());
+		if (!this.properties.getProperties().isEmpty()) {
+			schedulerFactoryBean.setQuartzProperties(asProperties(this.properties.getProperties()));
 		}
-		schedulerFactoryBean.setJobDetails(jobDetails.orderedStream().toArray(JobDetail[]::new));
-		schedulerFactoryBean.setCalendars(calendars);
-		schedulerFactoryBean.setTriggers(triggers.orderedStream().toArray(Trigger[]::new));
-		customizers.orderedStream().forEach((customizer) -> customizer.customize(schedulerFactoryBean));
+		if (this.jobDetails != null && this.jobDetails.length > 0) {
+			schedulerFactoryBean.setJobDetails(this.jobDetails);
+		}
+		if (this.calendars != null && !this.calendars.isEmpty()) {
+			schedulerFactoryBean.setCalendars(this.calendars);
+		}
+		if (this.triggers != null && this.triggers.length > 0) {
+			schedulerFactoryBean.setTriggers(this.triggers);
+		}
+		customize(schedulerFactoryBean);
 		return schedulerFactoryBean;
 	}
 
@@ -97,7 +125,11 @@ public class QuartzAutoConfiguration {
 		return properties;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	private void customize(SchedulerFactoryBean schedulerFactoryBean) {
+		this.customizers.orderedStream().forEach((customizer) -> customizer.customize(schedulerFactoryBean));
+	}
+
+	@Configuration
 	@ConditionalOnSingleCandidate(DataSource.class)
 	@ConditionalOnProperty(prefix = "spring.quartz", name = "job-store-type", havingValue = "jdbc")
 	protected static class JdbcStoreTypeConfiguration {
@@ -129,6 +161,7 @@ public class QuartzAutoConfiguration {
 				QuartzProperties properties) {
 			DataSource dataSourceToUse = getDataSource(dataSource, quartzDataSource);
 			return new QuartzDataSourceInitializer(dataSourceToUse, resourceLoader, properties);
+
 		}
 
 		/**
@@ -136,27 +169,27 @@ public class QuartzAutoConfiguration {
 		 * {@link Scheduler} beans depend on any beans that perform data source
 		 * initialization.
 		 */
-		@Configuration(proxyBeanMethods = false)
+		@Configuration
 		static class QuartzSchedulerDependencyConfiguration {
 
 			@Bean
-			static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerDataSourceInitializerDependsOnBeanFactoryPostProcessor() {
+			public static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerDataSourceInitializerDependsOnBeanFactoryPostProcessor() {
 				return new SchedulerDependsOnBeanFactoryPostProcessor(QuartzDataSourceInitializer.class);
 			}
 
 			@Bean
 			@ConditionalOnBean(FlywayMigrationInitializer.class)
-			static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerFlywayDependsOnBeanFactoryPostProcessor() {
+			public static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerFlywayDependsOnBeanFactoryPostProcessor() {
 				return new SchedulerDependsOnBeanFactoryPostProcessor(FlywayMigrationInitializer.class);
 			}
 
-			@Configuration(proxyBeanMethods = false)
+			@Configuration
 			@ConditionalOnClass(SpringLiquibase.class)
 			static class LiquibaseQuartzSchedulerDependencyConfiguration {
 
 				@Bean
 				@ConditionalOnBean(SpringLiquibase.class)
-				static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerLiquibaseDependsOnBeanFactoryPostProcessor() {
+				public static SchedulerDependsOnBeanFactoryPostProcessor quartzSchedulerLiquibaseDependsOnBeanFactoryPostProcessor() {
 					return new SchedulerDependsOnBeanFactoryPostProcessor(SpringLiquibase.class);
 				}
 

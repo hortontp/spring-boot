@@ -19,12 +19,12 @@ package org.springframework.boot.actuate.autoconfigure.cloudfoundry.servlet;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.endpoint.EndpointId;
@@ -34,7 +34,6 @@ import org.springframework.boot.actuate.endpoint.http.ActuatorMediaType;
 import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
 import org.springframework.boot.actuate.endpoint.web.ExposableWebEndpoint;
 import org.springframework.boot.actuate.endpoint.web.WebOperation;
-import org.springframework.boot.actuate.endpoint.web.WebOperationRequestPredicate;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -45,6 +44,8 @@ import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoC
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.BeanIds;
@@ -65,7 +66,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Madhura Bhave
  */
-class CloudFoundryActuatorAutoConfigurationTests {
+public class CloudFoundryActuatorAutoConfigurationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(SecurityAutoConfiguration.class, WebMvcAutoConfiguration.class,
@@ -76,7 +77,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 					WebEndpointAutoConfiguration.class, CloudFoundryActuatorAutoConfiguration.class));
 
 	@Test
-	void cloudFoundryPlatformActive() {
+	public void cloudFoundryPlatformActive() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 				"vcap.application.cf_api:https://my-cloud-controller.com").run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
@@ -94,17 +95,17 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void cloudfoundryapplicationProducesActuatorMediaType() throws Exception {
+	public void cloudfoundryapplicationProducesActuatorMediaType() throws Exception {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 				"vcap.application.cf_api:https://my-cloud-controller.com").run((context) -> {
 					MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 					mockMvc.perform(get("/cloudfoundryapplication"))
-							.andExpect(header().string("Content-Type", ActuatorMediaType.V3_JSON));
+							.andExpect(header().string("Content-Type", ActuatorMediaType.V2_JSON + ";charset=UTF-8"));
 				});
 	}
 
 	@Test
-	void cloudFoundryPlatformActiveSetsApplicationId() {
+	public void cloudFoundryPlatformActiveSetsApplicationId() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 				"vcap.application.cf_api:https://my-cloud-controller.com").run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
@@ -115,7 +116,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void cloudFoundryPlatformActiveSetsCloudControllerUrl() {
+	public void cloudFoundryPlatformActiveSetsCloudControllerUrl() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 				"vcap.application.cf_api:https://my-cloud-controller.com").run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
@@ -129,7 +130,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void skipSslValidation() {
+	public void skipSslValidation() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 				"vcap.application.cf_api:https://my-cloud-controller.com",
 				"management.cloudfoundry.skip-ssl-validation:true").run((context) -> {
@@ -145,7 +146,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void cloudFoundryPlatformActiveAndCloudControllerUrlNotPresent() {
+	public void cloudFoundryPlatformActiveAndCloudControllerUrlNotPresent() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id")
 				.run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
@@ -157,7 +158,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void cloudFoundryPathsIgnoredBySpringSecurity() {
+	public void cloudFoundryPathsIgnoredBySpringSecurity() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id")
 				.run((context) -> {
 					FilterChainProxy securityFilterChain = (FilterChainProxy) context
@@ -173,21 +174,21 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void cloudFoundryPlatformInactive() {
+	public void cloudFoundryPlatformInactive() {
 		this.contextRunner.withPropertyValues()
 				.run((context) -> assertThat(context.containsBean("cloudFoundryWebEndpointServletHandlerMapping"))
 						.isFalse());
 	}
 
 	@Test
-	void cloudFoundryManagementEndpointsDisabled() {
+	public void cloudFoundryManagementEndpointsDisabled() {
 		this.contextRunner.withPropertyValues("VCAP_APPLICATION=---", "management.cloudfoundry.enabled:false")
 				.run((context) -> assertThat(context.containsBean("cloudFoundryEndpointHandlerMapping")).isFalse());
 	}
 
 	@Test
-	void allEndpointsAvailableUnderCloudFoundryWithoutExposeAllOnWeb() {
-		this.contextRunner.withBean(TestEndpoint.class, TestEndpoint::new).withPropertyValues("VCAP_APPLICATION:---",
+	public void allEndpointsAvailableUnderCloudFoundryWithoutExposeAllOnWeb() {
+		this.contextRunner.withUserConfiguration(TestConfiguration.class).withPropertyValues("VCAP_APPLICATION:---",
 				"vcap.application.application_id:my-app-id", "vcap.application.cf_api:https://my-cloud-controller.com")
 				.run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
@@ -199,12 +200,12 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void endpointPathCustomizationIsNotApplied() {
+	public void endpointPathCustomizationIsNotApplied() {
 		this.contextRunner
 				.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 						"vcap.application.cf_api:https://my-cloud-controller.com",
 						"management.endpoints.web.path-mapping.test=custom")
-				.withBean(TestEndpoint.class, TestEndpoint::new).run((context) -> {
+				.withUserConfiguration(TestConfiguration.class).run((context) -> {
 					CloudFoundryWebEndpointServletHandlerMapping handlerMapping = getHandlerMapping(context);
 					Collection<ExposableWebEndpoint> endpoints = handlerMapping.getEndpoints();
 					ExposableWebEndpoint endpoint = endpoints.stream()
@@ -217,11 +218,11 @@ class CloudFoundryActuatorAutoConfigurationTests {
 	}
 
 	@Test
-	void healthEndpointInvokerShouldBeCloudFoundryWebExtension() {
+	public void healthEndpointInvokerShouldBeCloudFoundryWebExtension() {
 		this.contextRunner
 				.withPropertyValues("VCAP_APPLICATION:---", "vcap.application.application_id:my-app-id",
 						"vcap.application.cf_api:https://my-cloud-controller.com")
-				.withConfiguration(AutoConfigurations.of(HealthContributorAutoConfiguration.class,
+				.withConfiguration(AutoConfigurations.of(HealthIndicatorAutoConfiguration.class,
 						HealthEndpointAutoConfiguration.class))
 				.run((context) -> {
 					Collection<ExposableWebEndpoint> endpoints = context
@@ -229,7 +230,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 									CloudFoundryWebEndpointServletHandlerMapping.class)
 							.getEndpoints();
 					ExposableWebEndpoint endpoint = endpoints.iterator().next();
-					assertThat(endpoint.getOperations()).hasSize(2);
+					assertThat(endpoint.getOperations()).hasSize(3);
 					WebOperation webOperation = findOperationWithRequestPath(endpoint, "health");
 					Object invoker = ReflectionTestUtils.getField(webOperation, "invoker");
 					assertThat(ReflectionTestUtils.getField(invoker, "target"))
@@ -244,9 +245,7 @@ class CloudFoundryActuatorAutoConfigurationTests {
 
 	private WebOperation findOperationWithRequestPath(ExposableWebEndpoint endpoint, String requestPath) {
 		for (WebOperation operation : endpoint.getOperations()) {
-			WebOperationRequestPredicate predicate = operation.getRequestPredicate();
-			if (predicate.getPath().equals(requestPath)
-					&& predicate.getProduces().contains(ActuatorMediaType.V3_JSON)) {
+			if (operation.getRequestPredicate().getPath().equals(requestPath)) {
 				return operation;
 			}
 		}
@@ -254,11 +253,21 @@ class CloudFoundryActuatorAutoConfigurationTests {
 				"No operation found with request path " + requestPath + " from " + endpoint.getOperations());
 	}
 
+	@Configuration
+	static class TestConfiguration {
+
+		@Bean
+		public TestEndpoint testEndpoint() {
+			return new TestEndpoint();
+		}
+
+	}
+
 	@Endpoint(id = "test")
 	static class TestEndpoint {
 
 		@ReadOperation
-		String hello() {
+		public String hello() {
 			return "hello world";
 		}
 

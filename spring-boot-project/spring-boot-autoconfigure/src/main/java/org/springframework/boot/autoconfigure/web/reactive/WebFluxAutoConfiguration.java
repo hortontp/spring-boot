@@ -17,6 +17,7 @@
 package org.springframework.boot.autoconfigure.web.reactive;
 
 import java.time.Duration;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,13 +38,15 @@ import org.springframework.boot.autoconfigure.web.ConditionalOnEnabledResourceCh
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.format.WebConversionService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.boot.web.codec.CodecCustomizer;
 import org.springframework.boot.web.reactive.filter.OrderedHiddenHttpMethodFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.format.Formatter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.codec.ServerCodecConfigurer;
@@ -75,7 +78,7 @@ import org.springframework.web.reactive.result.view.ViewResolver;
  * @author Artsiom Yudovin
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(WebFluxConfigurer.class)
 @ConditionalOnMissingBean({ WebFluxConfigurationSupport.class })
@@ -86,12 +89,12 @@ public class WebFluxAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(HiddenHttpMethodFilter.class)
-	@ConditionalOnProperty(prefix = "spring.webflux.hiddenmethod.filter", name = "enabled", matchIfMissing = false)
+	@ConditionalOnProperty(prefix = "spring.webflux.hiddenmethod.filter", name = "enabled", matchIfMissing = true)
 	public OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
 		return new OrderedHiddenHttpMethodFilter();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties({ ResourceProperties.class, WebFluxProperties.class })
 	@Import({ EnableWebFluxConfiguration.class })
 	public static class WebFluxConfig implements WebFluxConfigurer {
@@ -173,13 +176,26 @@ public class WebFluxAutoConfiguration {
 
 		@Override
 		public void addFormatters(FormatterRegistry registry) {
-			ApplicationConversionService.addBeans(registry, this.beanFactory);
+			for (Converter<?, ?> converter : getBeansOfType(Converter.class)) {
+				registry.addConverter(converter);
+			}
+			for (GenericConverter converter : getBeansOfType(GenericConverter.class)) {
+				registry.addConverter(converter);
+			}
+			for (Formatter<?> formatter : getBeansOfType(Formatter.class)) {
+				registry.addFormatter(formatter);
+			}
+		}
+
+		private <T> Collection<T> getBeansOfType(Class<T> type) {
+			return this.beanFactory.getBeansOfType(type).values();
 		}
 
 		private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {
 			if (this.resourceHandlerRegistrationCustomizer != null) {
 				this.resourceHandlerRegistrationCustomizer.customize(registration);
 			}
+
 		}
 
 	}
@@ -187,7 +203,7 @@ public class WebFluxAutoConfiguration {
 	/**
 	 * Configuration equivalent to {@code @EnableWebFlux}.
 	 */
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	public static class EnableWebFluxConfiguration extends DelegatingWebFluxConfiguration {
 
 		private final WebFluxProperties webFluxProperties;
@@ -237,12 +253,12 @@ public class WebFluxAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnEnabledResourceChain
 	static class ResourceChainCustomizerConfiguration {
 
 		@Bean
-		ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer() {
+		public ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer() {
 			return new ResourceChainResourceHandlerRegistrationCustomizer();
 		}
 

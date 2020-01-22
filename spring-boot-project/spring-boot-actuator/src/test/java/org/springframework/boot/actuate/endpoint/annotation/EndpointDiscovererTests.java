@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointFilter;
 import org.springframework.boot.actuate.endpoint.EndpointId;
@@ -66,10 +66,10 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Phillip Webb
  */
-class EndpointDiscovererTests {
+public class EndpointDiscovererTests {
 
 	@Test
-	void createWhenApplicationContextIsNullShouldThrowException() {
+	public void createWhenApplicationContextIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new TestEndpointDiscoverer(null, mock(ParameterValueMapper.class),
 						Collections.emptyList(), Collections.emptyList()))
@@ -77,7 +77,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void createWhenParameterValueMapperIsNullShouldThrowException() {
+	public void createWhenParameterValueMapperIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new TestEndpointDiscoverer(mock(ApplicationContext.class), null,
 						Collections.emptyList(), Collections.emptyList()))
@@ -85,7 +85,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void createWhenInvokerAdvisorsIsNullShouldThrowException() {
+	public void createWhenInvokerAdvisorsIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new TestEndpointDiscoverer(mock(ApplicationContext.class),
 						mock(ParameterValueMapper.class), null, Collections.emptyList()))
@@ -93,7 +93,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void createWhenFiltersIsNullShouldThrowException() {
+	public void createWhenFiltersIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new TestEndpointDiscoverer(mock(ApplicationContext.class),
 						mock(ParameterValueMapper.class), Collections.emptyList(), null))
@@ -101,7 +101,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
+	public void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
 		load(EmptyConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context);
 			Collection<TestExposableEndpoint> endpoints = discoverer.getEndpoints();
@@ -110,19 +110,19 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasEndpointShouldReturnEndpoint() {
+	public void getEndpointsWhenHasEndpointShouldReturnEndpoint() {
 		load(TestEndpointConfiguration.class, this::hasTestEndpoint);
 	}
 
 	@Test
-	void getEndpointsWhenHasEndpointInParentContextShouldReturnEndpoint() {
+	public void getEndpointsWhenHasEndpointInParentContextShouldReturnEndpoint() {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
 				TestEndpointConfiguration.class);
 		loadWithParent(parent, EmptyConfiguration.class, this::hasTestEndpoint);
 	}
 
 	@Test
-	void getEndpointsWhenHasSubclassedEndpointShouldReturnEndpoint() {
+	public void getEndpointsWhenHasSubclassedEndpointShouldReturnEndpoint() {
 		load(TestEndpointSubclassConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context);
 			Map<EndpointId, TestExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -136,7 +136,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenTwoEndpointsHaveTheSameIdShouldThrowException() {
+	public void getEndpointsWhenTwoEndpointsHaveTheSameIdShouldThrowException() {
 		load(ClashingEndpointConfiguration.class,
 				(context) -> assertThatIllegalStateException()
 						.isThrownBy(new TestEndpointDiscoverer(context)::getEndpoints)
@@ -144,16 +144,16 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenEndpointsArePrefixedWithScopedTargetShouldRegisterOnlyOneEndpoint() {
+	public void getEndpointsWhenEndpointsArePrefixedWithScopedTargetShouldRegisterOnlyOneEndpoint() {
 		load(ScopedTargetEndpointConfiguration.class, (context) -> {
-			TestEndpoint expectedEndpoint = context.getBean("testEndpoint", TestEndpoint.class);
+			TestEndpoint expectedEndpoint = context.getBean(ScopedTargetEndpointConfiguration.class).testEndpoint();
 			Collection<TestExposableEndpoint> endpoints = new TestEndpointDiscoverer(context).getEndpoints();
 			assertThat(endpoints).flatExtracting(TestExposableEndpoint::getEndpointBean).containsOnly(expectedEndpoint);
 		});
 	}
 
 	@Test
-	void getEndpointsWhenTtlSetToZeroShouldNotCacheInvokeCalls() {
+	public void getEndpointsWhenTtlSetToZeroShouldNotCacheInvokeCalls() {
 		load(TestEndpointConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context, (endpointId) -> 0L);
 			Map<EndpointId, TestExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -165,10 +165,10 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenTtlSetByIdAndIdDoesNotMatchShouldNotCacheInvokeCalls() {
+	public void getEndpointsWhenTtlSetByIdAndIdDoesNotMatchShouldNotCacheInvokeCalls() {
 		load(TestEndpointConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context,
-					(endpointId) -> (endpointId.equals(EndpointId.of("foo")) ? 500L : 0L));
+					(endpointId) -> (endpointId.equals("foo") ? 500L : 0L));
 			Map<EndpointId, TestExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
 			Map<Method, TestOperation> operations = mapOperations(endpoints.get(EndpointId.of("test")));
@@ -178,7 +178,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenTtlSetByIdAndIdMatchesShouldCacheInvokeCalls() {
+	public void getEndpointsWhenTtlSetByIdAndIdMatchesShouldCacheInvokeCalls() {
 		load(TestEndpointConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context,
 					(endpointId) -> (endpointId.equals(EndpointId.of("test")) ? 500L : 0L));
@@ -196,7 +196,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasSpecializedFiltersInNonSpecializedDiscovererShouldFilterEndpoints() {
+	public void getEndpointsWhenHasSpecializedFiltersInNonSpecializedDiscovererShouldFilterEndpoints() {
 		load(SpecializedEndpointsConfiguration.class, (context) -> {
 			TestEndpointDiscoverer discoverer = new TestEndpointDiscoverer(context);
 			Map<EndpointId, TestExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -205,7 +205,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasSpecializedFiltersInSpecializedDiscovererShouldNotFilterEndpoints() {
+	public void getEndpointsWhenHasSpecializedFiltersInSpecializedDiscovererShouldNotFilterEndpoints() {
 		load(SpecializedEndpointsConfiguration.class, (context) -> {
 			SpecializedEndpointDiscoverer discoverer = new SpecializedEndpointDiscoverer(context);
 			Map<EndpointId, SpecializedExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -215,7 +215,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldApplyExtensions() {
+	public void getEndpointsShouldApplyExtensions() {
 		load(SpecializedEndpointsConfiguration.class, (context) -> {
 			SpecializedEndpointDiscoverer discoverer = new SpecializedEndpointDiscoverer(context);
 			Map<EndpointId, SpecializedExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -226,7 +226,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointShouldFindParentExtension() {
+	public void getEndpointShouldFindParentExtension() {
 		load(SubSpecializedEndpointsConfiguration.class, (context) -> {
 			SpecializedEndpointDiscoverer discoverer = new SpecializedEndpointDiscoverer(context);
 			Map<EndpointId, SpecializedExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -240,7 +240,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasProxiedEndpointShouldReturnEndpoint() {
+	public void getEndpointsWhenHasProxiedEndpointShouldReturnEndpoint() {
 		load(ProxiedSpecializedEndpointsConfiguration.class, (context) -> {
 			SpecializedEndpointDiscoverer discoverer = new SpecializedEndpointDiscoverer(context);
 			Map<EndpointId, SpecializedExposableEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
@@ -249,7 +249,7 @@ class EndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldApplyFilters() {
+	public void getEndpointsShouldApplyFilters() {
 		load(SpecializedEndpointsConfiguration.class, (context) -> {
 			EndpointFilter<SpecializedExposableEndpoint> filter = (endpoint) -> {
 				EndpointId id = endpoint.getEndpointId();
@@ -334,16 +334,16 @@ class EndpointDiscovererTests {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class EmptyConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ProxiedSpecializedTestEndpointConfiguration {
 
 		@Bean
-		SpecializedExtension specializedExtension() {
+		public SpecializedExtension specializedExtension() {
 			Enhancer enhancer = new Enhancer();
 			enhancer.setSuperclass(SpecializedExtension.class);
 			enhancer.setCallback((FixedValue) () -> null);
@@ -352,51 +352,51 @@ class EndpointDiscovererTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestEndpointSubclassConfiguration {
 
 		@Bean
-		TestEndpointSubclass testEndpointSubclass() {
+		public TestEndpointSubclass testEndpointSubclass() {
 			return new TestEndpointSubclass();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpointTwo() {
+		public TestEndpoint testEndpointTwo() {
 			return new TestEndpoint();
 		}
 
 		@Bean
-		TestEndpoint testEndpointOne() {
+		public TestEndpoint testEndpointOne() {
 			return new TestEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ScopedTargetEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 		@Bean(name = "scopedTarget.testEndpoint")
-		TestEndpoint scopedTargetTestEndpoint() {
+		public TestEndpoint scopedTargetTestEndpoint() {
 			return new TestEndpoint();
 		}
 
@@ -422,26 +422,26 @@ class EndpointDiscovererTests {
 	static class TestEndpoint {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
 		@ReadOperation
-		Object getOne(@Selector String id) {
+		public Object getOne(@Selector String id) {
 			return null;
 		}
 
 		@WriteOperation
-		void update(String foo, String bar) {
+		public void update(String foo, String bar) {
 
 		}
 
 		@DeleteOperation
-		void deleteOne(@Selector String id) {
+		public void deleteOne(@Selector String id) {
 
 		}
 
-		void someOtherMethod() {
+		public void someOtherMethod() {
 
 		}
 
@@ -450,7 +450,7 @@ class EndpointDiscovererTests {
 	static class TestEndpointSubclass extends TestEndpoint {
 
 		@WriteOperation
-		void updateWithMoreArguments(String foo, String bar, String baz) {
+		public void updateWithMoreArguments(String foo, String bar, String baz) {
 
 		}
 
@@ -461,7 +461,7 @@ class EndpointDiscovererTests {
 	@Documented
 	@Endpoint
 	@FilteredEndpoint(SpecializedEndpointFilter.class)
-	@interface SpecializedEndpoint {
+	public @interface SpecializedEndpoint {
 
 		@AliasFor(annotation = Endpoint.class)
 		String id();
@@ -469,10 +469,10 @@ class EndpointDiscovererTests {
 	}
 
 	@EndpointExtension(endpoint = SpecializedTestEndpoint.class, filter = SpecializedEndpointFilter.class)
-	static class SpecializedExtension {
+	public static class SpecializedExtension {
 
 		@ReadOperation
-		Object getSpecial() {
+		public Object getSpecial() {
 			return null;
 		}
 
@@ -490,7 +490,7 @@ class EndpointDiscovererTests {
 	static class SpecializedTestEndpoint {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
@@ -504,7 +504,7 @@ class EndpointDiscovererTests {
 	static class SpecializedSuperclassTestEndpoint extends AbstractFilteredEndpoint {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
@@ -513,7 +513,7 @@ class EndpointDiscovererTests {
 	static class SubSpecializedTestEndpoint extends SpecializedTestEndpoint {
 
 		@ReadOperation
-		Object getSpecialOne(@Selector String id) {
+		public Object getSpecialOne(@Selector String id) {
 			return null;
 		}
 
@@ -620,7 +620,7 @@ class EndpointDiscovererTests {
 			this.invoker = invoker;
 		}
 
-		OperationInvoker getInvoker() {
+		public OperationInvoker getInvoker() {
 			return this.invoker;
 		}
 

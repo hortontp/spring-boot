@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Import;
  * @author Nishant Raut
  * @since 1.2.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(javax.transaction.Transaction.class)
 @ConditionalOnProperty(prefix = "spring.jta", value = "enabled", matchIfMissing = true)
 @AutoConfigureBefore({ XADataSourceAutoConfiguration.class, ActiveMQAutoConfiguration.class,

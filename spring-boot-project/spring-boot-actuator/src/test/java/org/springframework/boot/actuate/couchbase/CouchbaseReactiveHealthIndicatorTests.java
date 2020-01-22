@@ -26,7 +26,7 @@ import com.couchbase.client.core.message.internal.EndpointHealth;
 import com.couchbase.client.core.service.ServiceType;
 import com.couchbase.client.core.state.LifecycleState;
 import com.couchbase.client.java.Cluster;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -39,11 +39,11 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link CouchbaseReactiveHealthIndicator}.
  */
-class CouchbaseReactiveHealthIndicatorTests {
+public class CouchbaseReactiveHealthIndicatorTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void couchbaseClusterIsUp() {
+	public void couchbaseClusterIsUp() {
 		Cluster cluster = mock(Cluster.class);
 		CouchbaseReactiveHealthIndicator healthIndicator = new CouchbaseReactiveHealthIndicator(cluster);
 		List<EndpointHealth> endpoints = Arrays.asList(new EndpointHealth(ServiceType.BINARY, LifecycleState.CONNECTED,
@@ -60,7 +60,7 @@ class CouchbaseReactiveHealthIndicatorTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void couchbaseClusterIsDown() {
+	public void couchbaseClusterIsDown() {
 		Cluster cluster = mock(Cluster.class);
 		CouchbaseReactiveHealthIndicator healthIndicator = new CouchbaseReactiveHealthIndicator(cluster);
 		List<EndpointHealth> endpoints = Arrays.asList(

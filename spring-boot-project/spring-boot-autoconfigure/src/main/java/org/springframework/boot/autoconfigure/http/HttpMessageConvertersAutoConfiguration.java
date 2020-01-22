@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.boot.autoconfigure.http;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectProvider;
@@ -23,17 +24,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
-import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -53,47 +48,44 @@ import org.springframework.http.converter.StringHttpMessageConverter;
  * @author Eddú Meléndez
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(HttpMessageConverter.class)
-@Conditional(NotReactiveWebApplicationCondition.class)
 @AutoConfigureAfter({ GsonAutoConfiguration.class, JacksonAutoConfiguration.class, JsonbAutoConfiguration.class })
 @Import({ JacksonHttpMessageConvertersConfiguration.class, GsonHttpMessageConvertersConfiguration.class,
 		JsonbHttpMessageConvertersConfiguration.class })
 public class HttpMessageConvertersAutoConfiguration {
 
-	static final String PREFERRED_MAPPER_PROPERTY = "spring.mvc.converters.preferred-json-mapper";
+	static final String PREFERRED_MAPPER_PROPERTY = "spring.http.converters.preferred-json-mapper";
+
+	private final List<HttpMessageConverter<?>> converters;
+
+	public HttpMessageConvertersAutoConfiguration(ObjectProvider<HttpMessageConverter<?>> convertersProvider) {
+		this.converters = convertersProvider.orderedStream().collect(Collectors.toList());
+	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
-		return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
+	public HttpMessageConverters messageConverters() {
+		return new HttpMessageConverters(this.converters);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(StringHttpMessageConverter.class)
-	@EnableConfigurationProperties(ServerProperties.class)
+	@EnableConfigurationProperties(HttpProperties.class)
 	protected static class StringHttpMessageConverterConfiguration {
+
+		private final HttpProperties.Encoding properties;
+
+		protected StringHttpMessageConverterConfiguration(HttpProperties httpProperties) {
+			this.properties = httpProperties.getEncoding();
+		}
 
 		@Bean
 		@ConditionalOnMissingBean
-		public StringHttpMessageConverter stringHttpMessageConverter(ServerProperties serverProperties) {
-			StringHttpMessageConverter converter = new StringHttpMessageConverter(
-					serverProperties.getServlet().getEncoding().getCharset());
+		public StringHttpMessageConverter stringHttpMessageConverter() {
+			StringHttpMessageConverter converter = new StringHttpMessageConverter(this.properties.getCharset());
 			converter.setWriteAcceptCharset(false);
 			return converter;
-		}
-
-	}
-
-	static class NotReactiveWebApplicationCondition extends NoneNestedConditions {
-
-		NotReactiveWebApplicationCondition() {
-			super(ConfigurationPhase.PARSE_CONFIGURATION);
-		}
-
-		@ConditionalOnWebApplication(type = Type.REACTIVE)
-		private static class ReactiveWebApplication {
-
 		}
 
 	}

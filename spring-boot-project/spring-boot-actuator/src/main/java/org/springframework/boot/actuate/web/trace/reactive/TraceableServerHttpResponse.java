@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.actuate.trace.http.TraceableResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 
 /**
@@ -36,8 +35,9 @@ class TraceableServerHttpResponse implements TraceableResponse {
 	private final Map<String, List<String>> headers;
 
 	TraceableServerHttpResponse(ServerHttpResponse response) {
-		this.status = (response.getStatusCode() != null) ? response.getStatusCode().value() : HttpStatus.OK.value();
+		this.status = (response.getStatusCode() != null) ? response.getStatusCode().value() : 200;
 		this.headers = new LinkedHashMap<>(response.getHeaders());
+
 	}
 
 	@Override

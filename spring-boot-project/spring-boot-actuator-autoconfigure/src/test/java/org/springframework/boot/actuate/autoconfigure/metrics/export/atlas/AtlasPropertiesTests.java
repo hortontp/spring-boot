@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.atlas;
 
 import com.netflix.spectator.atlas.AtlasConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class AtlasPropertiesTests {
+public class AtlasPropertiesTests {
 
 	@Test
-	void defaultValuesAreConsistent() {
+	public void defaultValuesAreConsistent() {
 		AtlasProperties properties = new AtlasProperties();
 		AtlasConfig config = (key) -> null;
 		assertThat(properties.getStep()).isEqualTo(config.step());

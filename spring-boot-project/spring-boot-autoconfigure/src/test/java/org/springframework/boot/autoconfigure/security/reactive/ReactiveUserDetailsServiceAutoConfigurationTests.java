@@ -18,28 +18,22 @@ package org.springframework.boot.autoconfigure.security.reactive;
 
 import java.time.Duration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.rsocket.RSocketMessagingAutoConfiguration;
-import org.springframework.boot.autoconfigure.rsocket.RSocketStrategiesAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,15 +42,14 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link ReactiveUserDetailsServiceAutoConfiguration}.
  *
  * @author Madhura Bhave
- * @author HaiTao Zhang
  */
-class ReactiveUserDetailsServiceAutoConfigurationTests {
+public class ReactiveUserDetailsServiceAutoConfigurationTests {
 
 	private final ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ReactiveUserDetailsServiceAutoConfiguration.class));
 
 	@Test
-	void configuresADefaultUser() {
+	public void configuresADefaultUser() {
 		this.contextRunner.withUserConfiguration(TestSecurityConfiguration.class).run((context) -> {
 			ReactiveUserDetailsService userDetailsService = context.getBean(ReactiveUserDetailsService.class);
 			assertThat(userDetailsService.findByUsername("user").block(Duration.ofSeconds(30))).isNotNull();
@@ -64,18 +57,7 @@ class ReactiveUserDetailsServiceAutoConfigurationTests {
 	}
 
 	@Test
-	void userDetailsServiceWhenRSocketConfigured() {
-		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(ReactiveUserDetailsServiceAutoConfiguration.class,
-						RSocketMessagingAutoConfiguration.class, RSocketStrategiesAutoConfiguration.class))
-				.withUserConfiguration(TestRSocketSecurityConfiguration.class).run((context) -> {
-					ReactiveUserDetailsService userDetailsService = context.getBean(ReactiveUserDetailsService.class);
-					assertThat(userDetailsService.findByUsername("user").block(Duration.ofSeconds(30))).isNotNull();
-				});
-	}
-
-	@Test
-	void doesNotConfigureDefaultUserIfUserDetailsServiceAvailable() {
+	public void doesNotConfigureDefaultUserIfUserDetailsServiceAvailable() {
 		this.contextRunner.withUserConfiguration(UserConfig.class, TestSecurityConfiguration.class).run((context) -> {
 			ReactiveUserDetailsService userDetailsService = context.getBean(ReactiveUserDetailsService.class);
 			assertThat(userDetailsService.findByUsername("user").block(Duration.ofSeconds(30))).isNull();
@@ -85,30 +67,14 @@ class ReactiveUserDetailsServiceAutoConfigurationTests {
 	}
 
 	@Test
-	void doesNotConfigureDefaultUserIfAuthenticationManagerAvailable() {
+	public void doesNotConfigureDefaultUserIfAuthenticationManagerAvailable() {
 		this.contextRunner.withUserConfiguration(AuthenticationManagerConfig.class, TestSecurityConfiguration.class)
 				.withConfiguration(AutoConfigurations.of(ReactiveSecurityAutoConfiguration.class))
 				.run((context) -> assertThat(context).getBean(ReactiveUserDetailsService.class).isNull());
 	}
 
 	@Test
-	void doesNotConfigureDefaultUserIfResourceServerWithJWTIsUsed() {
-		this.contextRunner.withUserConfiguration(JwtDecoderConfiguration.class).run((context) -> {
-			assertThat(context).hasSingleBean(ReactiveJwtDecoder.class);
-			assertThat(context).doesNotHaveBean(ReactiveUserDetailsService.class);
-		});
-	}
-
-	@Test
-	void doesNotConfigureDefaultUserIfResourceServerWithOpaqueIsUsed() {
-		this.contextRunner.withUserConfiguration(ReactiveOpaqueTokenIntrospectorConfiguration.class).run((context) -> {
-			assertThat(context).hasSingleBean(ReactiveOpaqueTokenIntrospector.class);
-			assertThat(context).doesNotHaveBean(ReactiveUserDetailsService.class);
-		});
-	}
-
-	@Test
-	void userDetailsServiceWhenPasswordEncoderAbsentAndDefaultPassword() {
+	public void userDetailsServiceWhenPasswordEncoderAbsentAndDefaultPassword() {
 		this.contextRunner.withUserConfiguration(TestSecurityConfiguration.class).run(((context) -> {
 			MapReactiveUserDetailsService userDetailsService = context.getBean(MapReactiveUserDetailsService.class);
 			String password = userDetailsService.findByUsername("user").block(Duration.ofSeconds(30)).getPassword();
@@ -117,18 +83,18 @@ class ReactiveUserDetailsServiceAutoConfigurationTests {
 	}
 
 	@Test
-	void userDetailsServiceWhenPasswordEncoderAbsentAndRawPassword() {
+	public void userDetailsServiceWhenPasswordEncoderAbsentAndRawPassword() {
 		testPasswordEncoding(TestSecurityConfiguration.class, "secret", "{noop}secret");
 	}
 
 	@Test
-	void userDetailsServiceWhenPasswordEncoderAbsentAndEncodedPassword() {
+	public void userDetailsServiceWhenPasswordEncoderAbsentAndEncodedPassword() {
 		String password = "{bcrypt}$2a$10$sCBi9fy9814vUPf2ZRbtp.fR5/VgRk2iBFZ.ypu5IyZ28bZgxrVDa";
 		testPasswordEncoding(TestSecurityConfiguration.class, password, password);
 	}
 
 	@Test
-	void userDetailsServiceWhenPasswordEncoderBeanPresent() {
+	public void userDetailsServiceWhenPasswordEncoderBeanPresent() {
 		testPasswordEncoding(TestConfigWithPasswordEncoder.class, "secret", "secret");
 	}
 
@@ -143,25 +109,18 @@ class ReactiveUserDetailsServiceAutoConfigurationTests {
 				}));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebFluxSecurity
 	@EnableConfigurationProperties(SecurityProperties.class)
-	static class TestSecurityConfiguration {
+	protected static class TestSecurityConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableRSocketSecurity
-	@EnableConfigurationProperties(SecurityProperties.class)
-	static class TestRSocketSecurityConfiguration {
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class UserConfig {
 
 		@Bean
-		MapReactiveUserDetailsService userDetailsService() {
+		public MapReactiveUserDetailsService userDetailsService() {
 			UserDetails foo = User.withUsername("foo").password("foo").roles("USER").build();
 			UserDetails admin = User.withUsername("admin").password("admin").roles("USER", "ADMIN").build();
 			return new MapReactiveUserDetailsService(foo, admin);
@@ -169,43 +128,23 @@ class ReactiveUserDetailsServiceAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class AuthenticationManagerConfig {
 
 		@Bean
-		ReactiveAuthenticationManager reactiveAuthenticationManager() {
+		public ReactiveAuthenticationManager reactiveAuthenticationManager() {
 			return (authentication) -> null;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(TestSecurityConfiguration.class)
-	static class TestConfigWithPasswordEncoder {
+	protected static class TestConfigWithPasswordEncoder {
 
 		@Bean
-		PasswordEncoder passwordEncoder() {
+		public PasswordEncoder passwordEncoder() {
 			return mock(PasswordEncoder.class);
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class JwtDecoderConfiguration {
-
-		@Bean
-		ReactiveJwtDecoder jwtDecoder() {
-			return mock(ReactiveJwtDecoder.class);
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class ReactiveOpaqueTokenIntrospectorConfiguration {
-
-		@Bean
-		ReactiveOpaqueTokenIntrospector introspectionClient() {
-			return mock(ReactiveOpaqueTokenIntrospector.class);
 		}
 
 	}

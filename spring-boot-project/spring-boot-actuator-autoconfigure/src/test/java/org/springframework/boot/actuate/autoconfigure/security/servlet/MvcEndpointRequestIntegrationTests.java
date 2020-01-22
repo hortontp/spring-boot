@@ -15,7 +15,7 @@
  */
 package org.springframework.boot.actuate.autoconfigure.security.servlet;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -35,10 +35,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  *
  * @author Madhura Bhave
  */
-class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrationTests {
+public class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrationTests {
 
 	@Test
-	void toLinksWhenServletPathSetShouldMatch() {
+	public void toLinksWhenServletPathSetShouldMatch() {
 		getContextRunner().withPropertyValues("spring.mvc.servlet.path=/admin").run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/admin/actuator/").exchange().expectStatus().isOk();
@@ -47,7 +47,7 @@ class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrat
 	}
 
 	@Test
-	void toEndpointWhenServletPathSetShouldMatch() {
+	public void toEndpointWhenServletPathSetShouldMatch() {
 		getContextRunner().withPropertyValues("spring.mvc.servlet.path=/admin").run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/admin/actuator/e1").exchange().expectStatus().isOk();
@@ -55,7 +55,7 @@ class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrat
 	}
 
 	@Test
-	void toAnyEndpointWhenServletPathSetShouldMatch() {
+	public void toAnyEndpointWhenServletPathSetShouldMatch() {
 		getContextRunner()
 				.withPropertyValues("spring.mvc.servlet.path=/admin", "spring.security.user.password=password")
 				.run((context) -> {
@@ -67,7 +67,7 @@ class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrat
 	}
 
 	@Test
-	void toAnyEndpointShouldMatchServletEndpoint() {
+	public void toAnyEndpointShouldMatchServletEndpoint() {
 		getContextRunner().withPropertyValues("spring.security.user.password=password",
 				"management.endpoints.web.exposure.include=se1").run((context) -> {
 					WebTestClient webTestClient = getWebTestClient(context);
@@ -81,7 +81,7 @@ class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrat
 	}
 
 	@Test
-	void toAnyEndpointWhenServletPathSetShouldMatchServletEndpoint() {
+	public void toAnyEndpointWhenServletPathSetShouldMatchServletEndpoint() {
 		getContextRunner().withPropertyValues("spring.mvc.servlet.path=/admin",
 				"spring.security.user.password=password", "management.endpoints.web.exposure.include=se1")
 				.run((context) -> {
@@ -103,12 +103,12 @@ class MvcEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrat
 						HttpMessageConvertersAutoConfiguration.class, WebMvcAutoConfiguration.class));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties(WebEndpointProperties.class)
 	static class WebMvcEndpointConfiguration {
 
 		@Bean
-		TomcatServletWebServerFactory tomcat() {
+		public TomcatServletWebServerFactory tomcat() {
 			return new TomcatServletWebServerFactory(0);
 		}
 

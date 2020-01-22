@@ -65,7 +65,7 @@ public class JmsHealthIndicator extends AbstractHealthIndicator {
 			this.connection = connection;
 		}
 
-		void start() throws JMSException {
+		public void start() throws JMSException {
 			new Thread(() -> {
 				try {
 					if (!this.latch.await(5, TimeUnit.SECONDS)) {

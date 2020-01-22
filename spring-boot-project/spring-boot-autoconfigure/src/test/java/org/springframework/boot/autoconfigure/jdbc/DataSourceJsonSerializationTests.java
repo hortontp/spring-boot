@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
@@ -50,10 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-class DataSourceJsonSerializationTests {
+public class DataSourceJsonSerializationTests {
 
 	@Test
-	void serializerFactory() throws Exception {
+	public void serializerFactory() throws Exception {
 		DataSource dataSource = new DataSource();
 		SerializerFactory factory = BeanSerializerFactory.instance
 				.withSerializerModifier(new GenericSerializerModifier());
@@ -64,7 +64,7 @@ class DataSourceJsonSerializationTests {
 	}
 
 	@Test
-	void serializerWithMixin() throws Exception {
+	public void serializerWithMixin() throws Exception {
 		DataSource dataSource = new DataSource();
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.addMixIn(DataSource.class, DataSourceJson.class);
@@ -74,11 +74,11 @@ class DataSourceJsonSerializationTests {
 	}
 
 	@JsonSerialize(using = TomcatDataSourceSerializer.class)
-	interface DataSourceJson {
+	protected interface DataSourceJson {
 
 	}
 
-	static class TomcatDataSourceSerializer extends JsonSerializer<DataSource> {
+	protected static class TomcatDataSourceSerializer extends JsonSerializer<DataSource> {
 
 		private ConversionService conversionService = new DefaultConversionService();
 
@@ -97,7 +97,7 @@ class DataSourceJsonSerializationTests {
 
 	}
 
-	static class GenericSerializerModifier extends BeanSerializerModifier {
+	protected static class GenericSerializerModifier extends BeanSerializerModifier {
 
 		private ConversionService conversionService = new DefaultConversionService();
 

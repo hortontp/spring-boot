@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -34,10 +34,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Phillip Webb
  * @author Vedran Pavic
  */
-class InMemoryAuditEventRepositoryTests {
+public class InMemoryAuditEventRepositoryTests {
 
 	@Test
-	void lessThanCapacity() {
+	public void lessThanCapacity() {
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository();
 		repository.add(new AuditEvent("dave", "a"));
 		repository.add(new AuditEvent("dave", "b"));
@@ -48,7 +48,7 @@ class InMemoryAuditEventRepositoryTests {
 	}
 
 	@Test
-	void capacity() {
+	public void capacity() {
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository(2);
 		repository.add(new AuditEvent("dave", "a"));
 		repository.add(new AuditEvent("dave", "b"));
@@ -60,14 +60,14 @@ class InMemoryAuditEventRepositoryTests {
 	}
 
 	@Test
-	void addNullAuditEvent() {
+	public void addNullAuditEvent() {
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository();
 		assertThatIllegalArgumentException().isThrownBy(() -> repository.add(null))
 				.withMessageContaining("AuditEvent must not be null");
 	}
 
 	@Test
-	void findByPrincipal() {
+	public void findByPrincipal() {
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository();
 		repository.add(new AuditEvent("dave", "a"));
 		repository.add(new AuditEvent("phil", "b"));
@@ -80,7 +80,7 @@ class InMemoryAuditEventRepositoryTests {
 	}
 
 	@Test
-	void findByPrincipalAndType() {
+	public void findByPrincipalAndType() {
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository();
 		repository.add(new AuditEvent("dave", "a"));
 		repository.add(new AuditEvent("phil", "b"));
@@ -93,7 +93,7 @@ class InMemoryAuditEventRepositoryTests {
 	}
 
 	@Test
-	void findByDate() {
+	public void findByDate() {
 		Instant instant = Instant.now();
 		Map<String, Object> data = new HashMap<>();
 		InMemoryAuditEventRepository repository = new InMemoryAuditEventRepository();

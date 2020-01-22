@@ -25,9 +25,9 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
-import nz.net.ultraq.thymeleaf.decorators.strategies.GroupingRespectLayoutTitleStrategy;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import nz.net.ultraq.thymeleaf.decorators.strategies.GroupingStrategy;
+import org.junit.Rule;
+import org.junit.Test;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.WebContext;
@@ -41,9 +41,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
-import org.springframework.boot.testsupport.BuildOutput;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.filter.OrderedCharacterEncodingFilter;
 import org.springframework.context.annotation.Bean;
@@ -60,6 +58,8 @@ import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.support.RequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 /**
  * Tests for {@link ThymeleafAutoConfiguration} in Servlet-based applications.
@@ -71,22 +71,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Kazuki Shimizu
  * @author Artsiom Yudovin
  */
-@ExtendWith(OutputCaptureExtension.class)
-class ThymeleafServletAutoConfigurationTests {
+public class ThymeleafServletAutoConfigurationTests {
 
-	private final BuildOutput buildOutput = new BuildOutput(getClass());
+	@Rule
+	public OutputCapture output = new OutputCapture();
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ThymeleafAutoConfiguration.class));
 
 	@Test
-	void autoConfigurationBackOffWithoutThymeleafSpring() {
+	public void autoConfigurationBackOffWithoutThymeleafSpring() {
 		this.contextRunner.withClassLoader(new FilteredClassLoader("org.thymeleaf.spring5"))
 				.run((context) -> assertThat(context).doesNotHaveBean(TemplateEngine.class));
 	}
 
 	@Test
-	void createFromConfigClass() {
+	public void createFromConfigClass() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.mode:HTML", "spring.thymeleaf.suffix:")
 				.run((context) -> {
 					assertThat(context).hasSingleBean(TemplateEngine.class);
@@ -98,7 +98,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void overrideCharacterEncoding() {
+	public void overrideCharacterEncoding() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.encoding:UTF-16").run((context) -> {
 			ITemplateResolver resolver = context.getBean(ITemplateResolver.class);
 			assertThat(resolver).isInstanceOf(SpringResourceTemplateResolver.class);
@@ -110,7 +110,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void overrideDisableProducePartialOutputWhileProcessing() {
+	public void overrideDisableProducePartialOutputWhileProcessing() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.servlet.produce-partial-output-while-processing:false")
 				.run((context) -> assertThat(
 						context.getBean(ThymeleafViewResolver.class).getProducePartialOutputWhileProcessing())
@@ -118,67 +118,67 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void disableProducePartialOutputWhileProcessingIsEnabledByDefault() {
+	public void disableProducePartialOutputWhileProcessingIsEnabledByDefault() {
 		this.contextRunner.run((context) -> assertThat(
 				context.getBean(ThymeleafViewResolver.class).getProducePartialOutputWhileProcessing()).isTrue());
 	}
 
 	@Test
-	void overrideTemplateResolverOrder() {
+	public void overrideTemplateResolverOrder() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.templateResolverOrder:25")
 				.run((context) -> assertThat(context.getBean(ITemplateResolver.class).getOrder())
 						.isEqualTo(Integer.valueOf(25)));
 	}
 
 	@Test
-	void overrideViewNames() {
+	public void overrideViewNames() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.viewNames:foo,bar")
 				.run((context) -> assertThat(context.getBean(ThymeleafViewResolver.class).getViewNames())
 						.isEqualTo(new String[] { "foo", "bar" }));
 	}
 
 	@Test
-	void overrideEnableSpringElCompiler() {
+	public void overrideEnableSpringElCompiler() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.enable-spring-el-compiler:true")
 				.run((context) -> assertThat(context.getBean(SpringTemplateEngine.class).getEnableSpringELCompiler())
 						.isTrue());
 	}
 
 	@Test
-	void enableSpringElCompilerIsDisabledByDefault() {
+	public void enableSpringElCompilerIsDisabledByDefault() {
 		this.contextRunner
 				.run((context) -> assertThat(context.getBean(SpringTemplateEngine.class).getEnableSpringELCompiler())
 						.isFalse());
 	}
 
 	@Test
-	void overrideRenderHiddenMarkersBeforeCheckboxes() {
+	public void overrideRenderHiddenMarkersBeforeCheckboxes() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.render-hidden-markers-before-checkboxes:true")
 				.run((context) -> assertThat(
 						context.getBean(SpringTemplateEngine.class).getRenderHiddenMarkersBeforeCheckboxes()).isTrue());
 	}
 
 	@Test
-	void enableRenderHiddenMarkersBeforeCheckboxesIsDisabledByDefault() {
+	public void enableRenderHiddenMarkersBeforeCheckboxesIsDisabledByDefault() {
 		this.contextRunner.run((context) -> assertThat(
 				context.getBean(SpringTemplateEngine.class).getRenderHiddenMarkersBeforeCheckboxes()).isFalse());
 	}
 
 	@Test
-	void templateLocationDoesNotExist(CapturedOutput output) {
+	public void templateLocationDoesNotExist() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.prefix:classpath:/no-such-directory/")
-				.run((context) -> assertThat(output).contains("Cannot find template location"));
+				.run((context) -> this.output.expect(containsString("Cannot find template location")));
 	}
 
 	@Test
-	void templateLocationEmpty(CapturedOutput output) {
-		new File(this.buildOutput.getTestResourcesLocation(), "empty-templates/empty-directory").mkdirs();
-		this.contextRunner.withPropertyValues("spring.thymeleaf.prefix:classpath:/empty-templates/empty-directory/")
-				.run((context) -> assertThat(output).doesNotContain("Cannot find template location"));
+	public void templateLocationEmpty() {
+		new File("target/test-classes/templates/empty-directory").mkdir();
+		this.contextRunner.withPropertyValues("spring.thymeleaf.prefix:classpath:/templates/empty-directory/")
+				.run((context) -> this.output.expect(not(containsString("Cannot find template location"))));
 	}
 
 	@Test
-	void createLayoutFromConfigClass() {
+	public void createLayoutFromConfigClass() {
 		this.contextRunner.run((context) -> {
 			ThymeleafView view = (ThymeleafView) context.getBean(ThymeleafViewResolver.class).resolveViewName("view",
 					Locale.UK);
@@ -194,7 +194,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void useDataDialect() {
+	public void useDataDialect() {
 		this.contextRunner.run((context) -> {
 			TemplateEngine engine = context.getBean(TemplateEngine.class);
 			Context attrs = new Context(Locale.UK, Collections.singletonMap("foo", "bar"));
@@ -204,7 +204,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void useJava8TimeDialect() {
+	public void useJava8TimeDialect() {
 		this.contextRunner.run((context) -> {
 			TemplateEngine engine = context.getBean(TemplateEngine.class);
 			Context attrs = new Context(Locale.UK);
@@ -214,7 +214,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void useSecurityDialect() {
+	public void useSecurityDialect() {
 		this.contextRunner.run((context) -> {
 			TemplateEngine engine = context.getBean(TemplateEngine.class);
 			WebContext attrs = new WebContext(new MockHttpServletRequest(), new MockHttpServletResponse(),
@@ -232,7 +232,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void renderTemplate() {
+	public void renderTemplate() {
 		this.contextRunner.run((context) -> {
 			TemplateEngine engine = context.getBean(TemplateEngine.class);
 			Context attrs = new Context(Locale.UK, Collections.singletonMap("foo", "bar"));
@@ -242,7 +242,7 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void renderNonWebAppTemplate() {
+	public void renderNonWebAppTemplate() {
 		new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(ThymeleafAutoConfiguration.class))
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean(ViewResolver.class);
@@ -254,12 +254,12 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void registerResourceHandlingFilterDisabledByDefault() {
+	public void registerResourceHandlingFilterDisabledByDefault() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(FilterRegistrationBean.class));
 	}
 
 	@Test
-	void registerResourceHandlingFilterOnlyIfResourceChainIsEnabled() {
+	public void registerResourceHandlingFilterOnlyIfResourceChainIsEnabled() {
 		this.contextRunner.withPropertyValues("spring.resources.chain.enabled:true").run((context) -> {
 			FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
 			assertThat(registration.getFilter()).isInstanceOf(ResourceUrlEncodingFilter.class);
@@ -270,7 +270,7 @@ class ThymeleafServletAutoConfigurationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void registerResourceHandlingFilterWithOtherRegistrationBean() {
+	public void registerResourceHandlingFilterWithOtherRegistrationBean() {
 		// gh-14897
 		this.contextRunner.withUserConfiguration(FilterRegistrationOtherConfiguration.class)
 				.withPropertyValues("spring.resources.chain.enabled:true").run((context) -> {
@@ -285,7 +285,7 @@ class ThymeleafServletAutoConfigurationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void registerResourceHandlingFilterWithResourceRegistrationBean() {
+	public void registerResourceHandlingFilterWithResourceRegistrationBean() {
 		// gh-14926
 		this.contextRunner.withUserConfiguration(FilterRegistrationResourceConfiguration.class)
 				.withPropertyValues("spring.resources.chain.enabled:true").run((context) -> {
@@ -299,15 +299,15 @@ class ThymeleafServletAutoConfigurationTests {
 	}
 
 	@Test
-	void layoutDialectCanBeCustomized() {
+	public void layoutDialectCanBeCustomized() {
 		this.contextRunner.withUserConfiguration(LayoutDialectConfiguration.class)
 				.run((context) -> assertThat(
 						ReflectionTestUtils.getField(context.getBean(LayoutDialect.class), "sortingStrategy"))
-								.isInstanceOf(GroupingRespectLayoutTitleStrategy.class));
+								.isInstanceOf(GroupingStrategy.class));
 	}
 
 	@Test
-	void cachingCanBeDisabled() {
+	public void cachingCanBeDisabled() {
 		this.contextRunner.withPropertyValues("spring.thymeleaf.cache:false").run((context) -> {
 			assertThat(context.getBean(ThymeleafViewResolver.class).isCache()).isFalse();
 			SpringResourceTemplateResolver templateResolver = context.getBean(SpringResourceTemplateResolver.class);
@@ -315,21 +315,21 @@ class ThymeleafServletAutoConfigurationTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class LayoutDialectConfiguration {
 
 		@Bean
-		LayoutDialect layoutDialect() {
-			return new LayoutDialect(new GroupingRespectLayoutTitleStrategy());
+		public LayoutDialect layoutDialect() {
+			return new LayoutDialect(new GroupingStrategy());
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class FilterRegistrationResourceConfiguration {
 
 		@Bean
-		FilterRegistrationBean<ResourceUrlEncodingFilter> filterRegistration() {
+		public FilterRegistrationBean<ResourceUrlEncodingFilter> filterRegistration() {
 			FilterRegistrationBean<ResourceUrlEncodingFilter> bean = new FilterRegistrationBean<>(
 					new ResourceUrlEncodingFilter());
 			bean.setDispatcherTypes(EnumSet.of(DispatcherType.INCLUDE));
@@ -338,11 +338,11 @@ class ThymeleafServletAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class FilterRegistrationOtherConfiguration {
 
 		@Bean
-		FilterRegistrationBean<OrderedCharacterEncodingFilter> filterRegistration() {
+		public FilterRegistrationBean<OrderedCharacterEncodingFilter> filterRegistration() {
 			return new FilterRegistrationBean<>(new OrderedCharacterEncodingFilter());
 		}
 

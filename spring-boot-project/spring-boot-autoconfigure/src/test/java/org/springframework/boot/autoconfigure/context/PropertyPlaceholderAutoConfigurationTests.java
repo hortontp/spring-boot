@@ -16,8 +16,8 @@
 
 package org.springframework.boot.autoconfigure.context;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -34,19 +34,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-class PropertyPlaceholderAutoConfigurationTests {
+public class PropertyPlaceholderAutoConfigurationTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void propertyPlaceholders() {
+	public void propertyPlaceholders() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, PlaceholderConfig.class);
 		TestPropertyValues.of("foo:two").applyTo(this.context);
 		this.context.refresh();
@@ -54,7 +54,7 @@ class PropertyPlaceholderAutoConfigurationTests {
 	}
 
 	@Test
-	void propertyPlaceholdersOverride() {
+	public void propertyPlaceholdersOverride() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, PlaceholderConfig.class,
 				PlaceholdersOverride.class);
 		TestPropertyValues.of("foo:two").applyTo(this.context);
@@ -62,23 +62,23 @@ class PropertyPlaceholderAutoConfigurationTests {
 		assertThat(this.context.getBean(PlaceholderConfig.class).getFoo()).isEqualTo("spam");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class PlaceholderConfig {
 
 		@Value("${foo:bar}")
 		private String foo;
 
-		String getFoo() {
+		public String getFoo() {
 			return this.foo;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class PlaceholdersOverride {
 
 		@Bean
-		static PropertySourcesPlaceholderConfigurer morePlaceholders() {
+		public static PropertySourcesPlaceholderConfigurer morePlaceholders() {
 			PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 			configurer.setProperties(StringUtils.splitArrayElementsIntoProperties(new String[] { "foo=spam" }, "="));
 			configurer.setLocalOverride(true);

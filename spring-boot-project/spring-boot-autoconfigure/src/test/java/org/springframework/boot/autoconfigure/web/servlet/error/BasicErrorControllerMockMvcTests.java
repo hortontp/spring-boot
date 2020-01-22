@@ -28,8 +28,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -46,6 +47,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -63,34 +65,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link BasicErrorController} using {@link MockMvc} and
- * {@link SpringBootTest @SpringBootTest}.
+ * Tests for {@link BasicErrorController} using {@link MockMvc} and {@link SpringRunner}.
  *
  * @author Dave Syer
  */
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-class BasicErrorControllerMockMvcTests {
+public class BasicErrorControllerMockMvcTests {
 
 	@Autowired
 	private WebApplicationContext wac;
 
 	private MockMvc mockMvc;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 	}
 
 	@Test
-	void testDirectAccessForMachineClient() throws Exception {
+	public void testDirectAccessForMachineClient() throws Exception {
 		MvcResult response = this.mockMvc.perform(get("/error")).andExpect(status().is5xxServerError()).andReturn();
 		String content = response.getResponse().getContentAsString();
 		assertThat(content).contains("999");
 	}
 
 	@Test
-	void testErrorWithNotFoundResponseStatus() throws Exception {
+	public void testErrorWithNotFoundResponseStatus() throws Exception {
 		MvcResult result = this.mockMvc.perform(get("/bang")).andExpect(status().isNotFound()).andReturn();
 		MvcResult response = this.mockMvc.perform(new ErrorDispatcher(result, "/error")).andReturn();
 		String content = response.getResponse().getContentAsString();
@@ -98,7 +100,7 @@ class BasicErrorControllerMockMvcTests {
 	}
 
 	@Test
-	void testErrorWithNoContentResponseStatus() throws Exception {
+	public void testErrorWithNoContentResponseStatus() throws Exception {
 		MvcResult result = this.mockMvc.perform(get("/noContent").accept("some/thing"))
 				.andExpect(status().isNoContent()).andReturn();
 		MvcResult response = this.mockMvc.perform(new ErrorDispatcher(result, "/error"))
@@ -108,7 +110,7 @@ class BasicErrorControllerMockMvcTests {
 	}
 
 	@Test
-	void testBindingExceptionForMachineClient() throws Exception {
+	public void testBindingExceptionForMachineClient() throws Exception {
 		// In a real server the response is carried over into the error dispatcher, but
 		// in the mock a new one is created so we have to assert the status at this
 		// intermediate point
@@ -121,7 +123,7 @@ class BasicErrorControllerMockMvcTests {
 	}
 
 	@Test
-	void testDirectAccessForBrowserClient() throws Exception {
+	public void testDirectAccessForBrowserClient() throws Exception {
 		MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
 				.andExpect(status().is5xxServerError()).andReturn();
 		String content = response.getResponse().getContentAsString();
@@ -138,17 +140,17 @@ class BasicErrorControllerMockMvcTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@MinimalWebConfiguration
-	static class TestConfiguration {
+	public static class TestConfiguration {
 
 		// For manual testing
-		static void main(String[] args) {
+		public static void main(String[] args) {
 			SpringApplication.run(TestConfiguration.class, args);
 		}
 
 		@Bean
-		View error() {
+		public View error() {
 			return new AbstractView() {
 				@Override
 				protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
@@ -159,32 +161,32 @@ class BasicErrorControllerMockMvcTests {
 		}
 
 		@RestController
-		public static class Errors {
+		protected static class Errors {
+
+			public String getFoo() {
+				return "foo";
+			}
 
 			@RequestMapping("/")
-			String home() {
+			public String home() {
 				throw new IllegalStateException("Expected!");
 			}
 
 			@RequestMapping("/bang")
-			String bang() {
+			public String bang() {
 				throw new NotFoundException("Expected!");
 			}
 
 			@RequestMapping("/bind")
-			String bind() throws Exception {
+			public String bind() throws Exception {
 				BindException error = new BindException(this, "test");
 				error.rejectValue("foo", "bar.error");
 				throw error;
 			}
 
 			@RequestMapping("/noContent")
-			void noContent() throws Exception {
+			public void noContent() throws Exception {
 				throw new NoContentException("Expected!");
-			}
-
-			public String getFoo() {
-				return "foo";
 			}
 
 		}
@@ -192,7 +194,7 @@ class BasicErrorControllerMockMvcTests {
 	}
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	static class NotFoundException extends RuntimeException {
+	private static class NotFoundException extends RuntimeException {
 
 		NotFoundException(String string) {
 			super(string);

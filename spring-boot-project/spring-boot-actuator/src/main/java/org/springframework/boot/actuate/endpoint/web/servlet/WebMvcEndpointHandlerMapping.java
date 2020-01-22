@@ -52,12 +52,11 @@ public class WebMvcEndpointHandlerMapping extends AbstractWebMvcEndpointHandlerM
 	 * @param endpointMediaTypes media types consumed and produced by the endpoints
 	 * @param corsConfiguration the CORS configuration for the endpoints or {@code null}
 	 * @param linksResolver resolver for determining links to available endpoints
-	 * @param shouldRegisterLinksMapping whether the links endpoint should be registered
 	 */
 	public WebMvcEndpointHandlerMapping(EndpointMapping endpointMapping, Collection<ExposableWebEndpoint> endpoints,
 			EndpointMediaTypes endpointMediaTypes, CorsConfiguration corsConfiguration,
-			EndpointLinksResolver linksResolver, boolean shouldRegisterLinksMapping) {
-		super(endpointMapping, endpoints, endpointMediaTypes, corsConfiguration, shouldRegisterLinksMapping);
+			EndpointLinksResolver linksResolver) {
+		super(endpointMapping, endpoints, endpointMediaTypes, corsConfiguration);
 		this.linksResolver = linksResolver;
 		setOrder(-100);
 	}

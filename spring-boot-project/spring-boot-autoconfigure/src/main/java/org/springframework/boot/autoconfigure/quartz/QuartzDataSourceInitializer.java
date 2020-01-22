@@ -43,7 +43,7 @@ public class QuartzDataSourceInitializer extends AbstractDataSourceInitializer {
 
 	@Override
 	protected void customize(ResourceDatabasePopulator populator) {
-		populator.setCommentPrefixes(this.properties.getJdbc().getCommentPrefix().toArray(new String[0]));
+		populator.setCommentPrefix(this.properties.getJdbc().getCommentPrefix());
 	}
 
 	@Override

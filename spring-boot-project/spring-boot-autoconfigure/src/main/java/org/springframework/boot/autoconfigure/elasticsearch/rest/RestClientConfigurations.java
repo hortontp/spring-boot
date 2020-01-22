@@ -16,8 +16,6 @@
 
 package org.springframework.boot.autoconfigure.elasticsearch.rest;
 
-import java.time.Duration;
-
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -43,12 +41,12 @@ import org.springframework.context.annotation.Configuration;
  */
 class RestClientConfigurations {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class RestClientBuilderConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		RestClientBuilder elasticsearchRestClientBuilder(RestClientProperties properties,
+		public RestClientBuilder elasticsearchRestClientBuilder(RestClientProperties properties,
 				ObjectProvider<RestClientBuilderCustomizer> builderCustomizers) {
 			HttpHost[] hosts = properties.getUris().stream().map(HttpHost::create).toArray(HttpHost[]::new);
 			RestClientBuilder builder = RestClient.builder(hosts);
@@ -61,32 +59,25 @@ class RestClientConfigurations {
 				builder.setHttpClientConfigCallback(
 						(httpClientBuilder) -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 			});
-			builder.setRequestConfigCallback((requestConfigBuilder) -> {
-				map.from(properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
-						.to(requestConfigBuilder::setConnectTimeout);
-				map.from(properties::getReadTimeout).whenNonNull().asInt(Duration::toMillis)
-						.to(requestConfigBuilder::setSocketTimeout);
-				return requestConfigBuilder;
-			});
 			builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
 			return builder;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(RestHighLevelClient.class)
 	static class RestHighLevelClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		RestHighLevelClient elasticsearchRestHighLevelClient(RestClientBuilder restClientBuilder) {
+		public RestHighLevelClient elasticsearchRestHighLevelClient(RestClientBuilder restClientBuilder) {
 			return new RestHighLevelClient(restClientBuilder);
 		}
 
 		@Bean
 		@ConditionalOnMissingBean
-		RestClient elasticsearchRestClient(RestClientBuilder builder,
+		public RestClient elasticsearchRestClient(RestClientBuilder builder,
 				ObjectProvider<RestHighLevelClient> restHighLevelClient) {
 			RestHighLevelClient client = restHighLevelClient.getIfUnique();
 			if (client != null) {
@@ -97,12 +88,12 @@ class RestClientConfigurations {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class RestClientFallbackConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		RestClient elasticsearchRestClient(RestClientBuilder builder) {
+		public RestClient elasticsearchRestClient(RestClientBuilder builder) {
 			return builder.build();
 		}
 

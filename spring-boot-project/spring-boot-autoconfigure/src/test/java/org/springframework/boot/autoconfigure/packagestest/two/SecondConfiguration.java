@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Import;
  *
  * @author Oliver Gierke
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @Import(TestRegistrar.class)
 public class SecondConfiguration {
 

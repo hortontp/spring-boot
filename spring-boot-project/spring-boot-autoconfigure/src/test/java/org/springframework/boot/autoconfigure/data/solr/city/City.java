@@ -23,7 +23,7 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 /**
  * @author Christoph Strobl
  */
-@SolrDocument(collection = "collection1")
+@SolrDocument(solrCoreName = "collection1")
 public class City {
 
 	@Id

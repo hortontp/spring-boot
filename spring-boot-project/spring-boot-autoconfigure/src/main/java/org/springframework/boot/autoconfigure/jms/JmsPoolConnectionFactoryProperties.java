@@ -110,6 +110,16 @@ public class JmsPoolConnectionFactoryProperties {
 		this.maxConnections = maxConnections;
 	}
 
+	@Deprecated
+	public int getMaximumActiveSessionPerConnection() {
+		return getMaxSessionsPerConnection();
+	}
+
+	@Deprecated
+	public void setMaximumActiveSessionPerConnection(int maximumActiveSessionPerConnection) {
+		setMaxSessionsPerConnection(maximumActiveSessionPerConnection);
+	}
+
 	public int getMaxSessionsPerConnection() {
 		return this.maxSessionsPerConnection;
 	}

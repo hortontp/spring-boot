@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.springframework.boot.actuate.cassandra;
 
-import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import org.junit.jupiter.api.Test;
+import com.datastax.driver.core.querybuilder.Select;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,13 +37,12 @@ import static org.mockito.Mockito.mock;
  *
  * @author Artsiom Yudovin
  */
-class CassandraReactiveHealthIndicatorTests {
+public class CassandraReactiveHealthIndicatorTests {
 
 	@Test
-	void testCassandraIsUp() {
+	public void testCassandraIsUp() {
 		ReactiveCqlOperations reactiveCqlOperations = mock(ReactiveCqlOperations.class);
-		given(reactiveCqlOperations.queryForObject(any(SimpleStatement.class), eq(String.class)))
-				.willReturn(Mono.just("6.0.0"));
+		given(reactiveCqlOperations.queryForObject(any(Select.class), eq(String.class))).willReturn(Mono.just("6.0.0"));
 		ReactiveCassandraOperations reactiveCassandraOperations = mock(ReactiveCassandraOperations.class);
 		given(reactiveCassandraOperations.getReactiveCqlOperations()).willReturn(reactiveCqlOperations);
 
@@ -58,7 +57,7 @@ class CassandraReactiveHealthIndicatorTests {
 	}
 
 	@Test
-	void testCassandraIsDown() {
+	public void testCassandraIsDown() {
 		ReactiveCassandraOperations reactiveCassandraOperations = mock(ReactiveCassandraOperations.class);
 		given(reactiveCassandraOperations.getReactiveCqlOperations())
 				.willThrow(new CassandraInternalException("Connection failed"));

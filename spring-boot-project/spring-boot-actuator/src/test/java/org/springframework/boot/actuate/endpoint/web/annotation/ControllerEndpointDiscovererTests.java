@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
@@ -47,18 +47,18 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ControllerEndpointDiscovererTests {
+public class ControllerEndpointDiscovererTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
+	public void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
 		this.contextRunner.withUserConfiguration(EmptyConfiguration.class)
 				.run(assertDiscoverer((discoverer) -> assertThat(discoverer.getEndpoints()).isEmpty()));
 	}
 
 	@Test
-	void getEndpointsShouldIncludeControllerEndpoints() {
+	public void getEndpointsShouldIncludeControllerEndpoints() {
 		this.contextRunner.withUserConfiguration(TestControllerEndpoint.class).run(assertDiscoverer((discoverer) -> {
 			Collection<ExposableControllerEndpoint> endpoints = discoverer.getEndpoints();
 			assertThat(endpoints).hasSize(1);
@@ -70,7 +70,7 @@ class ControllerEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldDiscoverProxyControllerEndpoints() {
+	public void getEndpointsShouldDiscoverProxyControllerEndpoints() {
 		this.contextRunner.withUserConfiguration(TestProxyControllerEndpoint.class)
 				.withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class))
 				.run(assertDiscoverer((discoverer) -> {
@@ -84,7 +84,7 @@ class ControllerEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldIncludeRestControllerEndpoints() {
+	public void getEndpointsShouldIncludeRestControllerEndpoints() {
 		this.contextRunner.withUserConfiguration(TestRestControllerEndpoint.class)
 				.run(assertDiscoverer((discoverer) -> {
 					Collection<ExposableControllerEndpoint> endpoints = discoverer.getEndpoints();
@@ -96,7 +96,7 @@ class ControllerEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldDiscoverProxyRestControllerEndpoints() {
+	public void getEndpointsShouldDiscoverProxyRestControllerEndpoints() {
 		this.contextRunner.withUserConfiguration(TestProxyRestControllerEndpoint.class)
 				.withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class))
 				.run(assertDiscoverer((discoverer) -> {
@@ -110,7 +110,7 @@ class ControllerEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsShouldNotDiscoverRegularEndpoints() {
+	public void getEndpointsShouldNotDiscoverRegularEndpoints() {
 		this.contextRunner.withUserConfiguration(WithRegularEndpointConfiguration.class)
 				.run(assertDiscoverer((discoverer) -> {
 					Collection<ExposableControllerEndpoint> endpoints = discoverer.getEndpoints();
@@ -121,7 +121,7 @@ class ControllerEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointWhenEndpointHasOperationsShouldThrowException() {
+	public void getEndpointWhenEndpointHasOperationsShouldThrowException() {
 		this.contextRunner.withUserConfiguration(TestControllerWithOperation.class).run(
 				assertDiscoverer((discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("ControllerEndpoints must not declare operations")));
@@ -136,12 +136,12 @@ class ControllerEndpointDiscovererTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class EmptyConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import({ TestEndpoint.class, TestControllerEndpoint.class, TestRestControllerEndpoint.class })
 	static class WithRegularEndpointConfiguration {
 
@@ -178,7 +178,7 @@ class ControllerEndpointDiscovererTests {
 	static class TestControllerWithOperation {
 
 		@ReadOperation
-		String read() {
+		public String read() {
 			return "error";
 		}
 

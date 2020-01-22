@@ -50,7 +50,7 @@ class ReactiveTokenValidator {
 		this.securityService = securityService;
 	}
 
-	Mono<Void> validate(Token token) {
+	public Mono<Void> validate(Token token) {
 		return validateAlgorithm(token).then(validateKeyIdAndSignature(token)).then(validateExpiry(token))
 				.then(validateIssuer(token)).then(validateAudience(token));
 	}

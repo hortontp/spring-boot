@@ -16,8 +16,8 @@
 
 package org.springframework.boot.autoconfigure.context;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -33,25 +33,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class ConfigurationPropertiesAutoConfigurationTests {
+public class ConfigurationPropertiesAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void tearDown() {
+	@After
+	public void tearDown() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void processAnnotatedBean() {
+	public void processAnnotatedBean() {
 		load(new Class[] { AutoConfig.class, SampleBean.class }, "foo.name:test");
 		assertThat(this.context.getBean(SampleBean.class).getName()).isEqualTo("test");
 	}
 
 	@Test
-	void processAnnotatedBeanNoAutoConfig() {
+	public void processAnnotatedBeanNoAutoConfig() {
 		load(new Class[] { SampleBean.class }, "foo.name:test");
 		assertThat(this.context.getBean(SampleBean.class).getName()).isEqualTo("default");
 	}
@@ -63,7 +63,7 @@ class ConfigurationPropertiesAutoConfigurationTests {
 		this.context.refresh();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportAutoConfiguration(ConfigurationPropertiesAutoConfiguration.class)
 	static class AutoConfig {
 
@@ -75,11 +75,11 @@ class ConfigurationPropertiesAutoConfigurationTests {
 
 		private String name = "default";
 
-		String getName() {
+		public String getName() {
 			return this.name;
 		}
 
-		void setName(String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 

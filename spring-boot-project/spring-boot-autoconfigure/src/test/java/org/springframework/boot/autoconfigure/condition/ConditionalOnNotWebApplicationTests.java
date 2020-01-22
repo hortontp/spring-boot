@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.autoconfigure.web.reactive.MockReactiveWebServerFactory;
@@ -32,53 +32,53 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
- * Tests for {@link ConditionalOnNotWebApplication @ConditionalOnNotWebApplication}.
+ * Tests for {@link ConditionalOnNotWebApplication}.
  *
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class ConditionalOnNotWebApplicationTests {
+public class ConditionalOnNotWebApplicationTests {
 
 	@Test
-	void testNotWebApplicationWithServletContext() {
+	public void testNotWebApplicationWithServletContext() {
 		new WebApplicationContextRunner().withUserConfiguration(NotWebApplicationConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void testNotWebApplicationWithReactiveContext() {
+	public void testNotWebApplicationWithReactiveContext() {
 		new ReactiveWebApplicationContextRunner()
 				.withUserConfiguration(ReactiveApplicationConfig.class, NotWebApplicationConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void testNotWebApplication() {
+	public void testNotWebApplication() {
 		new ApplicationContextRunner().withUserConfiguration(NotWebApplicationConfiguration.class)
 				.run((context) -> assertThat(context).getBeans(String.class).containsExactly(entry("none", "none")));
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class ReactiveApplicationConfig {
+	@Configuration
+	protected static class ReactiveApplicationConfig {
 
 		@Bean
-		ReactiveWebServerFactory reactiveWebServerFactory() {
+		public ReactiveWebServerFactory reactiveWebServerFactory() {
 			return new MockReactiveWebServerFactory();
 		}
 
 		@Bean
-		HttpHandler httpHandler() {
+		public HttpHandler httpHandler() {
 			return (request, response) -> Mono.empty();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnNotWebApplication
-	static class NotWebApplicationConfiguration {
+	protected static class NotWebApplicationConfiguration {
 
 		@Bean
-		String none() {
+		public String none() {
 			return "none";
 		}
 

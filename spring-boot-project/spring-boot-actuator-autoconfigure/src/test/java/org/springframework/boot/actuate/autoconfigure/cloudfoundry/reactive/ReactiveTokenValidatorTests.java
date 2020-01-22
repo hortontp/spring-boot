@@ -29,8 +29,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
@@ -52,7 +52,7 @@ import static org.mockito.BDDMockito.given;
  *
  * @author Madhura Bhave
  */
-class ReactiveTokenValidatorTests {
+public class ReactiveTokenValidatorTests {
 
 	private static final byte[] DOT = ".".getBytes();
 
@@ -83,8 +83,8 @@ class ReactiveTokenValidatorTests {
 
 	private static final Map<String, String> VALID_KEYS = new ConcurrentHashMap<>();
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		VALID_KEYS.put("valid-key", VALID_KEY);
 		INVALID_KEYS.put("invalid-key", INVALID_KEY);
@@ -92,7 +92,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenKidValidationFailsTwiceShouldThrowException() throws Exception {
+	public void validateTokenWhenKidValidationFailsTwiceShouldThrowException() throws Exception {
 		PublisherProbe<Map<String, String>> fetchTokenKeys = PublisherProbe.of(Mono.just(VALID_KEYS));
 		ReflectionTestUtils.setField(this.tokenValidator, "cachedTokenKeys", VALID_KEYS);
 		given(this.securityService.fetchTokenKeys()).willReturn(fetchTokenKeys.mono());
@@ -110,7 +110,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenKidValidationSucceedsInTheSecondAttempt() throws Exception {
+	public void validateTokenWhenKidValidationSucceedsInTheSecondAttempt() throws Exception {
 		PublisherProbe<Map<String, String>> fetchTokenKeys = PublisherProbe.of(Mono.just(VALID_KEYS));
 		ReflectionTestUtils.setField(this.tokenValidator, "cachedTokenKeys", INVALID_KEYS);
 		given(this.securityService.fetchTokenKeys()).willReturn(fetchTokenKeys.mono());
@@ -125,7 +125,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenCacheIsEmptyShouldFetchTokenKeys() throws Exception {
+	public void validateTokenWhenCacheIsEmptyShouldFetchTokenKeys() throws Exception {
 		PublisherProbe<Map<String, String>> fetchTokenKeys = PublisherProbe.of(Mono.just(VALID_KEYS));
 		given(this.securityService.fetchTokenKeys()).willReturn(fetchTokenKeys.mono());
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
@@ -139,7 +139,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenCacheEmptyAndInvalidKeyShouldThrowException() throws Exception {
+	public void validateTokenWhenCacheEmptyAndInvalidKeyShouldThrowException() throws Exception {
 		PublisherProbe<Map<String, String>> fetchTokenKeys = PublisherProbe.of(Mono.just(VALID_KEYS));
 		given(this.securityService.fetchTokenKeys()).willReturn(fetchTokenKeys.mono());
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
@@ -156,7 +156,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenCacheValidShouldNotFetchTokenKeys() throws Exception {
+	public void validateTokenWhenCacheValidShouldNotFetchTokenKeys() throws Exception {
 		PublisherProbe<Map<String, String>> fetchTokenKeys = PublisherProbe.empty();
 		ReflectionTestUtils.setField(this.tokenValidator, "cachedTokenKeys", VALID_KEYS);
 		given(this.securityService.fetchTokenKeys()).willReturn(fetchTokenKeys.mono());
@@ -170,7 +170,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenSignatureInvalidShouldThrowException() throws Exception {
+	public void validateTokenWhenSignatureInvalidShouldThrowException() throws Exception {
 		Map<String, String> KEYS = Collections.singletonMap("valid-key", INVALID_KEY);
 		given(this.securityService.fetchTokenKeys()).willReturn(Mono.just(KEYS));
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
@@ -186,7 +186,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenTokenAlgorithmIsNotRS256ShouldThrowException() throws Exception {
+	public void validateTokenWhenTokenAlgorithmIsNotRS256ShouldThrowException() throws Exception {
 		given(this.securityService.fetchTokenKeys()).willReturn(Mono.just(VALID_KEYS));
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
 		String header = "{ \"alg\": \"HS256\",  \"kid\": \"valid-key\", \"typ\": \"JWT\"}";
@@ -201,7 +201,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenExpiredShouldThrowException() throws Exception {
+	public void validateTokenWhenExpiredShouldThrowException() throws Exception {
 		given(this.securityService.fetchTokenKeys()).willReturn(Mono.just(VALID_KEYS));
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
 		String header = "{ \"alg\": \"RS256\",  \"kid\": \"valid-key\", \"typ\": \"JWT\"}";
@@ -215,7 +215,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenIssuerIsNotValidShouldThrowException() throws Exception {
+	public void validateTokenWhenIssuerIsNotValidShouldThrowException() throws Exception {
 		given(this.securityService.fetchTokenKeys()).willReturn(Mono.just(VALID_KEYS));
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("https://other-uaa.com"));
 		String header = "{ \"alg\": \"RS256\",  \"kid\": \"valid-key\", \"typ\": \"JWT\", \"scope\": [\"actuator.read\"]}";
@@ -229,7 +229,7 @@ class ReactiveTokenValidatorTests {
 	}
 
 	@Test
-	void validateTokenWhenAudienceIsNotValidShouldThrowException() throws Exception {
+	public void validateTokenWhenAudienceIsNotValidShouldThrowException() throws Exception {
 		given(this.securityService.fetchTokenKeys()).willReturn(Mono.just(VALID_KEYS));
 		given(this.securityService.getUaaUrl()).willReturn(Mono.just("http://localhost:8080/uaa"));
 		String header = "{ \"alg\": \"RS256\",  \"kid\": \"valid-key\", \"typ\": \"JWT\"}";

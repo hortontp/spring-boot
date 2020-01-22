@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics;
 
 import io.micrometer.core.instrument.binder.kafka.KafkaConsumerMetrics;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.test.MetricsRun;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -33,36 +33,35 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class KafkaMetricsAutoConfigurationTests {
+public class KafkaMetricsAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner().with(MetricsRun.simple())
-			.withPropertyValues("spring.jmx.enabled=true")
 			.withConfiguration(AutoConfigurations.of(KafkaMetricsAutoConfiguration.class));
 
 	@Test
-	void whenThereIsNoMBeanServerAutoConfigurationBacksOff() {
+	public void whenThereIsNoMBeanServerAutoConfigurationBacksOff() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(KafkaConsumerMetrics.class));
 	}
 
 	@Test
-	void whenThereIsAnMBeanServerKafkaConsumerMetricsIsConfigured() {
+	public void whenThereIsAnMBeanServerKafkaConsumerMetricsIsConfigured() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(JmxAutoConfiguration.class))
 				.run((context) -> assertThat(context).hasSingleBean(KafkaConsumerMetrics.class));
 	}
 
 	@Test
-	void allowsCustomKafkaConsumerMetricsToBeUsed() {
+	public void allowsCustomKafkaConsumerMetricsToBeUsed() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(JmxAutoConfiguration.class))
 				.withUserConfiguration(CustomKafkaConsumerMetricsConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(KafkaConsumerMetrics.class)
 						.hasBean("customKafkaConsumerMetrics"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomKafkaConsumerMetricsConfiguration {
 
 		@Bean
-		KafkaConsumerMetrics customKafkaConsumerMetrics() {
+		public KafkaConsumerMetrics customKafkaConsumerMetrics() {
 			return new KafkaConsumerMetrics();
 		}
 

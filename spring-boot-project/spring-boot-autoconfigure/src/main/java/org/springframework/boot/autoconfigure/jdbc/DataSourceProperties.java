@@ -518,11 +518,11 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
 			this.connection = connection;
 		}
 
-		DataSourceProperties getProperties() {
+		public DataSourceProperties getProperties() {
 			return this.properties;
 		}
 
-		EmbeddedDatabaseConnection getConnection() {
+		public EmbeddedDatabaseConnection getConnection() {
 			return this.connection;
 		}
 

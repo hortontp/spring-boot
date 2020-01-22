@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.endpoint.web.documentation;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.context.ShutdownEndpoint;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -36,21 +36,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-class ShutdownEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class ShutdownEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	@Test
-	void shutdown() throws Exception {
+	public void shutdown() throws Exception {
 		this.mockMvc.perform(post("/actuator/shutdown")).andExpect(status().isOk())
 				.andDo(MockMvcRestDocumentation.document("shutdown", responseFields(
 						fieldWithPath("message").description("Message describing the result of the request."))));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		ShutdownEndpoint endpoint(Environment environment) {
+		public ShutdownEndpoint endpoint(Environment environment) {
 			ShutdownEndpoint endpoint = new ShutdownEndpoint();
 			endpoint.setApplicationContext(new AnnotationConfigApplicationContext());
 			return endpoint;

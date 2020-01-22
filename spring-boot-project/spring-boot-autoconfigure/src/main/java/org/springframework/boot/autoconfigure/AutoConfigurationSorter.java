@@ -33,9 +33,8 @@ import org.springframework.util.Assert;
 
 /**
  * Sort {@link EnableAutoConfiguration auto-configuration} classes into priority order by
- * reading {@link AutoConfigureOrder @AutoConfigureOrder},
- * {@link AutoConfigureBefore @AutoConfigureBefore} and
- * {@link AutoConfigureAfter @AutoConfigureAfter} annotations (without loading classes).
+ * reading {@link AutoConfigureOrder}, {@link AutoConfigureBefore} and
+ * {@link AutoConfigureAfter} annotations (without loading classes).
  *
  * @author Phillip Webb
  */
@@ -52,7 +51,7 @@ class AutoConfigurationSorter {
 		this.autoConfigurationMetadata = autoConfigurationMetadata;
 	}
 
-	List<String> getInPriorityOrder(Collection<String> classNames) {
+	public List<String> getInPriorityOrder(Collection<String> classNames) {
 		AutoConfigurationClasses classes = new AutoConfigurationClasses(this.metadataReaderFactory,
 				this.autoConfigurationMetadata, classNames);
 		List<String> orderedClassNames = new ArrayList<>(classNames);
@@ -107,7 +106,7 @@ class AutoConfigurationSorter {
 			addToClasses(metadataReaderFactory, autoConfigurationMetadata, classNames, true);
 		}
 
-		Set<String> getAllNames() {
+		public Set<String> getAllNames() {
 			return this.classes.keySet();
 		}
 
@@ -131,12 +130,13 @@ class AutoConfigurationSorter {
 			}
 		}
 
-		AutoConfigurationClass get(String className) {
+		public AutoConfigurationClass get(String className) {
 			return this.classes.get(className);
 		}
 
-		Set<String> getClassesRequestedAfter(String className) {
-			Set<String> classesRequestedAfter = new LinkedHashSet<>(get(className).getAfter());
+		public Set<String> getClassesRequestedAfter(String className) {
+			Set<String> classesRequestedAfter = new LinkedHashSet<>();
+			classesRequestedAfter.addAll(get(className).getAfter());
 			this.classes.forEach((name, autoConfigurationClass) -> {
 				if (autoConfigurationClass.getBefore().contains(className)) {
 					classesRequestedAfter.add(name);
@@ -168,7 +168,7 @@ class AutoConfigurationSorter {
 			this.autoConfigurationMetadata = autoConfigurationMetadata;
 		}
 
-		boolean isAvailable() {
+		public boolean isAvailable() {
 			try {
 				if (!wasProcessed()) {
 					getAnnotationMetadata();
@@ -180,7 +180,7 @@ class AutoConfigurationSorter {
 			}
 		}
 
-		Set<String> getBefore() {
+		public Set<String> getBefore() {
 			if (this.before == null) {
 				this.before = (wasProcessed() ? this.autoConfigurationMetadata.getSet(this.className,
 						"AutoConfigureBefore", Collections.emptySet()) : getAnnotationValue(AutoConfigureBefore.class));
@@ -188,7 +188,7 @@ class AutoConfigurationSorter {
 			return this.before;
 		}
 
-		Set<String> getAfter() {
+		public Set<String> getAfter() {
 			if (this.after == null) {
 				this.after = (wasProcessed() ? this.autoConfigurationMetadata.getSet(this.className,
 						"AutoConfigureAfter", Collections.emptySet()) : getAnnotationValue(AutoConfigureAfter.class));

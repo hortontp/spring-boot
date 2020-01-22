@@ -17,17 +17,17 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.simple;
 
 import io.micrometer.core.instrument.simple.SimpleConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Stephane Nicoll
  */
-class SimplePropertiesTests {
+public class SimplePropertiesTests {
 
 	@Test
-	void defaultValuesAreConsistent() {
+	public void defaultValuesAreConsistent() {
 		SimpleProperties properties = new SimpleProperties();
 		SimpleConfig config = SimpleConfig.DEFAULT;
 		assertThat(properties.getStep()).isEqualTo(config.step());

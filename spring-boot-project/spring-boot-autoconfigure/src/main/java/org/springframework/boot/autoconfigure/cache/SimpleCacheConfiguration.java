@@ -30,20 +30,28 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnMissingBean(CacheManager.class)
 @Conditional(CacheCondition.class)
 class SimpleCacheConfiguration {
 
+	private final CacheProperties cacheProperties;
+
+	private final CacheManagerCustomizers customizerInvoker;
+
+	SimpleCacheConfiguration(CacheProperties cacheProperties, CacheManagerCustomizers customizerInvoker) {
+		this.cacheProperties = cacheProperties;
+		this.customizerInvoker = customizerInvoker;
+	}
+
 	@Bean
-	ConcurrentMapCacheManager cacheManager(CacheProperties cacheProperties,
-			CacheManagerCustomizers cacheManagerCustomizers) {
+	public ConcurrentMapCacheManager cacheManager() {
 		ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-		List<String> cacheNames = cacheProperties.getCacheNames();
+		List<String> cacheNames = this.cacheProperties.getCacheNames();
 		if (!cacheNames.isEmpty()) {
 			cacheManager.setCacheNames(cacheNames);
 		}
-		return cacheManagerCustomizers.customize(cacheManager);
+		return this.customizerInvoker.customize(cacheManager);
 	}
 
 }

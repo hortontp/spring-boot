@@ -19,7 +19,7 @@ import java.util.Base64;
 import java.util.function.Supplier;
 
 import org.jolokia.http.AgentServlet;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
@@ -30,8 +30,10 @@ import org.springframework.boot.actuate.endpoint.web.EndpointServlet;
 import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.test.context.assertj.AssertableWebApplicationContext;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
@@ -46,10 +48,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  *
  * @author Madhura Bhave
  */
-abstract class AbstractEndpointRequestIntegrationTests {
+public abstract class AbstractEndpointRequestIntegrationTests {
 
 	@Test
-	void toEndpointShouldMatch() {
+	public void toEndpointShouldMatch() {
 		getContextRunner().run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/actuator/e1").exchange().expectStatus().isOk();
@@ -57,17 +59,18 @@ abstract class AbstractEndpointRequestIntegrationTests {
 	}
 
 	@Test
-	void toAllEndpointsShouldMatch() {
-		getContextRunner().withPropertyValues("spring.security.user.password=password").run((context) -> {
-			WebTestClient webTestClient = getWebTestClient(context);
-			webTestClient.get().uri("/actuator/e2").exchange().expectStatus().isUnauthorized();
-			webTestClient.get().uri("/actuator/e2").header("Authorization", getBasicAuth()).exchange().expectStatus()
-					.isOk();
-		});
+	public void toAllEndpointsShouldMatch() {
+		getContextRunner().withInitializer(new ConditionEvaluationReportLoggingListener(LogLevel.INFO))
+				.withPropertyValues("spring.security.user.password=password").run((context) -> {
+					WebTestClient webTestClient = getWebTestClient(context);
+					webTestClient.get().uri("/actuator/e2").exchange().expectStatus().isUnauthorized();
+					webTestClient.get().uri("/actuator/e2").header("Authorization", getBasicAuth()).exchange()
+							.expectStatus().isOk();
+				});
 	}
 
 	@Test
-	void toLinksShouldMatch() {
+	public void toLinksShouldMatch() {
 		getContextRunner().run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/actuator").exchange().expectStatus().isOk();
@@ -96,26 +99,26 @@ abstract class AbstractEndpointRequestIntegrationTests {
 		return "Basic " + Base64.getEncoder().encodeToString("user:password".getBytes());
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BaseConfiguration {
 
 		@Bean
-		TestEndpoint1 endpoint1() {
+		public TestEndpoint1 endpoint1() {
 			return new TestEndpoint1();
 		}
 
 		@Bean
-		TestEndpoint2 endpoint2() {
+		public TestEndpoint2 endpoint2() {
 			return new TestEndpoint2();
 		}
 
 		@Bean
-		TestEndpoint3 endpoint3() {
+		public TestEndpoint3 endpoint3() {
 			return new TestEndpoint3();
 		}
 
 		@Bean
-		TestServletEndpoint servletEndpoint() {
+		public TestServletEndpoint servletEndpoint() {
 			return new TestServletEndpoint();
 		}
 
@@ -125,7 +128,7 @@ abstract class AbstractEndpointRequestIntegrationTests {
 	static class TestEndpoint1 {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return "endpoint 1";
 		}
 
@@ -135,7 +138,7 @@ abstract class AbstractEndpointRequestIntegrationTests {
 	static class TestEndpoint2 {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return "endpoint 2";
 		}
 
@@ -145,7 +148,7 @@ abstract class AbstractEndpointRequestIntegrationTests {
 	static class TestEndpoint3 {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
@@ -161,24 +164,19 @@ abstract class AbstractEndpointRequestIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SecurityConfiguration {
 
 		@Bean
-		WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
+		public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
 			return new WebSecurityConfigurerAdapter() {
-
 				@Override
 				protected void configure(HttpSecurity http) throws Exception {
-					http.authorizeRequests((requests) -> {
-						requests.requestMatchers(EndpointRequest.toLinks()).permitAll();
-						requests.requestMatchers(EndpointRequest.to(TestEndpoint1.class)).permitAll();
-						requests.requestMatchers(EndpointRequest.toAnyEndpoint()).authenticated();
-						requests.anyRequest().hasRole("ADMIN");
-					});
-					http.httpBasic();
+					http.authorizeRequests().requestMatchers(EndpointRequest.toLinks()).permitAll()
+							.requestMatchers(EndpointRequest.to(TestEndpoint1.class)).permitAll()
+							.requestMatchers(EndpointRequest.toAnyEndpoint()).authenticated().anyRequest()
+							.hasRole("ADMIN").and().httpBasic();
 				}
-
 			};
 		}
 

@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.info;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.util.TestPropertyValues.Type;
@@ -32,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class EnvironmentInfoContributorTests {
+public class EnvironmentInfoContributorTests {
 
 	private final StandardEnvironment environment = new StandardEnvironment();
 
 	@Test
-	void extractOnlyInfoProperty() {
+	public void extractOnlyInfoProperty() {
 		TestPropertyValues.of("info.app=my app", "info.version=1.0.0", "foo=bar").applyTo(this.environment);
 		Info actual = contributeFrom(this.environment);
 		assertThat(actual.get("app", String.class)).isEqualTo("my app");
@@ -46,7 +46,7 @@ class EnvironmentInfoContributorTests {
 	}
 
 	@Test
-	void extractNoEntry() {
+	public void extractNoEntry() {
 		TestPropertyValues.of("foo=bar").applyTo(this.environment);
 		Info actual = contributeFrom(this.environment);
 		assertThat(actual.getDetails()).isEmpty();
@@ -54,7 +54,7 @@ class EnvironmentInfoContributorTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void propertiesFromEnvironmentShouldBindCorrectly() {
+	public void propertiesFromEnvironmentShouldBindCorrectly() {
 		TestPropertyValues.of("INFO_ENVIRONMENT_FOO=green").applyTo(this.environment, Type.SYSTEM_ENVIRONMENT);
 		Info actual = contributeFrom(this.environment);
 		assertThat(actual.get("environment", Map.class)).containsEntry("foo", "green");

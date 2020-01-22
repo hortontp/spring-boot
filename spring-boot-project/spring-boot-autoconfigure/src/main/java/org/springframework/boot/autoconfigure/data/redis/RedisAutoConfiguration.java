@@ -44,7 +44,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * @author Mark Paluch
  * @since 1.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
 @Import({ LettuceConnectionConfiguration.class, JedisConnectionConfiguration.class })

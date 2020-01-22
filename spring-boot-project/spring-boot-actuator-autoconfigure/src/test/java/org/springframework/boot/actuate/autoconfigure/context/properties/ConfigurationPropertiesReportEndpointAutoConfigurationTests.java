@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.autoconfigure.context.properties;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint;
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint.ApplicationConfigurationProperties;
@@ -38,36 +38,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class ConfigurationPropertiesReportEndpointAutoConfigurationTests {
+public class ConfigurationPropertiesReportEndpointAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ConfigurationPropertiesReportEndpointAutoConfiguration.class));
 
 	@Test
-	void runShouldHaveEndpointBean() {
-		this.contextRunner.withUserConfiguration(Config.class)
-				.withPropertyValues("management.endpoints.web.exposure.include=configprops")
-				.run(validateTestProperties("******", "654321"));
+	public void runShouldHaveEndpointBean() {
+		this.contextRunner.withUserConfiguration(Config.class).run(validateTestProperties("******", "654321"));
 	}
 
 	@Test
-	void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
+	public void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
 		this.contextRunner.withPropertyValues("management.endpoint.configprops.enabled:false")
 				.run((context) -> assertThat(context).doesNotHaveBean(ConfigurationPropertiesReportEndpoint.class));
 	}
 
 	@Test
-	void keysToSanitizeCanBeConfiguredViaTheEnvironment() {
+	public void keysToSanitizeCanBeConfiguredViaTheEnvironment() {
 		this.contextRunner.withUserConfiguration(Config.class)
 				.withPropertyValues("management.endpoint.configprops.keys-to-sanitize: .*pass.*, property")
-				.withPropertyValues("management.endpoints.web.exposure.include=configprops")
 				.run(validateTestProperties("******", "******"));
-	}
-
-	@Test
-	void runWhenNotExposedShouldNotHaveEndpointBean() {
-		this.contextRunner
-				.run((context) -> assertThat(context).doesNotHaveBean(ConfigurationPropertiesReportEndpoint.class));
 	}
 
 	private ContextConsumer<AssertableApplicationContext> validateTestProperties(String dbPassword,
@@ -85,19 +76,19 @@ class ConfigurationPropertiesReportEndpointAutoConfigurationTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
-	static class Config {
+	public static class Config {
 
 		@Bean
-		TestProperties testProperties() {
+		public TestProperties testProperties() {
 			return new TestProperties();
 		}
 
 	}
 
 	@ConfigurationProperties("test")
-	public static class TestProperties {
+	static class TestProperties {
 
 		private String dbPassword = "123456";
 

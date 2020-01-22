@@ -66,7 +66,6 @@ public class DataSourcePoolMetrics implements MeterBinder {
 	public void bindTo(MeterRegistry registry) {
 		if (this.metadataProvider.getDataSourcePoolMetadata(this.dataSource) != null) {
 			bindPoolMetadata(registry, "active", DataSourcePoolMetadata::getActive);
-			bindPoolMetadata(registry, "idle", DataSourcePoolMetadata::getIdle);
 			bindPoolMetadata(registry, "max", DataSourcePoolMetadata::getMax);
 			bindPoolMetadata(registry, "min", DataSourcePoolMetadata::getMin);
 		}
@@ -95,7 +94,8 @@ public class DataSourcePoolMetrics implements MeterBinder {
 			this.metadataProvider = metadataProvider;
 		}
 
-		<N extends Number> Function<DataSource, N> getValueFunction(Function<DataSourcePoolMetadata, N> function) {
+		public <N extends Number> Function<DataSource, N> getValueFunction(
+				Function<DataSourcePoolMetadata, N> function) {
 			return (dataSource) -> function.apply(getDataSourcePoolMetadata(dataSource));
 		}
 

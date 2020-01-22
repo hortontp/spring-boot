@@ -59,7 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Mahmoud Ben Hassine
  * @since 1.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ JobLauncher.class, DataSource.class })
 @AutoConfigureAfter(HibernateJpaAutoConfiguration.class)
 @ConditionalOnBean(JobLauncher.class)
@@ -70,9 +70,9 @@ public class BatchAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnProperty(prefix = "spring.batch.job", name = "enabled", havingValue = "true", matchIfMissing = true)
-	public JobLauncherApplicationRunner jobLauncherApplicationRunner(JobLauncher jobLauncher, JobExplorer jobExplorer,
+	public JobLauncherCommandLineRunner jobLauncherCommandLineRunner(JobLauncher jobLauncher, JobExplorer jobExplorer,
 			JobRepository jobRepository, BatchProperties properties) {
-		JobLauncherApplicationRunner runner = new JobLauncherApplicationRunner(jobLauncher, jobExplorer, jobRepository);
+		JobLauncherCommandLineRunner runner = new JobLauncherCommandLineRunner(jobLauncher, jobExplorer, jobRepository);
 		String jobNames = properties.getJob().getNames();
 		if (StringUtils.hasText(jobNames)) {
 			runner.setJobNames(jobNames);
@@ -88,9 +88,9 @@ public class BatchAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(JobOperator.class)
-	public SimpleJobOperator jobOperator(ObjectProvider<JobParametersConverter> jobParametersConverter,
-			JobExplorer jobExplorer, JobLauncher jobLauncher, ListableJobLocator jobRegistry,
-			JobRepository jobRepository) throws Exception {
+	public SimpleJobOperator jobOperator(JobExplorer jobExplorer, JobLauncher jobLauncher,
+			ListableJobLocator jobRegistry, JobRepository jobRepository,
+			ObjectProvider<JobParametersConverter> jobParametersConverter) {
 		SimpleJobOperator factory = new SimpleJobOperator();
 		factory.setJobExplorer(jobExplorer);
 		factory.setJobLauncher(jobLauncher);
@@ -100,18 +100,16 @@ public class BatchAutoConfiguration {
 		return factory;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnBean(DataSource.class)
 	@ConditionalOnClass(DatabasePopulator.class)
 	static class DataSourceInitializerConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		BatchDataSourceInitializer batchDataSourceInitializer(DataSource dataSource,
-				@BatchDataSource ObjectProvider<DataSource> batchDataSource, ResourceLoader resourceLoader,
-				BatchProperties properties) {
-			return new BatchDataSourceInitializer(batchDataSource.getIfAvailable(() -> dataSource), resourceLoader,
-					properties);
+		public BatchDataSourceInitializer batchDataSourceInitializer(DataSource dataSource,
+				ResourceLoader resourceLoader, BatchProperties properties) {
+			return new BatchDataSourceInitializer(dataSource, resourceLoader, properties);
 		}
 
 	}

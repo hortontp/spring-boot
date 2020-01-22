@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.endpoint.web;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,31 +25,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class WebEndpointResponseTests {
+public class WebEndpointResponseTests {
 
 	@Test
-	void createWithNoParamsShouldReturn200() {
+	public void createWithNoParamsShouldReturn200() {
 		WebEndpointResponse<Object> response = new WebEndpointResponse<>();
 		assertThat(response.getStatus()).isEqualTo(200);
 		assertThat(response.getBody()).isNull();
 	}
 
 	@Test
-	void createWithStatusShouldReturnStatus() {
+	public void createWithStatusShouldReturnStatus() {
 		WebEndpointResponse<Object> response = new WebEndpointResponse<>(404);
 		assertThat(response.getStatus()).isEqualTo(404);
 		assertThat(response.getBody()).isNull();
 	}
 
 	@Test
-	void createWithBodyShouldReturnBody() {
+	public void createWithBodyShouldReturnBody() {
 		WebEndpointResponse<Object> response = new WebEndpointResponse<>("body");
 		assertThat(response.getStatus()).isEqualTo(200);
 		assertThat(response.getBody()).isEqualTo("body");
 	}
 
 	@Test
-	void createWithBodyAndStatusShouldReturnStatusAndBody() {
+	public void createWithBodyAndStatusShouldReturnStatusAndBody() {
 		WebEndpointResponse<Object> response = new WebEndpointResponse<>("body", 500);
 		assertThat(response.getStatus()).isEqualTo(500);
 		assertThat(response.getBody()).isEqualTo("body");

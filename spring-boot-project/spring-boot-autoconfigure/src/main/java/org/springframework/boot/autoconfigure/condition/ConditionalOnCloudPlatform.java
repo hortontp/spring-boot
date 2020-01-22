@@ -26,8 +26,7 @@ import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.context.annotation.Conditional;
 
 /**
- * {@link Conditional @Conditional} that matches when the specified cloud platform is
- * active.
+ * {@link Conditional} that matches when the specified cloud platform is active.
  *
  * @author Madhura Bhave
  * @since 1.5.0

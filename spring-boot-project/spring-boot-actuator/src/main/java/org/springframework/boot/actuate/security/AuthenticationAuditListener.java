@@ -94,7 +94,7 @@ public class AuthenticationAuditListener extends AbstractAuthenticationAuditList
 
 	private static class WebAuditListener {
 
-		void process(AuthenticationAuditListener listener, AbstractAuthenticationEvent input) {
+		public void process(AuthenticationAuditListener listener, AbstractAuthenticationEvent input) {
 			if (listener != null) {
 				AuthenticationSwitchUserEvent event = (AuthenticationSwitchUserEvent) input;
 				Map<String, Object> data = new HashMap<>();
@@ -109,7 +109,7 @@ public class AuthenticationAuditListener extends AbstractAuthenticationAuditList
 
 		}
 
-		boolean accepts(AbstractAuthenticationEvent event) {
+		public boolean accepts(AbstractAuthenticationEvent event) {
 			return event instanceof AuthenticationSwitchUserEvent;
 		}
 

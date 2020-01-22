@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.jdbc;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Kazuki Shimizu
  */
-class DataSourceTransactionManagerAutoConfigurationTests {
+public class DataSourceTransactionManagerAutoConfigurationTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
-	void testDataSourceExists() {
+	public void testDataSourceExists() {
 		this.context.register(EmbeddedDataSourceConfiguration.class,
 				DataSourceTransactionManagerAutoConfiguration.class, TransactionAutoConfiguration.class);
 		this.context.refresh();
@@ -53,7 +53,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testNoDataSourceExists() {
+	public void testNoDataSourceExists() {
 		this.context.register(DataSourceTransactionManagerAutoConfiguration.class, TransactionAutoConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBeanNamesForType(DataSource.class)).isEmpty();
@@ -61,7 +61,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testManualConfiguration() {
+	public void testManualConfiguration() {
 		this.context.register(EmbeddedDataSourceConfiguration.class,
 				DataSourceTransactionManagerAutoConfiguration.class, TransactionAutoConfiguration.class);
 		this.context.refresh();
@@ -70,7 +70,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testExistingTransactionManager() {
+	public void testExistingTransactionManager() {
 		this.context.register(TransactionManagerConfiguration.class, EmbeddedDataSourceConfiguration.class,
 				DataSourceTransactionManagerAutoConfiguration.class, TransactionAutoConfiguration.class);
 		this.context.refresh();
@@ -80,7 +80,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiDataSource() {
+	public void testMultiDataSource() {
 		this.context.register(MultiDataSourceConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
 				TransactionAutoConfiguration.class);
 		this.context.refresh();
@@ -88,7 +88,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiDataSourceUsingPrimary() {
+	public void testMultiDataSourceUsingPrimary() {
 		this.context.register(MultiDataSourceUsingPrimaryConfiguration.class,
 				DataSourceTransactionManagerAutoConfiguration.class, TransactionAutoConfiguration.class);
 		this.context.refresh();
@@ -97,7 +97,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 	}
 
 	@Test
-	void testCustomizeDataSourceTransactionManagerUsingProperties() {
+	public void testCustomizeDataSourceTransactionManagerUsingProperties() {
 		TestPropertyValues
 				.of("spring.transaction.default-timeout:30", "spring.transaction.rollback-on-commit-failure:true")
 				.applyTo(this.context);
@@ -109,11 +109,11 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 		assertThat(transactionManager.isRollbackOnCommitFailure()).isTrue();
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class TransactionManagerConfiguration {
+	@Configuration
+	protected static class TransactionManagerConfiguration {
 
 		@Bean
-		PlatformTransactionManager myTransactionManager() {
+		public PlatformTransactionManager myTransactionManager() {
 			return mock(PlatformTransactionManager.class);
 		}
 

@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.integrationtest;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.beans.BeansEndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
@@ -43,15 +43,15 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @author Andy Wilkinson
  * @author Madhura Bhave
  */
-class JerseyEndpointIntegrationTests {
+public class JerseyEndpointIntegrationTests {
 
 	@Test
-	void linksAreProvidedToAllEndpointTypes() {
+	public void linksAreProvidedToAllEndpointTypes() {
 		testJerseyEndpoints(new Class[] { EndpointsConfiguration.class, ResourceConfigConfiguration.class });
 	}
 
 	@Test
-	void actuatorEndpointsWhenUserProvidedResourceConfigBeanNotAvailable() {
+	public void actuatorEndpointsWhenUserProvidedResourceConfigBeanNotAvailable() {
 		testJerseyEndpoints(new Class[] { EndpointsConfiguration.class });
 	}
 
@@ -85,7 +85,7 @@ class JerseyEndpointIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class EndpointsConfiguration {
 
 		@Bean
@@ -100,7 +100,7 @@ class JerseyEndpointIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ResourceConfigConfiguration {
 
 		@Bean

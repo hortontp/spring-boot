@@ -171,7 +171,7 @@ public class EndpointMBean implements DynamicMBean {
 
 	private static class ReactiveHandler {
 
-		static Object handle(Object result) {
+		public static Object handle(Object result) {
 			if (result instanceof Mono) {
 				return ((Mono<?>) result).block();
 			}

@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure.transaction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.jta.JtaTransactionManager;
@@ -32,15 +32,15 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class TransactionManagerCustomizersTests {
+public class TransactionManagerCustomizersTests {
 
 	@Test
-	void customizeWithNullCustomizersShouldDoNothing() {
+	public void customizeWithNullCustomizersShouldDoNothing() {
 		new TransactionManagerCustomizers(null).customize(mock(PlatformTransactionManager.class));
 	}
 
 	@Test
-	void customizeShouldCheckGeneric() {
+	public void customizeShouldCheckGeneric() {
 		List<TestCustomizer<?>> list = new ArrayList<>();
 		list.add(new TestCustomizer<>());
 		list.add(new TestJtaCustomizer());
@@ -51,7 +51,7 @@ class TransactionManagerCustomizersTests {
 		assertThat(list.get(1).getCount()).isEqualTo(1);
 	}
 
-	static class TestCustomizer<T extends PlatformTransactionManager>
+	private static class TestCustomizer<T extends PlatformTransactionManager>
 			implements PlatformTransactionManagerCustomizer<T> {
 
 		private int count;
@@ -61,13 +61,13 @@ class TransactionManagerCustomizersTests {
 			this.count++;
 		}
 
-		int getCount() {
+		public int getCount() {
 			return this.count;
 		}
 
 	}
 
-	static class TestJtaCustomizer extends TestCustomizer<JtaTransactionManager> {
+	private static class TestJtaCustomizer extends TestCustomizer<JtaTransactionManager> {
 
 	}
 

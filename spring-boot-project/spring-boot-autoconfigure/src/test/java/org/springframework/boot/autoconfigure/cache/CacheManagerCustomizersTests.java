@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -33,15 +33,15 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Stephane Nicoll
  */
-class CacheManagerCustomizersTests {
+public class CacheManagerCustomizersTests {
 
 	@Test
-	void customizeWithNullCustomizersShouldDoNothing() {
+	public void customizeWithNullCustomizersShouldDoNothing() {
 		new CacheManagerCustomizers(null).customize(mock(CacheManager.class));
 	}
 
 	@Test
-	void customizeSimpleCacheManager() {
+	public void customizeSimpleCacheManager() {
 		CacheManagerCustomizers customizers = new CacheManagerCustomizers(
 				Collections.singletonList(new CacheNamesCacheManagerCustomizer()));
 		ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
@@ -50,7 +50,7 @@ class CacheManagerCustomizersTests {
 	}
 
 	@Test
-	void customizeShouldCheckGeneric() {
+	public void customizeShouldCheckGeneric() {
 		List<TestCustomizer<?>> list = new ArrayList<>();
 		list.add(new TestCustomizer<>());
 		list.add(new TestConcurrentMapCacheManagerCustomizer());
@@ -75,7 +75,7 @@ class CacheManagerCustomizersTests {
 
 	}
 
-	static class TestCustomizer<T extends CacheManager> implements CacheManagerCustomizer<T> {
+	private static class TestCustomizer<T extends CacheManager> implements CacheManagerCustomizer<T> {
 
 		private int count;
 
@@ -84,13 +84,13 @@ class CacheManagerCustomizersTests {
 			this.count++;
 		}
 
-		int getCount() {
+		public int getCount() {
 			return this.count;
 		}
 
 	}
 
-	static class TestConcurrentMapCacheManagerCustomizer extends TestCustomizer<ConcurrentMapCacheManager> {
+	private static class TestConcurrentMapCacheManagerCustomizer extends TestCustomizer<ConcurrentMapCacheManager> {
 
 	}
 

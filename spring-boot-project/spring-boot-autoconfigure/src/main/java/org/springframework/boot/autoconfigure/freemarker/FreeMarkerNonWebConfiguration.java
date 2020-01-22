@@ -28,7 +28,7 @@ import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
  * @author Brian Clozel
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnNotWebApplication
 class FreeMarkerNonWebConfiguration extends AbstractFreeMarkerConfiguration {
 
@@ -38,7 +38,7 @@ class FreeMarkerNonWebConfiguration extends AbstractFreeMarkerConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	FreeMarkerConfigurationFactoryBean freeMarkerConfiguration() {
+	public FreeMarkerConfigurationFactoryBean freeMarkerConfiguration() {
 		FreeMarkerConfigurationFactoryBean freeMarkerFactoryBean = new FreeMarkerConfigurationFactoryBean();
 		applyProperties(freeMarkerFactoryBean);
 		return freeMarkerFactoryBean;

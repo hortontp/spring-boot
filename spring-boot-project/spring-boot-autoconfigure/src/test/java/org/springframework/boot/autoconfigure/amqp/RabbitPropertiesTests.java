@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.amqp;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.amqp.rabbit.config.DirectRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -32,77 +32,77 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  */
-class RabbitPropertiesTests {
+public class RabbitPropertiesTests {
 
 	private final RabbitProperties properties = new RabbitProperties();
 
 	@Test
-	void hostDefaultsToLocalhost() {
+	public void hostDefaultsToLocalhost() {
 		assertThat(this.properties.getHost()).isEqualTo("localhost");
 	}
 
 	@Test
-	void customHost() {
+	public void customHost() {
 		this.properties.setHost("rabbit.example.com");
 		assertThat(this.properties.getHost()).isEqualTo("rabbit.example.com");
 	}
 
 	@Test
-	void hostIsDeterminedFromFirstAddress() {
+	public void hostIsDeterminedFromFirstAddress() {
 		this.properties.setAddresses("rabbit1.example.com:1234,rabbit2.example.com:2345");
 		assertThat(this.properties.determineHost()).isEqualTo("rabbit1.example.com");
 	}
 
 	@Test
-	void determineHostReturnsHostPropertyWhenNoAddresses() {
+	public void determineHostReturnsHostPropertyWhenNoAddresses() {
 		this.properties.setHost("rabbit.example.com");
 		assertThat(this.properties.determineHost()).isEqualTo("rabbit.example.com");
 	}
 
 	@Test
-	void portDefaultsTo5672() {
+	public void portDefaultsTo5672() {
 		assertThat(this.properties.getPort()).isEqualTo(5672);
 	}
 
 	@Test
-	void customPort() {
+	public void customPort() {
 		this.properties.setPort(1234);
 		assertThat(this.properties.getPort()).isEqualTo(1234);
 	}
 
 	@Test
-	void determinePortReturnsPortOfFirstAddress() {
+	public void determinePortReturnsPortOfFirstAddress() {
 		this.properties.setAddresses("rabbit1.example.com:1234,rabbit2.example.com:2345");
 		assertThat(this.properties.determinePort()).isEqualTo(1234);
 	}
 
 	@Test
-	void determinePortReturnsPortPropertyWhenNoAddresses() {
+	public void determinePortReturnsPortPropertyWhenNoAddresses() {
 		this.properties.setPort(1234);
 		assertThat(this.properties.determinePort()).isEqualTo(1234);
 	}
 
 	@Test
-	void determinePortReturnsDefaultAmqpPortWhenFirstAddressHasNoExplicitPort() {
+	public void determinePortReturnsDefaultAmqpPortWhenFirstAddressHasNoExplicitPort() {
 		this.properties.setPort(1234);
 		this.properties.setAddresses("rabbit1.example.com,rabbit2.example.com:2345");
 		assertThat(this.properties.determinePort()).isEqualTo(5672);
 	}
 
 	@Test
-	void determinePortUsingAmqpReturnsPortOfFirstAddress() {
+	public void determinePortUsingAmqpReturnsPortOfFirstAddress() {
 		this.properties.setAddresses("amqp://root:password@otherhost,amqps://root:password2@otherhost2");
 		assertThat(this.properties.determinePort()).isEqualTo(5672);
 	}
 
 	@Test
-	void determinePortUsingAmqpsReturnsPortOfFirstAddress() {
+	public void determinePortUsingAmqpsReturnsPortOfFirstAddress() {
 		this.properties.setAddresses("amqps://root:password@otherhost,amqp://root:password2@otherhost2");
 		assertThat(this.properties.determinePort()).isEqualTo(5671);
 	}
 
 	@Test
-	void determinePortReturnsDefaultAmqpsPortWhenFirstAddressHasNoExplicitPortButSslEnabled() {
+	public void determinePortReturnsDefaultAmqpsPortWhenFirstAddressHasNoExplicitPortButSslEnabled() {
 		this.properties.getSsl().setEnabled(true);
 		this.properties.setPort(1234);
 		this.properties.setAddresses("rabbit1.example.com,rabbit2.example.com:2345");
@@ -110,172 +110,172 @@ class RabbitPropertiesTests {
 	}
 
 	@Test
-	void virtualHostDefaultsToNull() {
+	public void virtualHostDefaultsToNull() {
 		assertThat(this.properties.getVirtualHost()).isNull();
 	}
 
 	@Test
-	void customVirtualHost() {
+	public void customVirtualHost() {
 		this.properties.setVirtualHost("alpha");
 		assertThat(this.properties.getVirtualHost()).isEqualTo("alpha");
 	}
 
 	@Test
-	void virtualHostRetainsALeadingSlash() {
+	public void virtualHostRetainsALeadingSlash() {
 		this.properties.setVirtualHost("/alpha");
 		assertThat(this.properties.getVirtualHost()).isEqualTo("/alpha");
 	}
 
 	@Test
-	void determineVirtualHostReturnsVirtualHostOfFirstAddress() {
+	public void determineVirtualHostReturnsVirtualHostOfFirstAddress() {
 		this.properties.setAddresses("rabbit1.example.com:1234/alpha,rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determineVirtualHost()).isEqualTo("alpha");
 	}
 
 	@Test
-	void determineVirtualHostReturnsPropertyWhenNoAddresses() {
+	public void determineVirtualHostReturnsPropertyWhenNoAddresses() {
 		this.properties.setVirtualHost("alpha");
 		assertThat(this.properties.determineVirtualHost()).isEqualTo("alpha");
 	}
 
 	@Test
-	void determineVirtualHostReturnsPropertyWhenFirstAddressHasNoVirtualHost() {
+	public void determineVirtualHostReturnsPropertyWhenFirstAddressHasNoVirtualHost() {
 		this.properties.setVirtualHost("alpha");
 		this.properties.setAddresses("rabbit1.example.com:1234,rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determineVirtualHost()).isEqualTo("alpha");
 	}
 
 	@Test
-	void determineVirtualHostIsSlashWhenAddressHasTrailingSlash() {
+	public void determineVirtualHostIsSlashWhenAddressHasTrailingSlash() {
 		this.properties.setAddresses("amqp://root:password@otherhost:1111/");
 		assertThat(this.properties.determineVirtualHost()).isEqualTo("/");
 	}
 
 	@Test
-	void emptyVirtualHostIsCoercedToASlash() {
+	public void emptyVirtualHostIsCoercedToASlash() {
 		this.properties.setVirtualHost("");
 		assertThat(this.properties.getVirtualHost()).isEqualTo("/");
 	}
 
 	@Test
-	void usernameDefaultsToGuest() {
+	public void usernameDefaultsToGuest() {
 		assertThat(this.properties.getUsername()).isEqualTo("guest");
 	}
 
 	@Test
-	void customUsername() {
+	public void customUsername() {
 		this.properties.setUsername("user");
 		assertThat(this.properties.getUsername()).isEqualTo("user");
 	}
 
 	@Test
-	void determineUsernameReturnsUsernameOfFirstAddress() {
-		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha,rabbit2.example.com:2345/bravo");
+	public void determineUsernameReturnsUsernameOfFirstAddress() {
+		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha," + "rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determineUsername()).isEqualTo("user");
 	}
 
 	@Test
-	void determineUsernameReturnsPropertyWhenNoAddresses() {
+	public void determineUsernameReturnsPropertyWhenNoAddresses() {
 		this.properties.setUsername("alice");
 		assertThat(this.properties.determineUsername()).isEqualTo("alice");
 	}
 
 	@Test
-	void determineUsernameReturnsPropertyWhenFirstAddressHasNoUsername() {
+	public void determineUsernameReturnsPropertyWhenFirstAddressHasNoUsername() {
 		this.properties.setUsername("alice");
-		this.properties.setAddresses("rabbit1.example.com:1234/alpha,user:secret@rabbit2.example.com:2345/bravo");
+		this.properties.setAddresses("rabbit1.example.com:1234/alpha," + "user:secret@rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determineUsername()).isEqualTo("alice");
 	}
 
 	@Test
-	void passwordDefaultsToGuest() {
+	public void passwordDefaultsToGuest() {
 		assertThat(this.properties.getPassword()).isEqualTo("guest");
 	}
 
 	@Test
-	void customPassword() {
+	public void customPassword() {
 		this.properties.setPassword("secret");
 		assertThat(this.properties.getPassword()).isEqualTo("secret");
 	}
 
 	@Test
-	void determinePasswordReturnsPasswordOfFirstAddress() {
-		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha,rabbit2.example.com:2345/bravo");
+	public void determinePasswordReturnsPasswordOfFirstAddress() {
+		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha," + "rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determinePassword()).isEqualTo("secret");
 	}
 
 	@Test
-	void determinePasswordReturnsPropertyWhenNoAddresses() {
+	public void determinePasswordReturnsPropertyWhenNoAddresses() {
 		this.properties.setPassword("secret");
 		assertThat(this.properties.determinePassword()).isEqualTo("secret");
 	}
 
 	@Test
-	void determinePasswordReturnsPropertyWhenFirstAddressHasNoPassword() {
+	public void determinePasswordReturnsPropertyWhenFirstAddressHasNoPassword() {
 		this.properties.setPassword("12345678");
-		this.properties.setAddresses("rabbit1.example.com:1234/alpha,user:secret@rabbit2.example.com:2345/bravo");
+		this.properties.setAddresses("rabbit1.example.com:1234/alpha," + "user:secret@rabbit2.example.com:2345/bravo");
 		assertThat(this.properties.determinePassword()).isEqualTo("12345678");
 	}
 
 	@Test
-	void addressesDefaultsToNull() {
+	public void addressesDefaultsToNull() {
 		assertThat(this.properties.getAddresses()).isNull();
 	}
 
 	@Test
-	void customAddresses() {
+	public void customAddresses() {
 		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha,rabbit2.example.com");
 		assertThat(this.properties.getAddresses())
 				.isEqualTo("user:secret@rabbit1.example.com:1234/alpha,rabbit2.example.com");
 	}
 
 	@Test
-	void determineAddressesReturnsAddressesWithJustHostAndPort() {
+	public void determineAddressesReturnsAddressesWithJustHostAndPort() {
 		this.properties.setAddresses("user:secret@rabbit1.example.com:1234/alpha,rabbit2.example.com");
 		assertThat(this.properties.determineAddresses()).isEqualTo("rabbit1.example.com:1234,rabbit2.example.com:5672");
 	}
 
 	@Test
-	void determineAddressesUsesHostAndPortPropertiesWhenNoAddressesSet() {
+	public void determineAddressesUsesHostAndPortPropertiesWhenNoAddressesSet() {
 		this.properties.setHost("rabbit.example.com");
 		this.properties.setPort(1234);
 		assertThat(this.properties.determineAddresses()).isEqualTo("rabbit.example.com:1234");
 	}
 
 	@Test
-	void determineSslUsingAmqpsReturnsStateOfFirstAddress() {
+	public void determineSslUsingAmqpsReturnsStateOfFirstAddress() {
 		this.properties.setAddresses("amqps://root:password@otherhost,amqp://root:password2@otherhost2");
 		assertThat(this.properties.getSsl().determineEnabled()).isTrue();
 	}
 
 	@Test
-	void sslDetermineEnabledIsTrueWhenAddressHasNoProtocolAndSslIsEnabled() {
+	public void sslDetermineEnabledIsTrueWhenAddressHasNoProtocolAndSslIsEnabled() {
 		this.properties.getSsl().setEnabled(true);
 		this.properties.setAddresses("root:password@otherhost");
 		assertThat(this.properties.getSsl().determineEnabled()).isTrue();
 	}
 
 	@Test
-	void sslDetermineEnabledIsFalseWhenAddressHasNoProtocolAndSslIsDisabled() {
+	public void sslDetermineEnabledIsFalseWhenAddressHasNoProtocolAndSslIsDisabled() {
 		this.properties.getSsl().setEnabled(false);
 		this.properties.setAddresses("root:password@otherhost");
 		assertThat(this.properties.getSsl().determineEnabled()).isFalse();
 	}
 
 	@Test
-	void determineSslUsingAmqpReturnsStateOfFirstAddress() {
+	public void determineSslUsingAmqpReturnsStateOfFirstAddress() {
 		this.properties.setAddresses("amqp://root:password@otherhost,amqps://root:password2@otherhost2");
 		assertThat(this.properties.getSsl().determineEnabled()).isFalse();
 	}
 
 	@Test
-	void determineSslReturnFlagPropertyWhenNoAddresses() {
+	public void determineSslReturnFlagPropertyWhenNoAddresses() {
 		this.properties.getSsl().setEnabled(true);
 		assertThat(this.properties.getSsl().determineEnabled()).isTrue();
 	}
 
 	@Test
-	void simpleContainerUseConsistentDefaultValues() {
+	public void simpleContainerUseConsistentDefaultValues() {
 		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
 		SimpleMessageListenerContainer container = factory.createListenerContainer();
 		RabbitProperties.SimpleContainer simple = this.properties.getListener().getSimple();
@@ -284,7 +284,7 @@ class RabbitPropertiesTests {
 	}
 
 	@Test
-	void directContainerUseConsistentDefaultValues() {
+	public void directContainerUseConsistentDefaultValues() {
 		DirectRabbitListenerContainerFactory factory = new DirectRabbitListenerContainerFactory();
 		DirectMessageListenerContainer container = factory.createListenerContainer();
 		RabbitProperties.DirectContainer direct = this.properties.getListener().getDirect();

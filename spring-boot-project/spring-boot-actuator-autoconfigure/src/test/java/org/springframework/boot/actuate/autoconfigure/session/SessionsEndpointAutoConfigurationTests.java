@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.session;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -33,34 +33,28 @@ import static org.mockito.Mockito.mock;
  *
  * @author Vedran Pavic
  */
-class SessionsEndpointAutoConfigurationTests {
+public class SessionsEndpointAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(SessionsEndpointAutoConfiguration.class))
 			.withUserConfiguration(SessionConfiguration.class);
 
 	@Test
-	void runShouldHaveEndpointBean() {
-		this.contextRunner.withPropertyValues("management.endpoints.web.exposure.include=sessions")
-				.run((context) -> assertThat(context).hasSingleBean(SessionsEndpoint.class));
+	public void runShouldHaveEndpointBean() {
+		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(SessionsEndpoint.class));
 	}
 
 	@Test
-	void runWhenNotExposedShouldNotHaveEndpointBean() {
-		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(SessionsEndpoint.class));
-	}
-
-	@Test
-	void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
+	public void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
 		this.contextRunner.withPropertyValues("management.endpoint.sessions.enabled:false")
 				.run((context) -> assertThat(context).doesNotHaveBean(SessionsEndpoint.class));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SessionConfiguration {
 
 		@Bean
-		FindByIndexNameSessionRepository<?> sessionRepository() {
+		public FindByIndexNameSessionRepository<?> sessionRepository() {
 			return mock(FindByIndexNameSessionRepository.class);
 		}
 

@@ -18,8 +18,8 @@ package org.springframework.boot.autoconfigure.data.rest;
 
 import java.net.URI;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.TestAutoConfigurationPackage;
@@ -30,7 +30,6 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.EmbeddedDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -42,6 +41,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,25 +53,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  */
-class RepositoryRestMvcAutoConfigurationTests {
+public class RepositoryRestMvcAutoConfigurationTests {
 
-	private AnnotationConfigServletWebApplicationContext context;
+	private AnnotationConfigWebApplicationContext context;
 
-	@AfterEach
-	void tearDown() {
+	@After
+	public void tearDown() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void testDefaultRepositoryConfiguration() {
+	public void testDefaultRepositoryConfiguration() {
 		load(TestConfiguration.class);
 		assertThat(this.context.getBean(RepositoryRestMvcConfiguration.class)).isNotNull();
 	}
 
 	@Test
-	void testWithCustomBasePath() {
+	public void testWithCustomBasePath() {
 		load(TestConfiguration.class, "spring.data.rest.base-path:foo");
 		assertThat(this.context.getBean(RepositoryRestMvcConfiguration.class)).isNotNull();
 		RepositoryRestConfiguration bean = this.context.getBean(RepositoryRestConfiguration.class);
@@ -82,7 +82,7 @@ class RepositoryRestMvcAutoConfigurationTests {
 	}
 
 	@Test
-	void testWithCustomSettings() {
+	public void testWithCustomSettings() {
 		load(TestConfiguration.class, "spring.data.rest.default-page-size:42", "spring.data.rest.max-page-size:78",
 				"spring.data.rest.page-param-name:_page", "spring.data.rest.limit-param-name:_limit",
 				"spring.data.rest.sort-param-name:_sort", "spring.data.rest.detection-strategy=visibility",
@@ -104,7 +104,7 @@ class RepositoryRestMvcAutoConfigurationTests {
 	}
 
 	@Test
-	void testWithCustomConfigurer() {
+	public void testWithCustomConfigurer() {
 		load(TestConfigurationWithConfigurer.class, "spring.data.rest.detection-strategy=visibility",
 				"spring.data.rest.default-media-type:application/my-json");
 		assertThat(this.context.getBean(RepositoryRestMvcConfiguration.class)).isNotNull();
@@ -115,7 +115,7 @@ class RepositoryRestMvcAutoConfigurationTests {
 	}
 
 	@Test
-	void backOffWithCustomConfiguration() {
+	public void backOffWithCustomConfiguration() {
 		load(TestConfigurationWithRestMvcConfig.class, "spring.data.rest.base-path:foo");
 		assertThat(this.context.getBean(RepositoryRestMvcConfiguration.class)).isNotNull();
 		RepositoryRestConfiguration bean = this.context.getBean(RepositoryRestConfiguration.class);
@@ -123,7 +123,7 @@ class RepositoryRestMvcAutoConfigurationTests {
 	}
 
 	private void load(Class<?> config, String... environment) {
-		AnnotationConfigServletWebApplicationContext applicationContext = new AnnotationConfigServletWebApplicationContext();
+		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.setServletContext(new MockServletContext());
 		applicationContext.register(config, BaseConfiguration.class);
 		TestPropertyValues.of(environment).applyTo(applicationContext);
@@ -131,39 +131,39 @@ class RepositoryRestMvcAutoConfigurationTests {
 		this.context = applicationContext;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(EmbeddedDataSourceConfiguration.class)
 	@ImportAutoConfiguration({ HibernateJpaAutoConfiguration.class, JpaRepositoriesAutoConfiguration.class,
 			PropertyPlaceholderAutoConfiguration.class, RepositoryRestMvcAutoConfiguration.class,
 			JacksonAutoConfiguration.class })
-	static class BaseConfiguration {
+	protected static class BaseConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(City.class)
 	@EnableWebMvc
-	static class TestConfiguration {
+	protected static class TestConfiguration {
 
 	}
 
 	@Import({ TestConfiguration.class, TestRepositoryRestConfigurer.class })
-	static class TestConfigurationWithConfigurer {
+	protected static class TestConfigurationWithConfigurer {
 
 	}
 
 	@Import({ TestConfiguration.class, RepositoryRestMvcConfiguration.class })
-	static class TestConfigurationWithRestMvcConfig {
+	protected static class TestConfigurationWithRestMvcConfig {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(City.class)
 	@EnableWebMvc
 	static class TestConfigurationWithObjectMapperBuilder {
 
 		@Bean
-		Jackson2ObjectMapperBuilder objectMapperBuilder() {
+		public Jackson2ObjectMapperBuilder objectMapperBuilder() {
 			Jackson2ObjectMapperBuilder objectMapperBuilder = new Jackson2ObjectMapperBuilder();
 			objectMapperBuilder.simpleDateFormat("yyyy-MM");
 			return objectMapperBuilder;

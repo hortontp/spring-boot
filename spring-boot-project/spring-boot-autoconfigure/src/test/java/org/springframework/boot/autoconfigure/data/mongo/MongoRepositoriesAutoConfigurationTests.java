@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure.data.mongo;
 import java.util.Set;
 
 import com.mongodb.MongoClient;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.TestAutoConfigurationPackage;
@@ -43,14 +43,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Oliver Gierke
  */
-class MongoRepositoriesAutoConfigurationTests {
+public class MongoRepositoriesAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class,
 					MongoRepositoriesAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class));
 
 	@Test
-	void testDefaultRepositoryConfiguration() {
+	public void testDefaultRepositoryConfiguration() {
 		this.contextRunner.withUserConfiguration(TestConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(CityRepository.class);
 			assertThat(context).hasSingleBean(MongoClient.class);
@@ -63,61 +63,61 @@ class MongoRepositoriesAutoConfigurationTests {
 	}
 
 	@Test
-	void testNoRepositoryConfiguration() {
+	public void testNoRepositoryConfiguration() {
 		this.contextRunner.withUserConfiguration(EmptyConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(MongoClient.class));
 	}
 
 	@Test
-	void doesNotTriggerDefaultRepositoryDetectionIfCustomized() {
+	public void doesNotTriggerDefaultRepositoryDetectionIfCustomized() {
 		this.contextRunner.withUserConfiguration(CustomizedConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(CityMongoDbRepository.class));
 	}
 
 	@Test
-	void autoConfigurationShouldNotKickInEvenIfManualConfigDidNotCreateAnyRepositories() {
+	public void autoConfigurationShouldNotKickInEvenIfManualConfigDidNotCreateAnyRepositories() {
 		this.contextRunner.withUserConfiguration(SortOfInvalidCustomConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(CityRepository.class));
 	}
 
 	@Test
-	void enablingReactiveRepositoriesDisablesImperativeRepositories() {
+	public void enablingReactiveRepositoriesDisablesImperativeRepositories() {
 		this.contextRunner.withUserConfiguration(TestConfiguration.class)
 				.withPropertyValues("spring.data.mongodb.repositories.type=reactive")
 				.run((context) -> assertThat(context).doesNotHaveBean(CityRepository.class));
 	}
 
 	@Test
-	void enablingNoRepositoriesDisablesImperativeRepositories() {
+	public void enablingNoRepositoriesDisablesImperativeRepositories() {
 		this.contextRunner.withUserConfiguration(TestConfiguration.class)
 				.withPropertyValues("spring.data.mongodb.repositories.type=none")
 				.run((context) -> assertThat(context).doesNotHaveBean(CityRepository.class));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(City.class)
-	static class TestConfiguration {
+	protected static class TestConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(EmptyDataPackage.class)
-	static class EmptyConfiguration {
+	protected static class EmptyConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(MongoRepositoriesAutoConfigurationTests.class)
 	@EnableMongoRepositories(basePackageClasses = CityMongoDbRepository.class)
-	static class CustomizedConfiguration {
+	protected static class CustomizedConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	// To not find any repositories
 	@EnableMongoRepositories("foo.bar")
 	@TestAutoConfigurationPackage(MongoRepositoriesAutoConfigurationTests.class)
-	static class SortOfInvalidCustomConfiguration {
+	protected static class SortOfInvalidCustomConfiguration {
 
 	}
 

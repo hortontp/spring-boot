@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.endpoint.web.documentatio
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.info.BuildInfoContributor;
 import org.springframework.boot.actuate.info.GitInfoContributor;
@@ -44,10 +44,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-class InfoEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class InfoEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	@Test
-	void info() throws Exception {
+	public void info() throws Exception {
 		this.mockMvc.perform(get("/actuator/info")).andExpect(status().isOk())
 				.andDo(MockMvcRestDocumentation.document("info",
 						responseFields(beneathPath("git"),
@@ -68,17 +68,17 @@ class InfoEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 										.type(JsonFieldType.VARIES).optional())));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		InfoEndpoint endpoint(List<InfoContributor> infoContributors) {
+		public InfoEndpoint endpoint(List<InfoContributor> infoContributors) {
 			return new InfoEndpoint(infoContributors);
 		}
 
 		@Bean
-		GitInfoContributor gitInfoContributor() {
+		public GitInfoContributor gitInfoContributor() {
 			Properties properties = new Properties();
 			properties.put("branch", "master");
 			properties.put("commit.id", "df027cf1ec5aeba2d4fedd7b8c42b88dc5ce38e5");
@@ -89,7 +89,7 @@ class InfoEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 		}
 
 		@Bean
-		BuildInfoContributor buildInfoContributor() {
+		public BuildInfoContributor buildInfoContributor() {
 			Properties properties = new Properties();
 			properties.put("group", "com.example");
 			properties.put("artifact", "application");

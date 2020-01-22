@@ -32,23 +32,36 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for Solr.
+ * {@link EnableAutoConfiguration Auto-configuration} for Solr 4.x.
  *
  * @author Christoph Strobl
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ HttpSolrClient.class, CloudSolrClient.class })
 @EnableConfigurationProperties(SolrProperties.class)
 public class SolrAutoConfiguration {
 
+	private final SolrProperties properties;
+
+	private SolrClient solrClient;
+
+	public SolrAutoConfiguration(SolrProperties properties) {
+		this.properties = properties;
+	}
+
 	@Bean
 	@ConditionalOnMissingBean
-	public SolrClient solrClient(SolrProperties properties) {
-		if (StringUtils.hasText(properties.getZkHost())) {
-			return new CloudSolrClient.Builder(Arrays.asList(properties.getZkHost()), Optional.empty()).build();
+	public SolrClient solrClient() {
+		this.solrClient = createSolrClient();
+		return this.solrClient;
+	}
+
+	private SolrClient createSolrClient() {
+		if (StringUtils.hasText(this.properties.getZkHost())) {
+			return new CloudSolrClient.Builder(Arrays.asList(this.properties.getZkHost()), Optional.empty()).build();
 		}
-		return new HttpSolrClient.Builder(properties.getHost()).build();
+		return new HttpSolrClient.Builder(this.properties.getHost()).build();
 	}
 
 }

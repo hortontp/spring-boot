@@ -33,12 +33,12 @@ import org.springframework.util.StringUtils;
  */
 final class AutoConfigurationMetadataLoader {
 
-	protected static final String PATH = "META-INF/spring-autoconfigure-metadata.properties";
+	protected static final String PATH = "META-INF/" + "spring-autoconfigure-metadata.properties";
 
 	private AutoConfigurationMetadataLoader() {
 	}
 
-	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader) {
+	public static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader) {
 		return loadMetadata(classLoader, PATH);
 	}
 

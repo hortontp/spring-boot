@@ -28,18 +28,18 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Madhura Bhave
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 class JerseyManagementContextConfiguration {
 
 	@Bean
-	ServletRegistrationBean<ServletContainer> jerseyServletRegistration(JerseyApplicationPath jerseyApplicationPath,
-			ResourceConfig resourceConfig) {
+	public ServletRegistrationBean<ServletContainer> jerseyServletRegistration(
+			JerseyApplicationPath jerseyApplicationPath, ResourceConfig resourceConfig) {
 		return new ServletRegistrationBean<>(new ServletContainer(resourceConfig),
 				jerseyApplicationPath.getUrlMapping());
 	}
 
 	@Bean
-	ResourceConfig resourceConfig() {
+	public ResourceConfig resourceConfig() {
 		return new ResourceConfig();
 	}
 

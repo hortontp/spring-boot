@@ -25,7 +25,6 @@ import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
-import org.springframework.core.log.LogMessage;
 import org.springframework.util.unit.DataSize;
 
 /**
@@ -56,6 +55,18 @@ public class DiskSpaceHealthIndicator extends AbstractHealthIndicator {
 		this.threshold = threshold;
 	}
 
+	/**
+	 * Create a new {@code DiskSpaceHealthIndicator} instance.
+	 * @param path the Path used to compute the available disk space
+	 * @param threshold the minimum disk space that should be available (in bytes)
+	 * @deprecated since 2.1.0 in favor of
+	 * {@link #DiskSpaceHealthIndicator(File, DataSize)}
+	 */
+	@Deprecated
+	public DiskSpaceHealthIndicator(File path, long threshold) {
+		this(path, DataSize.ofBytes(threshold));
+	}
+
 	@Override
 	protected void doHealthCheck(Health.Builder builder) throws Exception {
 		long diskFreeInBytes = this.path.getUsableSpace();
@@ -63,7 +74,7 @@ public class DiskSpaceHealthIndicator extends AbstractHealthIndicator {
 			builder.up();
 		}
 		else {
-			logger.warn(LogMessage.format("Free disk space below threshold. Available: %d bytes (threshold: %s)",
+			logger.warn(String.format("Free disk space below threshold. " + "Available: %d bytes (threshold: %s)",
 					diskFreeInBytes, this.threshold));
 			builder.down();
 		}

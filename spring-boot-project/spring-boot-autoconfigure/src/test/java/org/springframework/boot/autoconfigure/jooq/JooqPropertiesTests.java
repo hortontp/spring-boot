@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.jooq.SQLDialect;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -42,19 +42,19 @@ import static org.mockito.Mockito.verify;
  *
  * @author Stephane Nicoll
  */
-class JooqPropertiesTests {
+public class JooqPropertiesTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void determineSqlDialectNoCheckIfDialectIsSet() throws SQLException {
+	public void determineSqlDialectNoCheckIfDialectIsSet() throws SQLException {
 		JooqProperties properties = load("spring.jooq.sql-dialect=postgres");
 		DataSource dataSource = mockStandaloneDataSource();
 		SQLDialect sqlDialect = properties.determineSqlDialect(dataSource);
@@ -63,21 +63,21 @@ class JooqPropertiesTests {
 	}
 
 	@Test
-	void determineSqlDialectWithKnownUrl() {
+	public void determineSqlDialectWithKnownUrl() {
 		JooqProperties properties = load();
 		SQLDialect sqlDialect = properties.determineSqlDialect(mockDataSource("jdbc:h2:mem:testdb"));
 		assertThat(sqlDialect).isEqualTo(SQLDialect.H2);
 	}
 
 	@Test
-	void determineSqlDialectWithKnownUrlAndUserConfig() {
+	public void determineSqlDialectWithKnownUrlAndUserConfig() {
 		JooqProperties properties = load("spring.jooq.sql-dialect=mysql");
 		SQLDialect sqlDialect = properties.determineSqlDialect(mockDataSource("jdbc:h2:mem:testdb"));
 		assertThat(sqlDialect).isEqualTo(SQLDialect.MYSQL);
 	}
 
 	@Test
-	void determineSqlDialectWithUnknownUrl() {
+	public void determineSqlDialectWithUnknownUrl() {
 		JooqProperties properties = load();
 		SQLDialect sqlDialect = properties.determineSqlDialect(mockDataSource("jdbc:unknown://localhost"));
 		assertThat(sqlDialect).isEqualTo(SQLDialect.DEFAULT);
@@ -113,7 +113,7 @@ class JooqPropertiesTests {
 		return this.context.getBean(JooqProperties.class);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties(JooqProperties.class)
 	static class TestConfiguration {
 

@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.webservices.client;
 
 import java.util.function.Consumer;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
@@ -43,13 +43,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Dmytro Nosan
  */
-class WebServiceTemplateAutoConfigurationTests {
+public class WebServiceTemplateAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(WebServiceTemplateAutoConfiguration.class));
 
 	@Test
-	void autoConfiguredBuilderShouldNotHaveMarshallerAndUnmarshaller() {
+	public void autoConfiguredBuilderShouldNotHaveMarshallerAndUnmarshaller() {
 		this.contextRunner.run(assertWebServiceTemplateBuilder((builder) -> {
 			WebServiceTemplate webServiceTemplate = builder.build();
 			assertThat(webServiceTemplate.getUnmarshaller()).isNull();
@@ -58,7 +58,7 @@ class WebServiceTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void autoConfiguredBuilderShouldHaveHttpMessageSenderByDefault() {
+	public void autoConfiguredBuilderShouldHaveHttpMessageSenderByDefault() {
 		this.contextRunner.run(assertWebServiceTemplateBuilder((builder) -> {
 			WebServiceTemplate webServiceTemplate = builder.build();
 			assertThat(webServiceTemplate.getMessageSenders()).hasSize(1);
@@ -68,7 +68,7 @@ class WebServiceTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void webServiceTemplateWhenHasCustomBuilderShouldUseCustomBuilder() {
+	public void webServiceTemplateWhenHasCustomBuilderShouldUseCustomBuilder() {
 		this.contextRunner.withUserConfiguration(CustomWebServiceTemplateBuilderConfig.class)
 				.run(assertWebServiceTemplateBuilder((builder) -> {
 					WebServiceTemplate webServiceTemplate = builder.build();
@@ -78,7 +78,7 @@ class WebServiceTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void webServiceTemplateShouldApplyCustomizer() {
+	public void webServiceTemplateShouldApplyCustomizer() {
 		this.contextRunner.withUserConfiguration(WebServiceTemplateCustomizerConfig.class)
 				.run(assertWebServiceTemplateBuilder((builder) -> {
 					WebServiceTemplate webServiceTemplate = builder.build();
@@ -88,7 +88,7 @@ class WebServiceTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void builderShouldBeFreshForEachUse() {
+	public void builderShouldBeFreshForEachUse() {
 		this.contextRunner.withUserConfiguration(DirtyWebServiceTemplateConfig.class)
 				.run((context) -> assertThat(context).hasNotFailed());
 	}
@@ -101,11 +101,11 @@ class WebServiceTemplateAutoConfigurationTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class DirtyWebServiceTemplateConfig {
 
 		@Bean
-		WebServiceTemplate webServiceTemplateOne(WebServiceTemplateBuilder builder) {
+		public WebServiceTemplate webServiceTemplateOne(WebServiceTemplateBuilder builder) {
 			try {
 				return builder.build();
 			}
@@ -115,7 +115,7 @@ class WebServiceTemplateAutoConfigurationTests {
 		}
 
 		@Bean
-		WebServiceTemplate webServiceTemplateTwo(WebServiceTemplateBuilder builder) {
+		public WebServiceTemplate webServiceTemplateTwo(WebServiceTemplateBuilder builder) {
 			try {
 				return builder.build();
 			}
@@ -132,25 +132,25 @@ class WebServiceTemplateAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomWebServiceTemplateBuilderConfig {
 
 		private static final Marshaller marshaller = new Jaxb2Marshaller();
 
 		@Bean
-		WebServiceTemplateBuilder webServiceTemplateBuilder() {
+		public WebServiceTemplateBuilder webServiceTemplateBuilder() {
 			return new WebServiceTemplateBuilder().setMarshaller(marshaller);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WebServiceTemplateCustomizerConfig {
 
 		private static final Unmarshaller unmarshaller = new Jaxb2Marshaller();
 
 		@Bean
-		WebServiceTemplateCustomizer webServiceTemplateCustomizer() {
+		public WebServiceTemplateCustomizer webServiceTemplateCustomizer() {
 			return (ws) -> ws.setUnmarshaller(unmarshaller);
 		}
 

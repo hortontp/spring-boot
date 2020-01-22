@@ -27,7 +27,7 @@ import com.mongodb.connection.StreamFactoryFactory;
 import com.mongodb.connection.netty.NettyStreamFactoryFactory;
 import com.mongodb.reactivestreams.client.MongoClient;
 import io.netty.channel.EventLoopGroup;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -47,18 +47,18 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @author Stephane Nicoll
  */
-class MongoReactiveAutoConfigurationTests {
+public class MongoReactiveAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(MongoReactiveAutoConfiguration.class));
 
 	@Test
-	void clientExists() {
+	public void clientExists() {
 		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(MongoClient.class));
 	}
 
 	@Test
-	void optionsAdded() {
+	public void optionsAdded() {
 		this.contextRunner.withPropertyValues("spring.data.mongodb.host:localhost")
 				.withUserConfiguration(OptionsConfig.class)
 				.run((context) -> assertThat(getSettings(context).getSocketSettings().getReadTimeout(TimeUnit.SECONDS))
@@ -66,7 +66,7 @@ class MongoReactiveAutoConfigurationTests {
 	}
 
 	@Test
-	void optionsAddedButNoHost() {
+	public void optionsAddedButNoHost() {
 		this.contextRunner.withPropertyValues("spring.data.mongodb.uri:mongodb://localhost/test")
 				.withUserConfiguration(OptionsConfig.class)
 				.run((context) -> assertThat(getSettings(context).getReadPreference())
@@ -74,7 +74,7 @@ class MongoReactiveAutoConfigurationTests {
 	}
 
 	@Test
-	void optionsSslConfig() {
+	public void optionsSslConfig() {
 		this.contextRunner.withPropertyValues("spring.data.mongodb.uri:mongodb://localhost/test")
 				.withUserConfiguration(SslOptionsConfig.class).run((context) -> {
 					assertThat(context).hasSingleBean(MongoClient.class);
@@ -85,7 +85,7 @@ class MongoReactiveAutoConfigurationTests {
 	}
 
 	@Test
-	void nettyStreamFactoryFactoryIsConfiguredAutomatically() {
+	public void nettyStreamFactoryFactoryIsConfiguredAutomatically() {
 		AtomicReference<EventLoopGroup> eventLoopGroupReference = new AtomicReference<>();
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(MongoClient.class);
@@ -99,7 +99,7 @@ class MongoReactiveAutoConfigurationTests {
 	}
 
 	@Test
-	void customizerOverridesAutoConfig() {
+	public void customizerOverridesAutoConfig() {
 		this.contextRunner.withPropertyValues("spring.data.mongodb.uri:mongodb://localhost/test?appname=auto-config")
 				.withUserConfiguration(SimpleCustomizerConfig.class).run((context) -> {
 					assertThat(context).hasSingleBean(MongoClient.class);
@@ -116,28 +116,28 @@ class MongoReactiveAutoConfigurationTests {
 		return (MongoClientSettings) ReflectionTestUtils.getField(client.getSettings(), "wrapped");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class OptionsConfig {
 
 		@Bean
-		MongoClientSettings mongoClientSettings() {
+		public MongoClientSettings mongoClientSettings() {
 			return MongoClientSettings.builder().readPreference(ReadPreference.nearest())
 					.applyToSocketSettings((socket) -> socket.readTimeout(300, TimeUnit.SECONDS)).build();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SslOptionsConfig {
 
 		@Bean
-		MongoClientSettings mongoClientSettings(StreamFactoryFactory streamFactoryFactory) {
+		public MongoClientSettings mongoClientSettings() {
 			return MongoClientSettings.builder().applicationName("test-config")
-					.streamFactoryFactory(streamFactoryFactory).build();
+					.streamFactoryFactory(myStreamFactoryFactory()).build();
 		}
 
 		@Bean
-		StreamFactoryFactory myStreamFactoryFactory() {
+		public StreamFactoryFactory myStreamFactoryFactory() {
 			StreamFactoryFactory streamFactoryFactory = mock(StreamFactoryFactory.class);
 			given(streamFactoryFactory.create(any(), any())).willReturn(mock(StreamFactory.class));
 			return streamFactoryFactory;
@@ -145,14 +145,14 @@ class MongoReactiveAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SimpleCustomizerConfig {
 
 		private static final StreamFactoryFactory streamFactoryFactory = new AsynchronousSocketChannelStreamFactoryFactory.Builder()
 				.build();
 
 		@Bean
-		MongoClientSettingsBuilderCustomizer customizer() {
+		public MongoClientSettingsBuilderCustomizer customizer() {
 			return (clientSettingsBuilder) -> clientSettingsBuilder.applicationName("overridden-name")
 					.streamFactoryFactory(streamFactoryFactory);
 		}

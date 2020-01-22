@@ -38,7 +38,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Stephane Nicoll
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureAfter({ MetricsAutoConfiguration.class, RabbitAutoConfiguration.class,
 		SimpleMetricsExportAutoConfiguration.class })
 @ConditionalOnClass({ ConnectionFactory.class, AbstractConnectionFactory.class })

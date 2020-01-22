@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package org.springframework.boot.autoconfigure.data.cassandra;
 
 import java.util.Set;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import com.datastax.driver.core.Session;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.cassandra.city.City;
@@ -44,26 +44,26 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Mark Paluch
  */
-class CassandraReactiveDataAutoConfigurationTests {
+public class CassandraReactiveDataAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void templateExists() {
+	public void templateExists() {
 		load("spring.data.cassandra.keyspaceName:boot_test");
 		assertThat(this.context.getBeanNamesForType(ReactiveCassandraTemplate.class)).hasSize(1);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void entityScanShouldSetInitialEntitySet() {
+	public void entityScanShouldSetInitialEntitySet() {
 		load(EntityScanConfig.class, "spring.data.cassandra.keyspaceName:boot_test");
 		CassandraMappingContext mappingContext = this.context.getBean(CassandraMappingContext.class);
 		Set<Class<?>> initialEntitySet = (Set<Class<?>>) ReflectionTestUtils.getField(mappingContext,
@@ -72,7 +72,7 @@ class CassandraReactiveDataAutoConfigurationTests {
 	}
 
 	@Test
-	void userTypeResolverShouldBeSet() {
+	public void userTypeResolverShouldBeSet() {
 		load("spring.data.cassandra.keyspaceName:boot_test");
 		CassandraMappingContext mappingContext = this.context.getBean(CassandraMappingContext.class);
 		assertThat(ReflectionTestUtils.getField(mappingContext, "userTypeResolver"))
@@ -95,17 +95,17 @@ class CassandraReactiveDataAutoConfigurationTests {
 		this.context = ctx;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestConfiguration {
 
 		@Bean
-		CqlSession cqlSession() {
-			return mock(CqlSession.class);
+		public Session session() {
+			return mock(Session.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EntityScan("org.springframework.boot.autoconfigure.data.cassandra.city")
 	static class EntityScanConfig {
 

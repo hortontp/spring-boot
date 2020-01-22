@@ -16,12 +16,14 @@
 
 package org.springframework.boot.autoconfigure.jdbc;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.diagnostics.FailureAnalysis;
-import org.springframework.boot.testsupport.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
@@ -34,13 +36,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  */
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar" })
-class DataSourceBeanCreationFailureAnalyzerTests {
+public class DataSourceBeanCreationFailureAnalyzerTests {
 
 	private final MockEnvironment environment = new MockEnvironment();
 
 	@Test
-	void failureAnalysisIsPerformed() {
+	public void failureAnalysisIsPerformed() {
 		FailureAnalysis failureAnalysis = performAnalysis(TestConfiguration.class);
 		assertThat(failureAnalysis.getDescription()).contains("'url' attribute is not specified",
 				"no embedded datasource could be configured", "Failed to determine a suitable driver class");
@@ -51,7 +54,7 @@ class DataSourceBeanCreationFailureAnalyzerTests {
 	}
 
 	@Test
-	void failureAnalysisIsPerformedWithActiveProfiles() {
+	public void failureAnalysisIsPerformedWithActiveProfiles() {
 		this.environment.setActiveProfiles("first", "second");
 		FailureAnalysis failureAnalysis = performAnalysis(TestConfiguration.class);
 		assertThat(failureAnalysis.getAction()).contains("(the profiles first,second are currently active)");
@@ -79,7 +82,7 @@ class DataSourceBeanCreationFailureAnalyzerTests {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportAutoConfiguration(DataSourceAutoConfiguration.class)
 	static class TestConfiguration {
 

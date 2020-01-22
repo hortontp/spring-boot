@@ -32,21 +32,27 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 
 /**
- * {@link Configuration @Configuration} used to map {@link OAuth2ClientProperties} to
- * client registrations.
+ * {@link Configuration} used to map {@link OAuth2ClientProperties} to client
+ * registrations.
  *
  * @author Madhura Bhave
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 @Conditional(ClientsConfiguredCondition.class)
 class OAuth2ClientRegistrationRepositoryConfiguration {
 
+	private final OAuth2ClientProperties properties;
+
+	OAuth2ClientRegistrationRepositoryConfiguration(OAuth2ClientProperties properties) {
+		this.properties = properties;
+	}
+
 	@Bean
 	@ConditionalOnMissingBean(ClientRegistrationRepository.class)
-	InMemoryClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties properties) {
+	public InMemoryClientRegistrationRepository clientRegistrationRepository() {
 		List<ClientRegistration> registrations = new ArrayList<>(
-				OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(properties).values());
+				OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(this.properties).values());
 		return new InMemoryClientRegistrationRepository(registrations);
 	}
 

@@ -20,8 +20,7 @@ import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring KairosDB
- * metrics export.
+ * {@link ConfigurationProperties} for configuring KairosDB metrics export.
  *
  * @author Stephane Nicoll
  * @since 2.1.0

@@ -42,7 +42,6 @@ abstract class AbstractFreeMarkerConfiguration {
 		factory.setPreferFileSystemAccess(this.properties.isPreferFileSystemAccess());
 		factory.setDefaultEncoding(this.properties.getCharsetName());
 		Properties settings = new Properties();
-		settings.put("recognize_standard_file_extensions", "true");
 		settings.putAll(this.properties.getSettings());
 		factory.setFreemarkerSettings(settings);
 	}

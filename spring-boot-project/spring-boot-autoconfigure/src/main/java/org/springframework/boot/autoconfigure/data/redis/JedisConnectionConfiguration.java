@@ -43,26 +43,31 @@ import org.springframework.util.StringUtils;
  * @author Mark Paluch
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ GenericObjectPool.class, JedisConnection.class, Jedis.class })
 class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 
+	private final RedisProperties properties;
+
+	private final ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers;
+
 	JedisConnectionConfiguration(RedisProperties properties,
 			ObjectProvider<RedisSentinelConfiguration> sentinelConfiguration,
-			ObjectProvider<RedisClusterConfiguration> clusterConfiguration) {
+			ObjectProvider<RedisClusterConfiguration> clusterConfiguration,
+			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) {
 		super(properties, sentinelConfiguration, clusterConfiguration);
+		this.properties = properties;
+		this.builderCustomizers = builderCustomizers;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(RedisConnectionFactory.class)
-	JedisConnectionFactory redisConnectionFactory(
-			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) throws UnknownHostException {
-		return createJedisConnectionFactory(builderCustomizers);
+	public JedisConnectionFactory redisConnectionFactory() throws UnknownHostException {
+		return createJedisConnectionFactory();
 	}
 
-	private JedisConnectionFactory createJedisConnectionFactory(
-			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) {
-		JedisClientConfiguration clientConfiguration = getJedisClientConfiguration(builderCustomizers);
+	private JedisConnectionFactory createJedisConnectionFactory() {
+		JedisClientConfiguration clientConfiguration = getJedisClientConfiguration();
 		if (getSentinelConfig() != null) {
 			return new JedisConnectionFactory(getSentinelConfig(), clientConfiguration);
 		}
@@ -72,30 +77,26 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 		return new JedisConnectionFactory(getStandaloneConfig(), clientConfiguration);
 	}
 
-	private JedisClientConfiguration getJedisClientConfiguration(
-			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) {
+	private JedisClientConfiguration getJedisClientConfiguration() {
 		JedisClientConfigurationBuilder builder = applyProperties(JedisClientConfiguration.builder());
-		RedisProperties.Pool pool = getProperties().getJedis().getPool();
+		RedisProperties.Pool pool = this.properties.getJedis().getPool();
 		if (pool != null) {
 			applyPooling(pool, builder);
 		}
-		if (StringUtils.hasText(getProperties().getUrl())) {
+		if (StringUtils.hasText(this.properties.getUrl())) {
 			customizeConfigurationFromUrl(builder);
 		}
-		builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
+		customize(builder);
 		return builder.build();
 	}
 
 	private JedisClientConfigurationBuilder applyProperties(JedisClientConfigurationBuilder builder) {
-		if (getProperties().isSsl()) {
+		if (this.properties.isSsl()) {
 			builder.useSsl();
 		}
-		if (getProperties().getTimeout() != null) {
-			Duration timeout = getProperties().getTimeout();
+		if (this.properties.getTimeout() != null) {
+			Duration timeout = this.properties.getTimeout();
 			builder.readTimeout(timeout).connectTimeout(timeout);
-		}
-		if (StringUtils.hasText(getProperties().getClientName())) {
-			builder.clientName(getProperties().getClientName());
 		}
 		return builder;
 	}
@@ -120,10 +121,14 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 	}
 
 	private void customizeConfigurationFromUrl(JedisClientConfiguration.JedisClientConfigurationBuilder builder) {
-		ConnectionInfo connectionInfo = parseUrl(getProperties().getUrl());
+		ConnectionInfo connectionInfo = parseUrl(this.properties.getUrl());
 		if (connectionInfo.isUseSsl()) {
 			builder.useSsl();
 		}
+	}
+
+	private void customize(JedisClientConfiguration.JedisClientConfigurationBuilder builder) {
+		this.builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
 	}
 
 }

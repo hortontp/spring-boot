@@ -78,7 +78,7 @@ class InitializrServiceMetadata {
 	 * Return the dependencies supported by the service.
 	 * @return the supported dependencies
 	 */
-	Collection<Dependency> getDependencies() {
+	public Collection<Dependency> getDependencies() {
 		return this.dependencies.values();
 	}
 
@@ -88,7 +88,7 @@ class InitializrServiceMetadata {
 	 * @param id the id
 	 * @return the dependency or {@code null}
 	 */
-	Dependency getDependency(String id) {
+	public Dependency getDependency(String id) {
 		return this.dependencies.get(id);
 	}
 
@@ -96,7 +96,7 @@ class InitializrServiceMetadata {
 	 * Return the project types supported by the service.
 	 * @return the supported project types
 	 */
-	Map<String, ProjectType> getProjectTypes() {
+	public Map<String, ProjectType> getProjectTypes() {
 		return this.projectTypes.getContent();
 	}
 
@@ -105,7 +105,7 @@ class InitializrServiceMetadata {
 	 * default.
 	 * @return the default project type or {@code null}
 	 */
-	ProjectType getDefaultType() {
+	public ProjectType getDefaultType() {
 		if (this.projectTypes.getDefaultItem() != null) {
 			return this.projectTypes.getDefaultItem();
 		}
@@ -120,7 +120,7 @@ class InitializrServiceMetadata {
 	 * Returns the defaults applicable to the service.
 	 * @return the defaults of the service
 	 */
-	Map<String, String> getDefaults() {
+	public Map<String, String> getDefaults() {
 		return this.defaults;
 	}
 
@@ -229,15 +229,15 @@ class InitializrServiceMetadata {
 			this.content = new HashMap<>();
 		}
 
-		Map<K, T> getContent() {
+		public Map<K, T> getContent() {
 			return this.content;
 		}
 
-		T getDefaultItem() {
+		public T getDefaultItem() {
 			return this.defaultItem;
 		}
 
-		void setDefaultItem(T defaultItem) {
+		public void setDefaultItem(T defaultItem) {
 			this.defaultItem = defaultItem;
 		}
 

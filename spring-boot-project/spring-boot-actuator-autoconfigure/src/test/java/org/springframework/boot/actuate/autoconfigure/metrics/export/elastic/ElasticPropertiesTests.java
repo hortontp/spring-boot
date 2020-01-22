@@ -17,7 +17,6 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.elastic;
 
 import io.micrometer.elastic.ElasticConfig;
-import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesTests;
 
@@ -28,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class ElasticPropertiesTests extends StepRegistryPropertiesTests {
+public class ElasticPropertiesTests extends StepRegistryPropertiesTests {
 
-	@Test
-	void defaultValuesAreConsistent() {
+	@Override
+	public void defaultValuesAreConsistent() {
 		ElasticProperties properties = new ElasticProperties();
 		ElasticConfig config = ElasticConfig.DEFAULT;
 		assertStepRegistryDefaultValues(properties, config);

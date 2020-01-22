@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.prometheus;
 
 import io.micrometer.prometheus.PrometheusConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class PrometheusPropertiesTests {
+public class PrometheusPropertiesTests {
 
 	@Test
-	void defaultValuesAreConsistent() {
+	public void defaultValuesAreConsistent() {
 		PrometheusProperties properties = new PrometheusProperties();
 		PrometheusConfig config = PrometheusConfig.DEFAULT;
 		assertThat(properties.isDescriptions()).isEqualTo(config.descriptions());

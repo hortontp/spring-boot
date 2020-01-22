@@ -24,7 +24,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.connection.ClusterSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
@@ -42,12 +42,12 @@ import static org.mockito.Mockito.verify;
  * @author Mark Paluch
  * @author Stephane Nicoll
  */
-class ReactiveMongoClientFactoryTests {
+public class ReactiveMongoClientFactoryTests {
 
 	private MockEnvironment environment = new MockEnvironment();
 
 	@Test
-	void portCanBeCustomized() {
+	public void portCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
 		properties.setPort(12345);
 		MongoClient client = createMongoClient(properties);
@@ -57,7 +57,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void hostCanBeCustomized() {
+	public void hostCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
 		properties.setHost("mongo.example.com");
 		MongoClient client = createMongoClient(properties);
@@ -67,7 +67,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void credentialsCanBeCustomized() {
+	public void credentialsCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
 		properties.setUsername("user");
 		properties.setPassword("secret".toCharArray());
@@ -76,7 +76,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void databaseCanBeCustomized() {
+	public void databaseCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
 		properties.setDatabase("foo");
 		properties.setUsername("user");
@@ -86,7 +86,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void authenticationDatabaseCanBeCustomized() {
+	public void authenticationDatabaseCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
 		properties.setAuthenticationDatabase("foo");
 		properties.setUsername("user");
@@ -96,9 +96,9 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void uriCanBeCustomized() {
+	public void uriCanBeCustomized() {
 		MongoProperties properties = new MongoProperties();
-		properties.setUri("mongodb://user:secret@mongo1.example.com:12345,mongo2.example.com:23456/test");
+		properties.setUri("mongodb://user:secret@mongo1.example.com:12345," + "mongo2.example.com:23456/test");
 		MongoClient client = createMongoClient(properties);
 		List<ServerAddress> allAddresses = extractServerAddresses(client);
 		assertThat(allAddresses).hasSize(2);
@@ -109,7 +109,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void retryWritesIsPropagatedFromUri() {
+	public void retryWritesIsPropagatedFromUri() {
 		MongoProperties properties = new MongoProperties();
 		properties.setUri("mongodb://localhost/test?retryWrites=true");
 		MongoClient client = createMongoClient(properties);
@@ -117,27 +117,27 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void uriCannotBeSetWithCredentials() {
+	public void uriCannotBeSetWithCredentials() {
 		MongoProperties properties = new MongoProperties();
 		properties.setUri("mongodb://127.0.0.1:1234/mydb");
 		properties.setUsername("user");
 		properties.setPassword("secret".toCharArray());
 		assertThatIllegalStateException().isThrownBy(() -> createMongoClient(properties)).withMessageContaining(
-				"Invalid mongo configuration, either uri or host/port/credentials must be specified");
+				"Invalid mongo configuration, " + "either uri or host/port/credentials must be specified");
 	}
 
 	@Test
-	void uriCannotBeSetWithHostPort() {
+	public void uriCannotBeSetWithHostPort() {
 		MongoProperties properties = new MongoProperties();
 		properties.setUri("mongodb://127.0.0.1:1234/mydb");
 		properties.setHost("localhost");
 		properties.setPort(4567);
 		assertThatIllegalStateException().isThrownBy(() -> createMongoClient(properties)).withMessageContaining(
-				"Invalid mongo configuration, either uri or host/port/credentials must be specified");
+				"Invalid mongo configuration, " + "either uri or host/port/credentials must be specified");
 	}
 
 	@Test
-	void uriIsIgnoredInEmbeddedMode() {
+	public void uriIsIgnoredInEmbeddedMode() {
 		MongoProperties properties = new MongoProperties();
 		properties.setUri("mongodb://mongo.example.com:1234/mydb");
 		this.environment.setProperty("local.mongo.port", "4000");
@@ -148,7 +148,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void customizerIsInvoked() {
+	public void customizerIsInvoked() {
 		MongoProperties properties = new MongoProperties();
 		MongoClientSettingsBuilderCustomizer customizer = mock(MongoClientSettingsBuilderCustomizer.class);
 		createMongoClient(properties, this.environment, customizer);
@@ -156,7 +156,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void customizerIsInvokedWhenHostIsSet() {
+	public void customizerIsInvokedWhenHostIsSet() {
 		MongoProperties properties = new MongoProperties();
 		properties.setHost("localhost");
 		MongoClientSettingsBuilderCustomizer customizer = mock(MongoClientSettingsBuilderCustomizer.class);
@@ -165,7 +165,7 @@ class ReactiveMongoClientFactoryTests {
 	}
 
 	@Test
-	void customizerIsInvokedForEmbeddedMongo() {
+	public void customizerIsInvokedForEmbeddedMongo() {
 		MongoProperties properties = new MongoProperties();
 		this.environment.setProperty("local.mongo.port", "27017");
 		MongoClientSettingsBuilderCustomizer customizer = mock(MongoClientSettingsBuilderCustomizer.class);

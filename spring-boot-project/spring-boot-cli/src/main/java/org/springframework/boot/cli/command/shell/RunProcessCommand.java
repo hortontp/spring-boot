@@ -59,7 +59,7 @@ class RunProcessCommand extends AbstractCommand {
 		}
 	}
 
-	boolean handleSigInt() {
+	public boolean handleSigInt() {
 		return this.process.handleSigInt();
 	}
 

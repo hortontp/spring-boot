@@ -27,7 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint.ApplicationMappings;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint.ContextMappings;
@@ -42,7 +42,6 @@ import org.springframework.boot.actuate.web.mappings.servlet.ServletsMappingDesc
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,6 +50,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -70,10 +70,10 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  */
-class MappingsEndpointTests {
+public class MappingsEndpointTests {
 
 	@Test
-	void servletWebMappings() {
+	public void servletWebMappings() {
 		Supplier<ConfigurableWebApplicationContext> contextSupplier = prepareContextSupplier();
 		new WebApplicationContextRunner(contextSupplier)
 				.withUserConfiguration(EndpointConfiguration.class, ServletWebConfiguration.class).run((context) -> {
@@ -95,7 +95,7 @@ class MappingsEndpointTests {
 	}
 
 	@Test
-	void servletWebMappingsWithAdditionalDispatcherServlets() {
+	public void servletWebMappingsWithAdditionalDispatcherServlets() {
 		Supplier<ConfigurableWebApplicationContext> contextSupplier = prepareContextSupplier();
 		new WebApplicationContextRunner(contextSupplier).withUserConfiguration(EndpointConfiguration.class,
 				ServletWebConfiguration.class, CustomDispatcherServletConfiguration.class).run((context) -> {
@@ -122,14 +122,14 @@ class MappingsEndpointTests {
 		given((Map<String, ServletRegistration>) servletContext.getServletRegistrations())
 				.willReturn(Collections.singletonMap("testServlet", servletRegistration));
 		return () -> {
-			AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
+			AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 			context.setServletContext(servletContext);
 			return context;
 		};
 	}
 
 	@Test
-	void reactiveWebMappings() {
+	public void reactiveWebMappings() {
 		new ReactiveWebApplicationContextRunner()
 				.withUserConfiguration(EndpointConfiguration.class, ReactiveWebConfiguration.class).run((context) -> {
 					ContextMappings contextMappings = contextMappings(context);
@@ -154,69 +154,69 @@ class MappingsEndpointTests {
 		return (T) contextMappings.getMappings().get(key);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class EndpointConfiguration {
 
 		@Bean
-		MappingsEndpoint mappingsEndpoint(Collection<MappingDescriptionProvider> descriptionProviders,
+		public MappingsEndpoint mappingsEndpoint(Collection<MappingDescriptionProvider> descriptionProviders,
 				ApplicationContext context) {
 			return new MappingsEndpoint(descriptionProviders, context);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebFlux
 	@Controller
 	static class ReactiveWebConfiguration {
 
 		@Bean
-		DispatcherHandlersMappingDescriptionProvider dispatcherHandlersMappingDescriptionProvider() {
+		public DispatcherHandlersMappingDescriptionProvider dispatcherHandlersMappingDescriptionProvider() {
 			return new DispatcherHandlersMappingDescriptionProvider();
 		}
 
 		@Bean
-		RouterFunction<ServerResponse> routerFunction() {
+		public RouterFunction<ServerResponse> routerFunction() {
 			return route(GET("/one"), (request) -> ServerResponse.ok().build()).andRoute(POST("/two"),
 					(request) -> ServerResponse.ok().build());
 		}
 
 		@RequestMapping("/three")
-		void three() {
+		public void three() {
 
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebMvc
 	@Controller
 	static class ServletWebConfiguration {
 
 		@Bean
-		DispatcherServletsMappingDescriptionProvider dispatcherServletsMappingDescriptionProvider() {
+		public DispatcherServletsMappingDescriptionProvider dispatcherServletsMappingDescriptionProvider() {
 			return new DispatcherServletsMappingDescriptionProvider();
 		}
 
 		@Bean
-		ServletsMappingDescriptionProvider servletsMappingDescriptionProvider() {
+		public ServletsMappingDescriptionProvider servletsMappingDescriptionProvider() {
 			return new ServletsMappingDescriptionProvider();
 		}
 
 		@Bean
-		FiltersMappingDescriptionProvider filtersMappingDescriptionProvider() {
+		public FiltersMappingDescriptionProvider filtersMappingDescriptionProvider() {
 			return new FiltersMappingDescriptionProvider();
 		}
 
 		@Bean
-		DispatcherServlet dispatcherServlet(WebApplicationContext context) throws ServletException {
+		public DispatcherServlet dispatcherServlet(WebApplicationContext context) throws ServletException {
 			DispatcherServlet dispatcherServlet = new DispatcherServlet(context);
 			dispatcherServlet.init(new MockServletConfig());
 			return dispatcherServlet;
 		}
 
 		@RequestMapping("/three")
-		void three() {
+		public void three() {
 
 		}
 
@@ -226,7 +226,8 @@ class MappingsEndpointTests {
 	static class CustomDispatcherServletConfiguration {
 
 		@Bean
-		ServletRegistrationBean<DispatcherServlet> customDispatcherServletRegistration(WebApplicationContext context) {
+		public ServletRegistrationBean<DispatcherServlet> customDispatcherServletRegistration(
+				WebApplicationContext context) {
 			ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<>(
 					createTestDispatcherServlet(context));
 			registration.setName("customDispatcherServletRegistration");
@@ -234,13 +235,13 @@ class MappingsEndpointTests {
 		}
 
 		@Bean
-		DispatcherServlet anotherDispatcherServlet(WebApplicationContext context) {
+		public DispatcherServlet anotherDispatcherServlet(WebApplicationContext context) {
 			return createTestDispatcherServlet(context);
 		}
 
 		@Bean
-		ServletRegistrationBean<DispatcherServlet> anotherDispatcherServletRegistration(
-				DispatcherServlet dispatcherServlet, WebApplicationContext context) {
+		public ServletRegistrationBean<DispatcherServlet> anotherDispatcherServletRegistration(
+				WebApplicationContext context) {
 			ServletRegistrationBean<DispatcherServlet> registrationBean = new ServletRegistrationBean<>(
 					anotherDispatcherServlet(context));
 			registrationBean.setName("anotherDispatcherServletRegistration");

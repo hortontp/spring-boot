@@ -21,7 +21,7 @@ import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -41,13 +41,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Eddú Meléndez
  */
-class EmbeddedLdapAutoConfigurationTests {
+public class EmbeddedLdapAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EmbeddedLdapAutoConfiguration.class));
 
 	@Test
-	void testSetDefaultPort() {
+	public void testSetDefaultPort() {
 		this.contextRunner
 				.withPropertyValues("spring.ldap.embedded.port:1234", "spring.ldap.embedded.base-dn:dc=spring,dc=org")
 				.run((context) -> {
@@ -57,7 +57,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testRandomPortWithEnvironment() {
+	public void testRandomPortWithEnvironment() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.base-dn:dc=spring,dc=org").run((context) -> {
 			InMemoryDirectoryServer server = context.getBean(InMemoryDirectoryServer.class);
 			assertThat(server.getListenPort())
@@ -66,7 +66,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testRandomPortWithValueAnnotation() {
+	public void testRandomPortWithValueAnnotation() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		TestPropertyValues.of("spring.ldap.embedded.base-dn:dc=spring,dc=org").applyTo(context);
 		context.register(EmbeddedLdapAutoConfiguration.class, LdapClientConfiguration.class,
@@ -78,7 +78,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testSetCredentials() {
+	public void testSetCredentials() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.base-dn:dc=spring,dc=org",
 				"spring.ldap.embedded.credential.username:uid=root", "spring.ldap.embedded.credential.password:boot")
 				.run((context) -> {
@@ -89,7 +89,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testSetPartitionSuffix() {
+	public void testSetPartitionSuffix() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.base-dn:dc=spring,dc=org").run((context) -> {
 			InMemoryDirectoryServer server = context.getBean(InMemoryDirectoryServer.class);
 			assertThat(server.getBaseDNs()).containsExactly(new DN("dc=spring,dc=org"));
@@ -97,7 +97,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testSetLdifFile() {
+	public void testSetLdifFile() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.base-dn:dc=spring,dc=org").run((context) -> {
 			InMemoryDirectoryServer server = context.getBean(InMemoryDirectoryServer.class);
 			assertThat(server.countEntriesBelow("ou=company1,c=Sweden,dc=spring,dc=org")).isEqualTo(5);
@@ -105,17 +105,17 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testQueryEmbeddedLdap() {
+	public void testQueryEmbeddedLdap() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.base-dn:dc=spring,dc=org")
 				.withConfiguration(AutoConfigurations.of(LdapAutoConfiguration.class)).run((context) -> {
-					assertThat(context).hasSingleBean(LdapTemplate.class);
+					assertThat(context.getBeanNamesForType(LdapTemplate.class).length).isEqualTo(1);
 					LdapTemplate ldapTemplate = context.getBean(LdapTemplate.class);
 					assertThat(ldapTemplate.list("ou=company1,c=Sweden,dc=spring,dc=org")).hasSize(4);
 				});
 	}
 
 	@Test
-	void testDisableSchemaValidation() {
+	public void testDisableSchemaValidation() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.validation.enabled:false",
 				"spring.ldap.embedded.base-dn:dc=spring,dc=org").run((context) -> {
 					InMemoryDirectoryServer server = context.getBean(InMemoryDirectoryServer.class);
@@ -124,7 +124,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testCustomSchemaValidation() {
+	public void testCustomSchemaValidation() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.validation.schema:classpath:custom-schema.ldif",
 				"spring.ldap.embedded.ldif:classpath:custom-schema-sample.ldif",
 				"spring.ldap.embedded.base-dn:dc=spring,dc=org").run((context) -> {
@@ -136,7 +136,7 @@ class EmbeddedLdapAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiBaseDn() {
+	public void testMultiBaseDn() {
 		this.contextRunner.withPropertyValues("spring.ldap.embedded.ldif:classpath:schema-multi-basedn.ldif",
 				"spring.ldap.embedded.base-dn[0]:dc=spring,dc=org", "spring.ldap.embedded.base-dn[1]:dc=pivotal,dc=io")
 				.run((context) -> {
@@ -146,11 +146,11 @@ class EmbeddedLdapAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class LdapClientConfiguration {
 
 		@Bean
-		LDAPConnection ldapConnection(@Value("${local.ldap.port}") int port) throws LDAPException {
+		public LDAPConnection ldapConnection(@Value("${local.ldap.port}") int port) throws LDAPException {
 			LDAPConnection con = new LDAPConnection();
 			con.connect("localhost", port);
 			return con;

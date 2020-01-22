@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.metrics.export.appoptics;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesConfigAdapterTests;
 
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class AppOpticsPropertiesConfigAdapterTests
+public class AppOpticsPropertiesConfigAdapterTests
 		extends StepRegistryPropertiesConfigAdapterTests<AppOpticsProperties, AppOpticsPropertiesConfigAdapter> {
 
 	@Override
@@ -41,21 +41,21 @@ class AppOpticsPropertiesConfigAdapterTests
 	}
 
 	@Test
-	void whenPropertiesUriIsSetAdapterUriReturnsIt() {
+	public void whenPropertiesUrisIsSetAdapterUriReturnsIt() {
 		AppOpticsProperties properties = createProperties();
 		properties.setUri("https://appoptics.example.com/v1/measurements");
 		assertThat(createConfigAdapter(properties).uri()).isEqualTo("https://appoptics.example.com/v1/measurements");
 	}
 
 	@Test
-	void whenPropertiesApiTokenIsSetAdapterApiTokenReturnsIt() {
+	public void whenPropertiesApiTokenIsSetAdapterApiTokenReturnsIt() {
 		AppOpticsProperties properties = createProperties();
 		properties.setApiToken("ABC123");
 		assertThat(createConfigAdapter(properties).apiToken()).isEqualTo("ABC123");
 	}
 
 	@Test
-	void whenPropertiesHostTagIsSetAdapterHostTagReturnsIt() {
+	public void whenPropertiesHostTagIsSetAdapterHostTagReturnsIt() {
 		AppOpticsProperties properties = createProperties();
 		properties.setHostTag("node");
 		assertThat(createConfigAdapter(properties).hostTag()).isEqualTo("node");

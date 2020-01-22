@@ -52,13 +52,10 @@ import org.springframework.util.StringUtils;
  * @author Madhura Bhave
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(AuthenticationManager.class)
 @ConditionalOnBean(ObjectPostProcessor.class)
-@ConditionalOnMissingBean(
-		value = { AuthenticationManager.class, AuthenticationProvider.class, UserDetailsService.class },
-		type = { "org.springframework.security.oauth2.jwt.JwtDecoder",
-				"org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector" })
+@ConditionalOnMissingBean({ AuthenticationManager.class, AuthenticationProvider.class, UserDetailsService.class })
 public class UserDetailsServiceAutoConfiguration {
 
 	private static final String NOOP_PASSWORD_PREFIX = "{noop}";

@@ -25,7 +25,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.log.LogMessage;
 
 /**
  * Bean to handle {@link DataSource} initialization by running {@literal schema-*.sql} on
@@ -77,8 +76,7 @@ class DataSourceInitializerInvoker implements ApplicationListener<DataSourceSche
 			}
 		}
 		catch (IllegalStateException ex) {
-			logger.warn(LogMessage.format("Could not send event to complete DataSource initialization (%s)",
-					ex.getMessage()));
+			logger.warn("Could not send event to complete DataSource initialization (" + ex.getMessage() + ")");
 		}
 	}
 

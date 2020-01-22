@@ -37,13 +37,13 @@ import org.springframework.context.annotation.Import;
  * @author Yulin Qin
  * @since 1.4.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ CouchbaseBucket.class, Cluster.class })
 @Conditional(CouchbaseAutoConfiguration.CouchbaseCondition.class)
 @EnableConfigurationProperties(CouchbaseProperties.class)
 public class CouchbaseAutoConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnMissingBean(value = CouchbaseConfiguration.class,
 			type = "org.springframework.data.couchbase.config.CouchbaseConfigurer")
 	@Import(CouchbaseConfiguration.class)

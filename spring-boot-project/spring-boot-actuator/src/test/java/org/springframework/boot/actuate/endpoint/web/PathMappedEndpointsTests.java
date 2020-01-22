@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.EndpointsSupplier;
@@ -37,80 +37,80 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class PathMappedEndpointsTests {
+public class PathMappedEndpointsTests {
 
 	@Test
-	void createWhenSupplierIsNullShouldThrowException() {
+	public void createWhenSupplierIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new PathMappedEndpoints(null, (WebEndpointsSupplier) null))
 				.withMessageContaining("Supplier must not be null");
 	}
 
 	@Test
-	void createWhenSuppliersIsNullShouldThrowException() {
+	public void createWhenSuppliersIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new PathMappedEndpoints(null, (Collection<EndpointsSupplier<?>>) null))
 				.withMessageContaining("Suppliers must not be null");
 	}
 
 	@Test
-	void iteratorShouldReturnPathMappedEndpoints() {
+	public void iteratorShouldReturnPathMappedEndpoints() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped).hasSize(2);
 		assertThat(mapped).extracting("endpointId").containsExactly(EndpointId.of("e2"), EndpointId.of("e3"));
 	}
 
 	@Test
-	void streamShouldReturnPathMappedEndpoints() {
+	public void streamShouldReturnPathMappedEndpoints() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.stream()).hasSize(2);
 		assertThat(mapped.stream()).extracting("endpointId").containsExactly(EndpointId.of("e2"), EndpointId.of("e3"));
 	}
 
 	@Test
-	void getRootPathWhenContainsIdShouldReturnRootPath() {
+	public void getRootPathWhenContainsIdShouldReturnRootPath() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getRootPath(EndpointId.of("e2"))).isEqualTo("p2");
 	}
 
 	@Test
-	void getRootPathWhenMissingIdShouldReturnNull() {
+	public void getRootPathWhenMissingIdShouldReturnNull() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getRootPath(EndpointId.of("xx"))).isNull();
 	}
 
 	@Test
-	void getPathWhenContainsIdShouldReturnRootPath() {
+	public void getPathWhenContainsIdShouldReturnRootPath() {
 		assertThat(createTestMapped(null).getPath(EndpointId.of("e2"))).isEqualTo("/p2");
 		assertThat(createTestMapped("/x").getPath(EndpointId.of("e2"))).isEqualTo("/x/p2");
 	}
 
 	@Test
-	void getPathWhenMissingIdShouldReturnNull() {
+	public void getPathWhenMissingIdShouldReturnNull() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getPath(EndpointId.of("xx"))).isNull();
 	}
 
 	@Test
-	void getAllRootPathsShouldReturnAllPaths() {
+	public void getAllRootPathsShouldReturnAllPaths() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getAllRootPaths()).containsExactly("p2", "p3");
 	}
 
 	@Test
-	void getAllPathsShouldReturnAllPaths() {
+	public void getAllPathsShouldReturnAllPaths() {
 		assertThat(createTestMapped(null).getAllPaths()).containsExactly("/p2", "/p3");
 		assertThat(createTestMapped("/x").getAllPaths()).containsExactly("/x/p2", "/x/p3");
 	}
 
 	@Test
-	void getEndpointWhenContainsIdShouldReturnPathMappedEndpoint() {
+	public void getEndpointWhenContainsIdShouldReturnPathMappedEndpoint() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getEndpoint(EndpointId.of("e2")).getRootPath()).isEqualTo("p2");
 	}
 
 	@Test
-	void getEndpointWhenMissingIdShouldReturnNull() {
+	public void getEndpointWhenMissingIdShouldReturnNull() {
 		PathMappedEndpoints mapped = createTestMapped(null);
 		assertThat(mapped.getEndpoint(EndpointId.of("xx"))).isNull();
 	}
@@ -137,11 +137,11 @@ class PathMappedEndpointsTests {
 		return endpoint;
 	}
 
-	public interface TestEndpoint extends ExposableEndpoint<Operation> {
+	interface TestEndpoint extends ExposableEndpoint<Operation> {
 
 	}
 
-	public interface TestPathMappedEndpoint extends ExposableEndpoint<Operation>, PathMappedEndpoint {
+	interface TestPathMappedEndpoint extends ExposableEndpoint<Operation>, PathMappedEndpoint {
 
 	}
 

@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -30,37 +30,37 @@ import org.springframework.util.ClassUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ImportAutoConfiguration @ImportAutoConfiguration}.
+ * Tests for {@link ImportAutoConfiguration}.
  *
  * @author Phillip Webb
  */
-class ImportAutoConfigurationTests {
+public class ImportAutoConfigurationTests {
 
 	@Test
-	void multipleAnnotationsShouldMergeCorrectly() {
+	public void multipleAnnotationsShouldMergeCorrectly() {
 		assertThat(getImportedConfigBeans(Config.class)).containsExactly("ConfigA", "ConfigB", "ConfigC", "ConfigD");
 		assertThat(getImportedConfigBeans(AnotherConfig.class)).containsExactly("ConfigA", "ConfigB", "ConfigC",
 				"ConfigD");
 	}
 
 	@Test
-	void classesAsAnAlias() {
+	public void classesAsAnAlias() {
 		assertThat(getImportedConfigBeans(AnotherConfigUsingClasses.class)).containsExactly("ConfigA", "ConfigB",
 				"ConfigC", "ConfigD");
 	}
 
 	@Test
-	void excluding() {
+	public void excluding() {
 		assertThat(getImportedConfigBeans(ExcludingConfig.class)).containsExactly("ConfigA", "ConfigB", "ConfigD");
 	}
 
 	@Test
-	void excludeAppliedGlobally() {
+	public void excludeAppliedGlobally() {
 		assertThat(getImportedConfigBeans(ExcludeDConfig.class, ImportADConfig.class)).containsExactly("ConfigA");
 	}
 
 	@Test
-	void excludeWithRedundancy() {
+	public void excludeWithRedundancy() {
 		assertThat(getImportedConfigBeans(ExcludeADConfig.class, ExcludeDConfig.class, ImportADConfig.class)).isEmpty();
 	}
 
@@ -124,24 +124,24 @@ class ImportAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ConfigA {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@AutoConfigureAfter(ConfigA.class)
 	static class ConfigB {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@AutoConfigureAfter(ConfigB.class)
 	static class ConfigC {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@AutoConfigureAfter(ConfigC.class)
 	static class ConfigD {
 

@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.context.annotation.Configurations;
 
@@ -27,21 +27,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class AutoConfigurationsTests {
+public class AutoConfigurationsTests {
 
 	@Test
-	void ofShouldCreateOrderedConfigurations() {
+	public void ofShouldCreateOrderedConfigurations() {
 		Configurations configurations = AutoConfigurations.of(AutoConfigureA.class, AutoConfigureB.class);
 		assertThat(Configurations.getClasses(configurations)).containsExactly(AutoConfigureB.class,
 				AutoConfigureA.class);
 	}
 
 	@AutoConfigureAfter(AutoConfigureB.class)
-	static class AutoConfigureA {
+	public static class AutoConfigureA {
 
 	}
 
-	static class AutoConfigureB {
+	public static class AutoConfigureB {
 
 	}
 

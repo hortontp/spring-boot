@@ -22,11 +22,9 @@ import java.util.Map;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring Humio metrics
- * export.
+ * {@link ConfigurationProperties} for configuring Humio metrics export.
  *
  * @author Andy Wilkinson
  * @since 2.1.0
@@ -47,7 +45,7 @@ public class HumioProperties extends StepRegistryProperties {
 	/**
 	 * Name of the repository to publish metrics to.
 	 */
-	private String repository = "";
+	private String repository = "sandbox";
 
 	/**
 	 * Humio tags describing the data source in which metrics will be stored. Humio tags
@@ -80,13 +78,10 @@ public class HumioProperties extends StepRegistryProperties {
 		this.connectTimeout = connectTimeout;
 	}
 
-	@Deprecated
-	@DeprecatedConfigurationProperty(reason = "No longer used as repository is resolved from the api token.")
 	public String getRepository() {
 		return this.repository;
 	}
 
-	@Deprecated
 	public void setRepository(String repository) {
 		this.repository = repository;
 	}

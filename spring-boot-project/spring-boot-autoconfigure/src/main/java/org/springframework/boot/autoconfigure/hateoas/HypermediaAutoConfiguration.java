@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,25 +30,26 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.client.LinkDiscoverers;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.LinkDiscoverers;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.config.EnableEntityLinks;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 import org.springframework.plugin.core.Plugin;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Spring HATEOAS's
- * {@link EnableHypermediaSupport @EnableHypermediaSupport}.
+ * {@link EnableHypermediaSupport}.
  *
  * @author Roy Clarkson
  * @author Oliver Gierke
  * @author Andy Wilkinson
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnClass({ EntityModel.class, RequestMapping.class, RequestMappingHandlerAdapter.class, Plugin.class })
+@Configuration
+@ConditionalOnClass({ Resource.class, RequestMapping.class, Plugin.class })
 @ConditionalOnWebApplication
 @AutoConfigureAfter({ WebMvcAutoConfiguration.class, JacksonAutoConfiguration.class,
 		HttpMessageConvertersAutoConfiguration.class, RepositoryRestMvcAutoConfiguration.class })
@@ -56,11 +57,18 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Import(HypermediaHttpMessageConverterConfiguration.class)
 public class HypermediaAutoConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnMissingBean(LinkDiscoverers.class)
 	@ConditionalOnClass(ObjectMapper.class)
 	@EnableHypermediaSupport(type = HypermediaType.HAL)
 	protected static class HypermediaConfiguration {
+
+	}
+
+	@Configuration
+	@ConditionalOnMissingBean(EntityLinks.class)
+	@EnableEntityLinks
+	protected static class EntityLinksConfiguration {
 
 	}
 

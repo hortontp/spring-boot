@@ -29,9 +29,8 @@ import org.springframework.boot.convert.DurationStyle;
  * {@link Duration} (applicable to only timers).
  *
  * @author Phillip Webb
- * @since 2.2.0
  */
-public final class MeterValue {
+final class MeterValue {
 
 	private final Object value;
 
@@ -44,7 +43,8 @@ public final class MeterValue {
 	}
 
 	/**
-	 * Return the underlying value in form suitable to apply to the given meter type.
+	 * Return the underlying value of the SLA in form suitable to apply to the given meter
+	 * type.
 	 * @param meterType the meter type
 	 * @return the value or {@code null} if the value cannot be applied
 	 */

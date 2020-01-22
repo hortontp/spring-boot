@@ -21,7 +21,7 @@ import java.util.Collections;
 
 import javax.annotation.PostConstruct;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint.ContextConditionEvaluation;
 import org.springframework.boot.autoconfigure.condition.ConditionEvaluationReport;
@@ -43,10 +43,10 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class ConditionsReportEndpointTests {
+public class ConditionsReportEndpointTests {
 
 	@Test
-	void invoke() {
+	public void invoke() {
 		new ApplicationContextRunner().withUserConfiguration(Config.class).run((context) -> {
 			ContextConditionEvaluation report = context.getBean(ConditionsReportEndpoint.class)
 					.applicationConditionEvaluation().getContexts().get(context.getId());
@@ -57,18 +57,18 @@ class ConditionsReportEndpointTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
-	static class Config {
+	public static class Config {
 
 		private final ConfigurableApplicationContext context;
 
-		Config(ConfigurableApplicationContext context) {
+		public Config(ConfigurableApplicationContext context) {
 			this.context = context;
 		}
 
 		@PostConstruct
-		void setupAutoConfigurationReport() {
+		public void setupAutoConfigurationReport() {
 			ConditionEvaluationReport report = ConditionEvaluationReport.get(this.context.getBeanFactory());
 			report.recordEvaluationCandidates(Arrays.asList("a", "b"));
 			report.recordConditionEvaluation("a", mock(Condition.class), mock(ConditionOutcome.class));
@@ -76,7 +76,7 @@ class ConditionsReportEndpointTests {
 		}
 
 		@Bean
-		ConditionsReportEndpoint endpoint() {
+		public ConditionsReportEndpoint endpoint() {
 			return new ConditionsReportEndpoint(this.context);
 		}
 

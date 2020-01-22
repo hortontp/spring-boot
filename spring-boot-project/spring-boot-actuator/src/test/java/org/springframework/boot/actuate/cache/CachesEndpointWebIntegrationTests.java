@@ -19,11 +19,14 @@ package org.springframework.boot.actuate.cache;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.boot.actuate.endpoint.web.test.WebEndpointTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.boot.actuate.endpoint.web.test.WebEndpointRunners;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -36,10 +39,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class CachesEndpointWebIntegrationTests {
+@RunWith(WebEndpointRunners.class)
+public class CachesEndpointWebIntegrationTests {
 
-	@WebEndpointTest
-	void allCaches(WebTestClient client) {
+	private static WebTestClient client;
+
+	private static ConfigurableApplicationContext context;
+
+	@Test
+	public void allCaches() {
 		client.get().uri("/actuator/caches").exchange().expectStatus().isOk().expectBody()
 				.jsonPath("cacheManagers.one.caches.a.target").isEqualTo(ConcurrentHashMap.class.getName())
 				.jsonPath("cacheManagers.one.caches.b.target").isEqualTo(ConcurrentHashMap.class.getName())
@@ -47,61 +55,61 @@ class CachesEndpointWebIntegrationTests {
 				.jsonPath("cacheManagers.two.caches.c.target").isEqualTo(ConcurrentHashMap.class.getName());
 	}
 
-	@WebEndpointTest
-	void namedCache(WebTestClient client) {
+	@Test
+	public void namedCache() {
 		client.get().uri("/actuator/caches/b").exchange().expectStatus().isOk().expectBody().jsonPath("name")
 				.isEqualTo("b").jsonPath("cacheManager").isEqualTo("one").jsonPath("target")
 				.isEqualTo(ConcurrentHashMap.class.getName());
 	}
 
-	@WebEndpointTest
-	void namedCacheWithUnknownName(WebTestClient client) {
+	@Test
+	public void namedCacheWithUnknownName() {
 		client.get().uri("/actuator/caches/does-not-exist").exchange().expectStatus().isNotFound();
 	}
 
-	@WebEndpointTest
-	void namedCacheWithNonUniqueName(WebTestClient client) {
+	@Test
+	public void namedCacheWithNonUniqueName() {
 		client.get().uri("/actuator/caches/a").exchange().expectStatus().isBadRequest();
 	}
 
-	@WebEndpointTest
-	void clearNamedCache(WebTestClient client, ApplicationContext context) {
+	@Test
+	public void clearNamedCache() {
 		Cache b = context.getBean("one", CacheManager.class).getCache("b");
 		b.put("test", "value");
 		client.delete().uri("/actuator/caches/b").exchange().expectStatus().isNoContent();
 		assertThat(b.get("test")).isNull();
 	}
 
-	@WebEndpointTest
-	void cleanNamedCacheWithUnknownName(WebTestClient client) {
+	@Test
+	public void cleanNamedCacheWithUnknownName() {
 		client.delete().uri("/actuator/caches/does-not-exist").exchange().expectStatus().isNotFound();
 	}
 
-	@WebEndpointTest
-	void clearNamedCacheWithNonUniqueName(WebTestClient client) {
+	@Test
+	public void clearNamedCacheWithNonUniqueName() {
 		client.get().uri("/actuator/caches/a").exchange().expectStatus().isBadRequest();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestConfiguration {
 
 		@Bean
-		CacheManager one() {
+		public CacheManager one() {
 			return new ConcurrentMapCacheManager("a", "b");
 		}
 
 		@Bean
-		CacheManager two() {
+		public CacheManager two() {
 			return new ConcurrentMapCacheManager("a", "c");
 		}
 
 		@Bean
-		CachesEndpoint endpoint(Map<String, CacheManager> cacheManagers) {
+		public CachesEndpoint endpoint(Map<String, CacheManager> cacheManagers) {
 			return new CachesEndpoint(cacheManagers);
 		}
 
 		@Bean
-		CachesEndpointWebExtension cachesEndpointWebExtension(CachesEndpoint endpoint) {
+		public CachesEndpointWebExtension cachesEndpointWebExtension(CachesEndpoint endpoint) {
 			return new CachesEndpointWebExtension(endpoint);
 		}
 

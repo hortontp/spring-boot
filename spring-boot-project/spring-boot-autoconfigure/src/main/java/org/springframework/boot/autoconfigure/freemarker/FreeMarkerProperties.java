@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.template.AbstractTemplateViewResol
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
+ * {@link ConfigurationProperties} for configuring FreeMarker.
  *
  * @author Dave Syer
  * @author Andy Wilkinson
@@ -36,7 +36,7 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
 
 	public static final String DEFAULT_PREFIX = "";
 
-	public static final String DEFAULT_SUFFIX = ".ftlh";
+	public static final String DEFAULT_SUFFIX = ".ftl";
 
 	/**
 	 * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.

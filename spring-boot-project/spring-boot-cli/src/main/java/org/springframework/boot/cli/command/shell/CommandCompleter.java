@@ -130,11 +130,11 @@ public class CommandCompleter extends StringsCompleter {
 			this.usage = optionHelp.getUsageHelp();
 		}
 
-		String getOptions() {
+		public String getOptions() {
 			return this.options;
 		}
 
-		String getUsage() {
+		public String getUsage() {
 			return this.usage;
 		}
 

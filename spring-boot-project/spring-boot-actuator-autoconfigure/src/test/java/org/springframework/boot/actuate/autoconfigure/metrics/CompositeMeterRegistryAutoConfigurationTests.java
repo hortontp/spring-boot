@@ -20,7 +20,7 @@ import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class CompositeMeterRegistryAutoConfigurationTests {
+public class CompositeMeterRegistryAutoConfigurationTests {
 
 	private static final String COMPOSITE_NAME = "compositeMeterRegistry";
 
@@ -46,7 +46,7 @@ class CompositeMeterRegistryAutoConfigurationTests {
 			.withConfiguration(AutoConfigurations.of(CompositeMeterRegistryAutoConfiguration.class));
 
 	@Test
-	void registerWhenHasNoMeterRegistryShouldRegisterEmptyNoOpComposite() {
+	public void registerWhenHasNoMeterRegistryShouldRegisterEmptyNoOpComposite() {
 		this.contextRunner.withUserConfiguration(NoMeterRegistryConfig.class).run((context) -> {
 			assertThat(context).hasSingleBean(MeterRegistry.class);
 			CompositeMeterRegistry registry = context.getBean("noOpMeterRegistry", CompositeMeterRegistry.class);
@@ -55,7 +55,7 @@ class CompositeMeterRegistryAutoConfigurationTests {
 	}
 
 	@Test
-	void registerWhenHasSingleMeterRegistryShouldDoNothing() {
+	public void registerWhenHasSingleMeterRegistryShouldDoNothing() {
 		this.contextRunner.withUserConfiguration(SingleMeterRegistryConfig.class).run((context) -> {
 			assertThat(context).hasSingleBean(MeterRegistry.class);
 			MeterRegistry registry = context.getBean(MeterRegistry.class);
@@ -64,7 +64,7 @@ class CompositeMeterRegistryAutoConfigurationTests {
 	}
 
 	@Test
-	void registerWhenHasMultipleMeterRegistriesShouldAddPrimaryComposite() {
+	public void registerWhenHasMultipleMeterRegistriesShouldAddPrimaryComposite() {
 		this.contextRunner.withUserConfiguration(MultipleMeterRegistriesConfig.class).run((context) -> {
 			assertThat(context.getBeansOfType(MeterRegistry.class)).hasSize(3).containsKeys("meterRegistryOne",
 					"meterRegistryTwo", COMPOSITE_NAME);
@@ -76,7 +76,7 @@ class CompositeMeterRegistryAutoConfigurationTests {
 	}
 
 	@Test
-	void registerWhenHasMultipleRegistriesAndOneIsPrimaryShouldDoNothing() {
+	public void registerWhenHasMultipleRegistriesAndOneIsPrimaryShouldDoNothing() {
 		this.contextRunner.withUserConfiguration(MultipleMeterRegistriesWithOnePrimaryConfig.class).run((context) -> {
 			assertThat(context.getBeansOfType(MeterRegistry.class)).hasSize(2).containsKeys("meterRegistryOne",
 					"meterRegistryTwo");
@@ -85,58 +85,58 @@ class CompositeMeterRegistryAutoConfigurationTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BaseConfig {
 
 		@Bean
 		@ConditionalOnMissingBean
-		Clock micrometerClock() {
+		public Clock micrometerClock() {
 			return Clock.SYSTEM;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class NoMeterRegistryConfig {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SingleMeterRegistryConfig {
 
 		@Bean
-		MeterRegistry meterRegistry() {
+		public MeterRegistry meterRegistry() {
 			return new TestMeterRegistry();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultipleMeterRegistriesConfig {
 
 		@Bean
-		MeterRegistry meterRegistryOne() {
+		public MeterRegistry meterRegistryOne() {
 			return new TestMeterRegistry();
 		}
 
 		@Bean
-		MeterRegistry meterRegistryTwo() {
+		public MeterRegistry meterRegistryTwo() {
 			return new SimpleMeterRegistry();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultipleMeterRegistriesWithOnePrimaryConfig {
 
 		@Bean
 		@Primary
-		MeterRegistry meterRegistryOne() {
+		public MeterRegistry meterRegistryOne() {
 			return new TestMeterRegistry();
 		}
 
 		@Bean
-		MeterRegistry meterRegistryTwo() {
+		public MeterRegistry meterRegistryTwo() {
 			return new SimpleMeterRegistry();
 		}
 

@@ -16,11 +16,13 @@
 
 package org.springframework.boot.autoconfigure.http;
 
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.boot.testsupport.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,15 +32,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("jackson-*.jar")
-class HttpMessageConvertersAutoConfigurationWithoutJacksonTests {
+public class HttpMessageConvertersAutoConfigurationWithoutJacksonTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class));
+	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+	@After
+	public void close() {
+		if (this.context != null) {
+			this.context.close();
+		}
+	}
 
 	@Test
-	void autoConfigurationWorksWithSpringHateoasButWithoutJackson() {
-		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(HttpMessageConverters.class));
+	public void autoConfigurationWorksWithSpringHateoasButWithoutJackson() {
+		this.context.register(HttpMessageConvertersAutoConfiguration.class);
+		this.context.refresh();
+		assertThat(this.context.getBeansOfType(HttpMessageConverters.class)).hasSize(1);
 	}
 
 }

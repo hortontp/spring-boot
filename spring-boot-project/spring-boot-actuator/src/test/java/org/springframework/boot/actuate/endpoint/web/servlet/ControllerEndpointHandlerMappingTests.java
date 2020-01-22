@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.endpoint.web.servlet;
 
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
@@ -43,12 +43,12 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ControllerEndpointHandlerMappingTests {
+public class ControllerEndpointHandlerMappingTests {
 
 	private final StaticApplicationContext context = new StaticApplicationContext();
 
 	@Test
-	void mappingWithNoPrefix() throws Exception {
+	public void mappingWithNoPrefix() throws Exception {
 		ExposableControllerEndpoint first = firstEndpoint();
 		ExposableControllerEndpoint second = secondEndpoint();
 		ControllerEndpointHandlerMapping mapping = createMapping("", first, second);
@@ -60,7 +60,7 @@ class ControllerEndpointHandlerMappingTests {
 	}
 
 	@Test
-	void mappingWithPrefix() throws Exception {
+	public void mappingWithPrefix() throws Exception {
 		ExposableControllerEndpoint first = firstEndpoint();
 		ExposableControllerEndpoint second = secondEndpoint();
 		ControllerEndpointHandlerMapping mapping = createMapping("actuator", first, second);
@@ -73,7 +73,7 @@ class ControllerEndpointHandlerMappingTests {
 	}
 
 	@Test
-	void mappingNarrowedToMethod() throws Exception {
+	public void mappingNarrowedToMethod() throws Exception {
 		ExposableControllerEndpoint first = firstEndpoint();
 		ControllerEndpointHandlerMapping mapping = createMapping("actuator", first);
 		assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class)
@@ -81,7 +81,7 @@ class ControllerEndpointHandlerMappingTests {
 	}
 
 	@Test
-	void mappingWithNoPath() throws Exception {
+	public void mappingWithNoPath() throws Exception {
 		ExposableControllerEndpoint pathless = pathlessEndpoint();
 		ControllerEndpointHandlerMapping mapping = createMapping("actuator", pathless);
 		assertThat(mapping.getHandler(request("GET", "/actuator/pathless")).getHandler())
@@ -127,30 +127,30 @@ class ControllerEndpointHandlerMappingTests {
 	}
 
 	@ControllerEndpoint(id = "first")
-	static class FirstTestMvcEndpoint {
+	private static class FirstTestMvcEndpoint {
 
 		@GetMapping("/")
-		String get() {
+		public String get() {
 			return "test";
 		}
 
 	}
 
 	@ControllerEndpoint(id = "second")
-	static class SecondTestMvcEndpoint {
+	private static class SecondTestMvcEndpoint {
 
 		@PostMapping("/")
-		void save() {
+		public void save() {
 
 		}
 
 	}
 
 	@ControllerEndpoint(id = "pathless")
-	static class PathlessControllerEndpoint {
+	private static class PathlessControllerEndpoint {
 
 		@GetMapping
-		String get() {
+		public String get() {
 			return "test";
 		}
 

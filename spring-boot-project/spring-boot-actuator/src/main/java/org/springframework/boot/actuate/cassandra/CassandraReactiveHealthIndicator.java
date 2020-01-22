@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 package org.springframework.boot.actuate.cassandra;
 
-import com.datastax.oss.driver.api.core.cql.SimpleStatement;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.health.AbstractReactiveHealthIndicator;
@@ -46,7 +47,7 @@ public class CassandraReactiveHealthIndicator extends AbstractReactiveHealthIndi
 
 	@Override
 	protected Mono<Health> doHealthCheck(Health.Builder builder) {
-		SimpleStatement select = SimpleStatement.newInstance("SELECT release_version FROM system.local");
+		Select select = QueryBuilder.select("release_version").from("system", "local");
 		return this.reactiveCassandraOperations.getReactiveCqlOperations().queryForObject(select, String.class)
 				.map((version) -> builder.up().withDetail("version", version).build()).single();
 	}

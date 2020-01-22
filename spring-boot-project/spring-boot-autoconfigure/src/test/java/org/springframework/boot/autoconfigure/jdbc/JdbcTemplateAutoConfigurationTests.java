@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
  * @author Kazuki Shimizu
  * @author Dan Zheng
  */
-class JdbcTemplateAutoConfigurationTests {
+public class JdbcTemplateAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withPropertyValues("spring.datasource.initialization-mode=never",
@@ -54,7 +54,7 @@ class JdbcTemplateAutoConfigurationTests {
 					AutoConfigurations.of(DataSourceAutoConfiguration.class, JdbcTemplateAutoConfiguration.class));
 
 	@Test
-	void testJdbcTemplateExists() {
+	public void testJdbcTemplateExists() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(JdbcOperations.class);
 			JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
@@ -66,7 +66,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testJdbcTemplateWithCustomProperties() {
+	public void testJdbcTemplateWithCustomProperties() {
 		this.contextRunner.withPropertyValues("spring.jdbc.template.fetch-size:100",
 				"spring.jdbc.template.query-timeout:60", "spring.jdbc.template.max-rows:1000").run((context) -> {
 					assertThat(context).hasSingleBean(JdbcOperations.class);
@@ -79,7 +79,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testJdbcTemplateExistsWithCustomDataSource() {
+	public void testJdbcTemplateExistsWithCustomDataSource() {
 		this.contextRunner.withUserConfiguration(TestDataSourceConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(JdbcOperations.class);
 			JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
@@ -88,7 +88,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testNamedParameterJdbcTemplateExists() {
+	public void testNamedParameterJdbcTemplateExists() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(NamedParameterJdbcOperations.class);
 			NamedParameterJdbcTemplate namedParameterJdbcTemplate = context.getBean(NamedParameterJdbcTemplate.class);
@@ -97,7 +97,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiDataSource() {
+	public void testMultiDataSource() {
 		this.contextRunner.withUserConfiguration(MultiDataSourceConfiguration.class).run((context) -> {
 			assertThat(context).doesNotHaveBean(JdbcOperations.class);
 			assertThat(context).doesNotHaveBean(NamedParameterJdbcOperations.class);
@@ -105,13 +105,13 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiJdbcTemplate() {
+	public void testMultiJdbcTemplate() {
 		this.contextRunner.withUserConfiguration(MultiJdbcTemplateConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(NamedParameterJdbcOperations.class));
 	}
 
 	@Test
-	void testMultiDataSourceUsingPrimary() {
+	public void testMultiDataSourceUsingPrimary() {
 		this.contextRunner.withUserConfiguration(MultiDataSourceUsingPrimaryConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(JdbcOperations.class);
 			assertThat(context).hasSingleBean(NamedParameterJdbcOperations.class);
@@ -121,7 +121,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testMultiJdbcTemplateUsingPrimary() {
+	public void testMultiJdbcTemplateUsingPrimary() {
 		this.contextRunner.withUserConfiguration(MultiJdbcTemplateUsingPrimaryConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(NamedParameterJdbcOperations.class);
 			assertThat(context.getBean(NamedParameterJdbcTemplate.class).getJdbcOperations())
@@ -130,7 +130,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testExistingCustomJdbcTemplate() {
+	public void testExistingCustomJdbcTemplate() {
 		this.contextRunner.withUserConfiguration(CustomConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(JdbcOperations.class);
 			assertThat(context.getBean(JdbcOperations.class)).isEqualTo(context.getBean("customJdbcOperations"));
@@ -138,7 +138,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testExistingCustomNamedParameterJdbcTemplate() {
+	public void testExistingCustomNamedParameterJdbcTemplate() {
 		this.contextRunner.withUserConfiguration(CustomConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(NamedParameterJdbcOperations.class);
 			assertThat(context.getBean(NamedParameterJdbcOperations.class))
@@ -147,7 +147,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testDependencyToDataSourceInitialization() {
+	public void testDependencyToDataSourceInitialization() {
 		this.contextRunner.withUserConfiguration(DataSourceInitializationValidator.class)
 				.withPropertyValues("spring.datasource.initialization-mode=always").run((context) -> {
 					assertThat(context).hasNotFailed();
@@ -156,7 +156,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testDependencyToFlyway() {
+	public void testDependencyToFlyway() {
 		this.contextRunner.withUserConfiguration(DataSourceMigrationValidator.class)
 				.withPropertyValues("spring.flyway.locations:classpath:db/city")
 				.withConfiguration(AutoConfigurations.of(FlywayAutoConfiguration.class)).run((context) -> {
@@ -166,7 +166,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testDependencyToFlywayWithJdbcTemplateMixed() {
+	public void testDependencyToFlywayWithJdbcTemplateMixed() {
 		this.contextRunner.withUserConfiguration(NamedParameterDataSourceMigrationValidator.class)
 				.withPropertyValues("spring.flyway.locations:classpath:db/city")
 				.withConfiguration(AutoConfigurations.of(FlywayAutoConfiguration.class)).run((context) -> {
@@ -177,7 +177,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testDependencyToLiquibase() {
+	public void testDependencyToLiquibase() {
 		this.contextRunner.withUserConfiguration(DataSourceMigrationValidator.class)
 				.withPropertyValues("spring.liquibase.changeLog:classpath:db/changelog/db.changelog-city.yaml")
 				.withConfiguration(AutoConfigurations.of(LiquibaseAutoConfiguration.class)).run((context) -> {
@@ -187,7 +187,7 @@ class JdbcTemplateAutoConfigurationTests {
 	}
 
 	@Test
-	void testDependencyToLiquibaseWithJdbcTemplateMixed() {
+	public void testDependencyToLiquibaseWithJdbcTemplateMixed() {
 		this.contextRunner.withUserConfiguration(NamedParameterDataSourceMigrationValidator.class)
 				.withPropertyValues("spring.liquibase.changeLog:classpath:db/changelog/db.changelog-city.yaml")
 				.withConfiguration(AutoConfigurations.of(LiquibaseAutoConfiguration.class)).run((context) -> {
@@ -197,57 +197,57 @@ class JdbcTemplateAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomConfiguration {
 
 		@Bean
-		JdbcOperations customJdbcOperations(DataSource dataSource) {
+		public JdbcOperations customJdbcOperations(DataSource dataSource) {
 			return new JdbcTemplate(dataSource);
 		}
 
 		@Bean
-		NamedParameterJdbcOperations customNamedParameterJdbcOperations(DataSource dataSource) {
+		public NamedParameterJdbcOperations customNamedParameterJdbcOperations(DataSource dataSource) {
 			return new NamedParameterJdbcTemplate(dataSource);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestDataSourceConfiguration {
 
 		@Bean
-		DataSource customDataSource() {
+		public DataSource customDataSource() {
 			return new TestDataSource();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultiJdbcTemplateConfiguration {
 
 		@Bean
-		JdbcTemplate test1Template() {
+		public JdbcTemplate test1Template() {
 			return mock(JdbcTemplate.class);
 		}
 
 		@Bean
-		JdbcTemplate test2Template() {
+		public JdbcTemplate test2Template() {
 			return mock(JdbcTemplate.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultiJdbcTemplateUsingPrimaryConfiguration {
 
 		@Bean
 		@Primary
-		JdbcTemplate test1Template() {
+		public JdbcTemplate test1Template() {
 			return mock(JdbcTemplate.class);
 		}
 
 		@Bean
-		JdbcTemplate test2Template() {
+		public JdbcTemplate test2Template() {
 			return mock(JdbcTemplate.class);
 		}
 

@@ -34,28 +34,27 @@ import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConve
  *
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 class JacksonHttpMessageConvertersConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(ObjectMapper.class)
 	@ConditionalOnBean(ObjectMapper.class)
 	@ConditionalOnProperty(name = HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY,
 			havingValue = "jackson", matchIfMissing = true)
-	static class MappingJackson2HttpMessageConverterConfiguration {
+	protected static class MappingJackson2HttpMessageConverterConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(value = MappingJackson2HttpMessageConverter.class,
-				ignoredType = {
-						"org.springframework.hateoas.server.mvc.TypeConstrainedMappingJackson2HttpMessageConverter",
+				ignoredType = { "org.springframework.hateoas.mvc.TypeConstrainedMappingJackson2HttpMessageConverter",
 						"org.springframework.data.rest.webmvc.alps.AlpsJsonHttpMessageConverter" })
-		MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+		public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
 			return new MappingJackson2HttpMessageConverter(objectMapper);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(XmlMapper.class)
 	@ConditionalOnBean(Jackson2ObjectMapperBuilder.class)
 	protected static class MappingJackson2XmlHttpMessageConverterConfiguration {

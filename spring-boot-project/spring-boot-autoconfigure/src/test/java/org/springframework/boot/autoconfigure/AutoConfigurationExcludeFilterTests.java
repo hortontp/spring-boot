@@ -19,8 +19,8 @@ package org.springframework.boot.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.context.filtersample.ExampleConfiguration;
@@ -38,28 +38,28 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Stephane Nicoll
  */
-class AutoConfigurationExcludeFilterTests {
+public class AutoConfigurationExcludeFilterTests {
 
 	private static final Class<?> FILTERED = ExampleFilteredAutoConfiguration.class;
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void cleanUp() {
+	@After
+	public void cleanUp() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void filterExcludeAutoConfiguration() {
+	public void filterExcludeAutoConfiguration() {
 		this.context = new AnnotationConfigApplicationContext(Config.class);
 		assertThat(this.context.getBeansOfType(String.class)).hasSize(1);
 		assertThat(this.context.getBean(String.class)).isEqualTo("test");
 		assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> this.context.getBean(FILTERED));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ComponentScan(basePackageClasses = ExampleConfiguration.class,
 			excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM,
 					classes = TestAutoConfigurationExcludeFilter.class))

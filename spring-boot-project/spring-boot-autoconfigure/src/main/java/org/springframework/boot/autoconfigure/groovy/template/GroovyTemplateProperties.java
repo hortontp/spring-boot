@@ -20,8 +20,7 @@ import org.springframework.boot.autoconfigure.template.AbstractTemplateViewResol
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring Groovy
- * templates.
+ * {@link ConfigurationProperties} for configuring Groovy templates.
  *
  * @author Dave Syer
  * @author Marten Deinum

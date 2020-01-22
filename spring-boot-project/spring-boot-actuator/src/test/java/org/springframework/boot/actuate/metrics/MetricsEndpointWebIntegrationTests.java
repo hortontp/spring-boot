@@ -26,8 +26,10 @@ import io.micrometer.core.instrument.MockClock;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import org.springframework.boot.actuate.endpoint.web.test.WebEndpointTest;
+import org.springframework.boot.actuate.endpoint.web.test.WebEndpointRunners;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -40,48 +42,51 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jon Schneider
  * @author Andy Wilkinson
  */
-class MetricsEndpointWebIntegrationTests {
+@RunWith(WebEndpointRunners.class)
+public class MetricsEndpointWebIntegrationTests {
 
 	private static MeterRegistry registry = new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 
+	private static WebTestClient client;
+
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	@WebEndpointTest
+	@Test
 	@SuppressWarnings("unchecked")
-	void listNames(WebTestClient client) throws IOException {
+	public void listNames() throws IOException {
 		String responseBody = client.get().uri("/actuator/metrics").exchange().expectStatus().isOk()
 				.expectBody(String.class).returnResult().getResponseBody();
 		Map<String, List<String>> names = this.mapper.readValue(responseBody, Map.class);
 		assertThat(names.get("names")).containsOnlyOnce("jvm.memory.used");
 	}
 
-	@WebEndpointTest
-	void selectByName(WebTestClient client) {
+	@Test
+	public void selectByName() {
 		client.get().uri("/actuator/metrics/jvm.memory.used").exchange().expectStatus().isOk().expectBody()
 				.jsonPath("$.name").isEqualTo("jvm.memory.used");
 	}
 
-	@WebEndpointTest
-	void selectByTag(WebTestClient client) {
+	@Test
+	public void selectByTag() {
 		client.get().uri("/actuator/metrics/jvm.memory.used?tag=id:Compressed%20Class%20Space").exchange()
 				.expectStatus().isOk().expectBody().jsonPath("$.name").isEqualTo("jvm.memory.used");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestConfiguration {
 
 		@Bean
-		MeterRegistry registry() {
+		public MeterRegistry registry() {
 			return registry;
 		}
 
 		@Bean
-		MetricsEndpoint metricsEndpoint(MeterRegistry meterRegistry) {
+		public MetricsEndpoint metricsEndpoint(MeterRegistry meterRegistry) {
 			return new MetricsEndpoint(meterRegistry);
 		}
 
 		@Bean
-		JvmMemoryMetrics jvmMemoryMetrics(MeterRegistry meterRegistry) {
+		public JvmMemoryMetrics jvmMemoryMetrics(MeterRegistry meterRegistry) {
 			JvmMemoryMetrics memoryMetrics = new JvmMemoryMetrics();
 			memoryMetrics.bindTo(meterRegistry);
 			return memoryMetrics;

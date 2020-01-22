@@ -18,14 +18,13 @@ package org.springframework.boot.autoconfigure;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class AutoConfigurationSorterTests {
+public class AutoConfigurationSorterTests {
 
 	private static final String DEFAULT = OrderUnspecified.class.getName();
 
@@ -78,68 +77,68 @@ class AutoConfigurationSorterTests {
 
 	private AutoConfigurationMetadata autoConfigurationMetadata = mock(AutoConfigurationMetadata.class);
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.sorter = new AutoConfigurationSorter(new SkipCycleMetadataReaderFactory(), this.autoConfigurationMetadata);
 	}
 
 	@Test
-	void byOrderAnnotation() {
+	public void byOrderAnnotation() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(LOWEST, HIGHEST, DEFAULT));
 		assertThat(actual).containsExactly(HIGHEST, DEFAULT, LOWEST);
 	}
 
 	@Test
-	void byAutoConfigureAfter() {
+	public void byAutoConfigureAfter() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(A, B, C));
 		assertThat(actual).containsExactly(C, B, A);
 	}
 
 	@Test
-	void byAutoConfigureBefore() {
+	public void byAutoConfigureBefore() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(X, Y, Z));
 		assertThat(actual).containsExactly(Z, Y, X);
 	}
 
 	@Test
-	void byAutoConfigureAfterDoubles() {
+	public void byAutoConfigureAfterDoubles() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(A, B, C, E));
 		assertThat(actual).containsExactly(C, E, B, A);
 	}
 
 	@Test
-	void byAutoConfigureMixedBeforeAndAfter() {
+	public void byAutoConfigureMixedBeforeAndAfter() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(A, B, C, W, X));
 		assertThat(actual).containsExactly(C, W, B, A, X);
 	}
 
 	@Test
-	void byAutoConfigureMixedBeforeAndAfterWithClassNames() {
+	public void byAutoConfigureMixedBeforeAndAfterWithClassNames() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(A2, B, C, W2, X));
 		assertThat(actual).containsExactly(C, W2, B, A2, X);
 	}
 
 	@Test
-	void byAutoConfigureMixedBeforeAndAfterWithDifferentInputOrder() {
+	public void byAutoConfigureMixedBeforeAndAfterWithDifferentInputOrder() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(W, X, A, B, C));
 		assertThat(actual).containsExactly(C, W, B, A, X);
 	}
 
 	@Test
-	void byAutoConfigureAfterWithMissing() {
+	public void byAutoConfigureAfterWithMissing() {
 		List<String> actual = this.sorter.getInPriorityOrder(Arrays.asList(A, B));
 		assertThat(actual).containsExactly(B, A);
 	}
 
 	@Test
-	void byAutoConfigureAfterWithCycle() {
+	public void byAutoConfigureAfterWithCycle() {
 		this.sorter = new AutoConfigurationSorter(new CachingMetadataReaderFactory(), this.autoConfigurationMetadata);
 		assertThatIllegalStateException().isThrownBy(() -> this.sorter.getInPriorityOrder(Arrays.asList(A, B, C, D)))
 				.withMessageContaining("AutoConfigure cycle detected");
 	}
 
 	@Test
-	void usesAnnotationPropertiesWhenPossible() throws Exception {
+	public void usesAnnotationPropertiesWhenPossible() throws Exception {
 		MetadataReaderFactory readerFactory = new SkipCycleMetadataReaderFactory();
 		this.autoConfigurationMetadata = getAutoConfigurationMetadata(A2, B, C, W2, X);
 		this.sorter = new AutoConfigurationSorter(readerFactory, this.autoConfigurationMetadata);
@@ -148,7 +147,7 @@ class AutoConfigurationSorterTests {
 	}
 
 	@Test
-	void useAnnotationWithNoDirectLink() throws Exception {
+	public void useAnnotationWithNoDirectLink() throws Exception {
 		MetadataReaderFactory readerFactory = new SkipCycleMetadataReaderFactory();
 		this.autoConfigurationMetadata = getAutoConfigurationMetadata(A, B, E);
 		this.sorter = new AutoConfigurationSorter(readerFactory, this.autoConfigurationMetadata);
@@ -157,7 +156,7 @@ class AutoConfigurationSorterTests {
 	}
 
 	@Test
-	void useAnnotationWithNoDirectLinkAndCycle() throws Exception {
+	public void useAnnotationWithNoDirectLinkAndCycle() throws Exception {
 		MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory();
 		this.autoConfigurationMetadata = getAutoConfigurationMetadata(A, B, D);
 		this.sorter = new AutoConfigurationSorter(readerFactory, this.autoConfigurationMetadata);
@@ -193,78 +192,80 @@ class AutoConfigurationSorterTests {
 		for (Class<?> type : value) {
 			items.add(type.getName());
 		}
-		Collections.addAll(items, name);
+		for (String type : name) {
+			items.add(type);
+		}
 		return StringUtils.collectionToCommaDelimitedString(items);
 	}
 
 	@AutoConfigureOrder
-	static class OrderUnspecified {
+	public static class OrderUnspecified {
 
 	}
 
 	@AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
-	static class OrderLowest {
+	public static class OrderLowest {
 
 	}
 
 	@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
-	static class OrderHighest {
+	public static class OrderHighest {
 
 	}
 
 	@AutoConfigureAfter(AutoConfigureB.class)
-	static class AutoConfigureA {
+	public static class AutoConfigureA {
 
 	}
 
 	@AutoConfigureAfter(name = "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureB")
-	static class AutoConfigureA2 {
+	public static class AutoConfigureA2 {
 
 	}
 
 	@AutoConfigureAfter({ AutoConfigureC.class, AutoConfigureD.class, AutoConfigureE.class })
-	static class AutoConfigureB {
+	public static class AutoConfigureB {
 
 	}
 
-	static class AutoConfigureC {
+	public static class AutoConfigureC {
 
 	}
 
 	@AutoConfigureAfter(AutoConfigureA.class)
-	static class AutoConfigureD {
+	public static class AutoConfigureD {
 
 	}
 
-	static class AutoConfigureE {
+	public static class AutoConfigureE {
 
 	}
 
 	@AutoConfigureBefore(AutoConfigureB.class)
-	static class AutoConfigureW {
+	public static class AutoConfigureW {
 
 	}
 
 	@AutoConfigureBefore(name = "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureB")
-	static class AutoConfigureW2 {
+	public static class AutoConfigureW2 {
 
 	}
 
-	static class AutoConfigureX {
+	public static class AutoConfigureX {
 
 	}
 
 	@AutoConfigureBefore(AutoConfigureX.class)
-	static class AutoConfigureY {
+	public static class AutoConfigureY {
 
 	}
 
 	@AutoConfigureBefore(AutoConfigureY.class)
-	static class AutoConfigureZ {
+	public static class AutoConfigureZ {
 
 	}
 
-	static class SkipCycleMetadataReaderFactory extends CachingMetadataReaderFactory {
+	private static class SkipCycleMetadataReaderFactory extends CachingMetadataReaderFactory {
 
 		@Override
 		public MetadataReader getMetadataReader(String className) throws IOException {

@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.3.0
  * @see ArtemisProperties
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureBefore(JmsAutoConfiguration.class)
 @AutoConfigureAfter({ JndiConnectionFactoryAutoConfiguration.class })
 @ConditionalOnClass({ ConnectionFactory.class, ActiveMQConnectionFactory.class })

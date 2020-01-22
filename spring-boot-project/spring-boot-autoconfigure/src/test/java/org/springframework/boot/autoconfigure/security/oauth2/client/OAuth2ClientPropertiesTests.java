@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.security.oauth2.client;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -26,12 +26,12 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Madhura Bhave
  * @author Artsiom Yudovin
  */
-class OAuth2ClientPropertiesTests {
+public class OAuth2ClientPropertiesTests {
 
 	private OAuth2ClientProperties properties = new OAuth2ClientProperties();
 
 	@Test
-	void clientIdAbsentThrowsException() {
+	public void clientIdAbsentThrowsException() {
 		OAuth2ClientProperties.Registration registration = new OAuth2ClientProperties.Registration();
 		registration.setClientSecret("secret");
 		registration.setProvider("google");
@@ -41,7 +41,7 @@ class OAuth2ClientPropertiesTests {
 	}
 
 	@Test
-	void clientSecretAbsentShouldNotThrowException() {
+	public void clientSecretAbsentShouldNotThrowException() {
 		OAuth2ClientProperties.Registration registration = new OAuth2ClientProperties.Registration();
 		registration.setClientId("foo");
 		registration.setProvider("google");

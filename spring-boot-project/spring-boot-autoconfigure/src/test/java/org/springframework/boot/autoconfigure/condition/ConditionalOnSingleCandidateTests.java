@@ -16,8 +16,8 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -28,37 +28,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Tests for {@link ConditionalOnSingleCandidate @ConditionalOnSingleCandidate}.
+ * Tests for {@link ConditionalOnSingleCandidate}.
  *
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-class ConditionalOnSingleCandidateTests {
+public class ConditionalOnSingleCandidateTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void singleCandidateNoCandidate() {
+	public void singleCandidateNoCandidate() {
 		load(OnBeanSingleCandidateConfiguration.class);
 		assertThat(this.context.containsBean("baz")).isFalse();
 	}
 
 	@Test
-	void singleCandidateOneCandidate() {
+	public void singleCandidateOneCandidate() {
 		load(FooConfiguration.class, OnBeanSingleCandidateConfiguration.class);
 		assertThat(this.context.containsBean("baz")).isTrue();
 		assertThat(this.context.getBean("baz")).isEqualTo("foo");
 	}
 
 	@Test
-	void singleCandidateInAncestorsOneCandidateInCurrent() {
+	public void singleCandidateInAncestorsOneCandidateInCurrent() {
 		load();
 		AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
 		child.register(FooConfiguration.class, OnBeanSingleCandidateInAncestorsConfiguration.class);
@@ -69,7 +69,7 @@ class ConditionalOnSingleCandidateTests {
 	}
 
 	@Test
-	void singleCandidateInAncestorsOneCandidateInParent() {
+	public void singleCandidateInAncestorsOneCandidateInParent() {
 		load(FooConfiguration.class);
 		AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
 		child.register(OnBeanSingleCandidateInAncestorsConfiguration.class);
@@ -81,7 +81,7 @@ class ConditionalOnSingleCandidateTests {
 	}
 
 	@Test
-	void singleCandidateInAncestorsOneCandidateInGrandparent() {
+	public void singleCandidateInAncestorsOneCandidateInGrandparent() {
 		load(FooConfiguration.class);
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		parent.setParent(this.context);
@@ -97,40 +97,40 @@ class ConditionalOnSingleCandidateTests {
 	}
 
 	@Test
-	void singleCandidateMultipleCandidates() {
+	public void singleCandidateMultipleCandidates() {
 		load(FooConfiguration.class, BarConfiguration.class, OnBeanSingleCandidateConfiguration.class);
 		assertThat(this.context.containsBean("baz")).isFalse();
 	}
 
 	@Test
-	void singleCandidateMultipleCandidatesOnePrimary() {
+	public void singleCandidateMultipleCandidatesOnePrimary() {
 		load(FooPrimaryConfiguration.class, BarConfiguration.class, OnBeanSingleCandidateConfiguration.class);
 		assertThat(this.context.containsBean("baz")).isTrue();
 		assertThat(this.context.getBean("baz")).isEqualTo("foo");
 	}
 
 	@Test
-	void singleCandidateMultipleCandidatesMultiplePrimary() {
+	public void singleCandidateMultipleCandidatesMultiplePrimary() {
 		load(FooPrimaryConfiguration.class, BarPrimaryConfiguration.class, OnBeanSingleCandidateConfiguration.class);
 		assertThat(this.context.containsBean("baz")).isFalse();
 	}
 
 	@Test
-	void invalidAnnotationTwoTypes() {
+	public void invalidAnnotationTwoTypes() {
 		assertThatIllegalStateException().isThrownBy(() -> load(OnBeanSingleCandidateTwoTypesConfiguration.class))
 				.withCauseInstanceOf(IllegalArgumentException.class)
 				.withMessageContaining(OnBeanSingleCandidateTwoTypesConfiguration.class.getName());
 	}
 
 	@Test
-	void invalidAnnotationNoType() {
+	public void invalidAnnotationNoType() {
 		assertThatIllegalStateException().isThrownBy(() -> load(OnBeanSingleCandidateNoTypeConfiguration.class))
 				.withCauseInstanceOf(IllegalArgumentException.class)
 				.withMessageContaining(OnBeanSingleCandidateNoTypeConfiguration.class.getName());
 	}
 
 	@Test
-	void singleCandidateMultipleCandidatesInContextHierarchy() {
+	public void singleCandidateMultipleCandidatesInContextHierarchy() {
 		load(FooPrimaryConfiguration.class, BarConfiguration.class);
 		try (AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext()) {
 			child.setParent(this.context);
@@ -148,77 +148,77 @@ class ConditionalOnSingleCandidateTests {
 		this.context.refresh();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnSingleCandidate(String.class)
-	static class OnBeanSingleCandidateConfiguration {
+	protected static class OnBeanSingleCandidateConfiguration {
 
 		@Bean
-		String baz(String s) {
+		public String baz(String s) {
 			return s;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnSingleCandidate(value = String.class, search = SearchStrategy.ANCESTORS)
-	static class OnBeanSingleCandidateInAncestorsConfiguration {
+	protected static class OnBeanSingleCandidateInAncestorsConfiguration {
 
 		@Bean
-		String baz(String s) {
+		public String baz(String s) {
 			return s;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnSingleCandidate(value = String.class, type = "java.lang.Integer")
-	static class OnBeanSingleCandidateTwoTypesConfiguration {
+	@Configuration
+	@ConditionalOnSingleCandidate(value = String.class, type = "java.lang.String")
+	protected static class OnBeanSingleCandidateTwoTypesConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnSingleCandidate
-	static class OnBeanSingleCandidateNoTypeConfiguration {
+	protected static class OnBeanSingleCandidateNoTypeConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class FooConfiguration {
+	@Configuration
+	protected static class FooConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class FooPrimaryConfiguration {
+	@Configuration
+	protected static class FooPrimaryConfiguration {
 
 		@Bean
 		@Primary
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class BarConfiguration {
+	@Configuration
+	protected static class BarConfiguration {
 
 		@Bean
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class BarPrimaryConfiguration {
+	@Configuration
+	protected static class BarPrimaryConfiguration {
 
 		@Bean
 		@Primary
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 

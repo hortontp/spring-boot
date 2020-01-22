@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -43,9 +43,8 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link HibernateProperties}.
  *
  * @author Stephane Nicoll
- * @author Artsiom Yudovin
  */
-class HibernatePropertiesTests {
+public class HibernatePropertiesTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(TestConfiguration.class);
@@ -53,13 +52,13 @@ class HibernatePropertiesTests {
 	@Mock
 	private Supplier<String> ddlAutoSupplier;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 	}
 
 	@Test
-	void noCustomNamingStrategy() {
+	public void noCustomNamingStrategy() {
 		this.contextRunner.run(assertHibernateProperties((hibernateProperties) -> {
 			assertThat(hibernateProperties).doesNotContainKeys("hibernate.ejb.naming_strategy");
 			assertThat(hibernateProperties).containsEntry(AvailableSettings.PHYSICAL_NAMING_STRATEGY,
@@ -70,7 +69,7 @@ class HibernatePropertiesTests {
 	}
 
 	@Test
-	void hibernate5CustomNamingStrategies() {
+	public void hibernate5CustomNamingStrategies() {
 		this.contextRunner
 				.withPropertyValues("spring.jpa.hibernate.naming.implicit-strategy:com.example.Implicit",
 						"spring.jpa.hibernate.naming.physical-strategy:com.example.Physical")
@@ -83,7 +82,7 @@ class HibernatePropertiesTests {
 	}
 
 	@Test
-	void hibernate5CustomNamingStrategiesViaJpaProperties() {
+	public void hibernate5CustomNamingStrategiesViaJpaProperties() {
 		this.contextRunner
 				.withPropertyValues("spring.jpa.properties.hibernate.implicit_naming_strategy:com.example.Implicit",
 						"spring.jpa.properties.hibernate.physical_naming_strategy:com.example.Physical")
@@ -97,40 +96,26 @@ class HibernatePropertiesTests {
 	}
 
 	@Test
-	void useNewIdGeneratorMappingsDefault() {
+	public void useNewIdGeneratorMappingsDefault() {
 		this.contextRunner.run(assertHibernateProperties((hibernateProperties) -> assertThat(hibernateProperties)
 				.containsEntry(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, "true")));
 	}
 
 	@Test
-	void useNewIdGeneratorMappingsFalse() {
+	public void useNewIdGeneratorMappingsFalse() {
 		this.contextRunner.withPropertyValues("spring.jpa.hibernate.use-new-id-generator-mappings:false")
 				.run(assertHibernateProperties((hibernateProperties) -> assertThat(hibernateProperties)
 						.containsEntry(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, "false")));
 	}
 
 	@Test
-	void scannerUsesDisabledScannerByDefault() {
-		this.contextRunner.run(assertHibernateProperties((hibernateProperties) -> assertThat(hibernateProperties)
-				.containsEntry(AvailableSettings.SCANNER, "org.hibernate.boot.archive.scan.internal.DisabledScanner")));
-	}
-
-	@Test
-	void scannerCanBeCustomized() {
-		this.contextRunner.withPropertyValues(
-				"spring.jpa.properties.hibernate.archive.scanner:org.hibernate.boot.archive.scan.internal.StandardScanner")
-				.run(assertHibernateProperties((hibernateProperties) -> assertThat(hibernateProperties).containsEntry(
-						AvailableSettings.SCANNER, "org.hibernate.boot.archive.scan.internal.StandardScanner")));
-	}
-
-	@Test
-	void defaultDdlAutoIsNotInvokedIfPropertyIsSet() {
+	public void defaultDdlAutoIsNotInvokedIfPropertyIsSet() {
 		this.contextRunner.withPropertyValues("spring.jpa.hibernate.ddl-auto=validate")
 				.run(assertDefaultDdlAutoNotInvoked("validate"));
 	}
 
 	@Test
-	void defaultDdlAutoIsNotInvokedIfHibernateSpecificPropertyIsSet() {
+	public void defaultDdlAutoIsNotInvokedIfHibernateSpecificPropertyIsSet() {
 		this.contextRunner.withPropertyValues("spring.jpa.properties.hibernate.hbm2ddl.auto=create")
 				.run(assertDefaultDdlAutoNotInvoked("create"));
 	}
@@ -154,7 +139,7 @@ class HibernatePropertiesTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties({ JpaProperties.class, HibernateProperties.class })
 	static class TestConfiguration {
 

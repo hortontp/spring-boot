@@ -16,11 +16,13 @@
 
 package org.springframework.boot.autoconfigure.session;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-import org.springframework.boot.testsupport.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,14 +33,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Vedran Pavic
  */
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("spring-security-*")
-class SessionAutoConfigurationWithoutSecurityTests extends AbstractSessionAutoConfigurationTests {
+public class SessionAutoConfigurationWithoutSecurityTests extends AbstractSessionAutoConfigurationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(SessionAutoConfiguration.class));
 
 	@Test
-	void sessionCookieConfigurationIsAppliedToAutoConfiguredCookieSerializer() {
+	public void sessionCookieConfigurationIsAppliedToAutoConfiguredCookieSerializer() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class).run((context) -> {
 			DefaultCookieSerializer cookieSerializer = context.getBean(DefaultCookieSerializer.class);
 			assertThat(cookieSerializer).hasFieldOrPropertyWithValue("rememberMeRequestAttribute", null);

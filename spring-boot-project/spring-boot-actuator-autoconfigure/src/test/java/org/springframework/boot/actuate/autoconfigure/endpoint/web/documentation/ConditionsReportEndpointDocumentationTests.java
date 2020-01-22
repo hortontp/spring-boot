@@ -19,8 +19,9 @@ package org.springframework.boot.actuate.autoconfigure.endpoint.web.documentatio
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
@@ -30,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -49,7 +50,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-class ConditionsReportEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class ConditionsReportEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+
+	@Rule
+	public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
 	private MockMvc mockMvc;
 
@@ -57,23 +61,24 @@ class ConditionsReportEndpointDocumentationTests extends MockMvcEndpointDocument
 	private WebApplicationContext applicationContext;
 
 	@Override
-	@BeforeEach
-	void setup(RestDocumentationContextProvider restDocumentation) {
+	@Before
+	public void before() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.applicationContext)
-				.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation).uris()).build();
+				.apply(MockMvcRestDocumentation.documentationConfiguration(this.restDocumentation).uris()).build();
 	}
 
 	@Test
-	void conditions() throws Exception {
+	public void conditions() throws Exception {
 		List<FieldDescriptor> positiveMatchFields = Arrays.asList(
-				fieldWithPath("").description("Classes and methods with conditions that were matched."),
+				fieldWithPath("").description("Classes and methods with conditions that were " + "matched."),
 				fieldWithPath(".*.[].condition").description("Name of the condition."),
 				fieldWithPath(".*.[].message").description("Details of why the condition was matched."));
 		List<FieldDescriptor> negativeMatchFields = Arrays.asList(
-				fieldWithPath("").description("Classes and methods with conditions that were not matched."),
+				fieldWithPath("").description("Classes and methods with conditions that " + "were not matched."),
 				fieldWithPath(".*.notMatched").description("Conditions that were matched."),
 				fieldWithPath(".*.notMatched.[].condition").description("Name of the condition."),
-				fieldWithPath(".*.notMatched.[].message").description("Details of why the condition was not matched."),
+				fieldWithPath(".*.notMatched.[].message")
+						.description("Details of why the condition was" + " not matched."),
 				fieldWithPath(".*.matched").description("Conditions that were matched."),
 				fieldWithPath(".*.matched.[].condition").description("Name of the condition.")
 						.type(JsonFieldType.STRING).optional(),
@@ -91,12 +96,12 @@ class ConditionsReportEndpointDocumentationTests extends MockMvcEndpointDocument
 								.and(unconditionalClassesField, parentIdField())));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		ConditionsReportEndpoint autoConfigurationReportEndpoint(ConfigurableApplicationContext context) {
+		public ConditionsReportEndpoint autoConfigurationReportEndpoint(ConfigurableApplicationContext context) {
 			ConditionEvaluationReport conditionEvaluationReport = ConditionEvaluationReport
 					.get(context.getBeanFactory());
 			conditionEvaluationReport

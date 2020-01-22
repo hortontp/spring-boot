@@ -24,14 +24,13 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import org.springframework.boot.web.servlet.filter.OrderedCharacterEncodingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +38,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.support.RequestContext;
@@ -55,19 +55,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Kazuki Shimizu
  */
-class FreeMarkerAutoConfigurationServletIntegrationTests {
+public class FreeMarkerAutoConfigurationServletIntegrationTests {
 
-	private AnnotationConfigServletWebApplicationContext context;
+	private AnnotationConfigWebApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void defaultConfiguration() {
+	public void defaultConfiguration() {
 		load();
 		assertThat(this.context.getBean(FreeMarkerViewResolver.class)).isNotNull();
 		assertThat(this.context.getBean(FreeMarkerConfigurer.class)).isNotNull();
@@ -76,7 +76,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void defaultViewResolution() throws Exception {
+	public void defaultViewResolution() throws Exception {
 		load();
 		MockHttpServletResponse response = render("home");
 		String result = response.getContentAsString();
@@ -85,7 +85,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void customContentType() throws Exception {
+	public void customContentType() throws Exception {
 		load("spring.freemarker.contentType:application/json");
 		MockHttpServletResponse response = render("home");
 		String result = response.getContentAsString();
@@ -94,7 +94,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void customPrefix() throws Exception {
+	public void customPrefix() throws Exception {
 		load("spring.freemarker.prefix:prefix/");
 		MockHttpServletResponse response = render("prefixed");
 		String result = response.getContentAsString();
@@ -102,7 +102,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void customSuffix() throws Exception {
+	public void customSuffix() throws Exception {
 		load("spring.freemarker.suffix:.freemarker");
 		MockHttpServletResponse response = render("suffixed");
 		String result = response.getContentAsString();
@@ -110,7 +110,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void customTemplateLoaderPath() throws Exception {
+	public void customTemplateLoaderPath() throws Exception {
 		load("spring.freemarker.templateLoaderPath:classpath:/custom-templates/");
 		MockHttpServletResponse response = render("custom");
 		String result = response.getContentAsString();
@@ -118,13 +118,13 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	@Test
-	void disableCache() {
+	public void disableCache() {
 		load("spring.freemarker.cache:false");
 		assertThat(this.context.getBean(FreeMarkerViewResolver.class).getCacheLimit()).isEqualTo(0);
 	}
 
 	@Test
-	void allowSessionOverride() {
+	public void allowSessionOverride() {
 		load("spring.freemarker.allow-session-override:true");
 		AbstractTemplateViewResolver viewResolver = this.context.getBean(FreeMarkerViewResolver.class);
 		assertThat(viewResolver).hasFieldOrPropertyWithValue("allowSessionOverride", true);
@@ -132,29 +132,29 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
 	@SuppressWarnings("deprecation")
 	@Test
-	void customFreeMarkerSettings() {
+	public void customFreeMarkerSettings() {
 		load("spring.freemarker.settings.boolean_format:yup,nope");
 		assertThat(this.context.getBean(FreeMarkerConfigurer.class).getConfiguration().getSetting("boolean_format"))
 				.isEqualTo("yup,nope");
 	}
 
 	@Test
-	void renderTemplate() throws Exception {
+	public void renderTemplate() throws Exception {
 		load();
 		FreeMarkerConfigurer freemarker = this.context.getBean(FreeMarkerConfigurer.class);
 		StringWriter writer = new StringWriter();
-		freemarker.getConfiguration().getTemplate("message.ftlh").process(new DataModel(), writer);
+		freemarker.getConfiguration().getTemplate("message.ftl").process(this, writer);
 		assertThat(writer.toString()).contains("Hello World");
 	}
 
 	@Test
-	void registerResourceHandlingFilterDisabledByDefault() {
+	public void registerResourceHandlingFilterDisabledByDefault() {
 		load();
 		assertThat(this.context.getBeansOfType(FilterRegistrationBean.class)).isEmpty();
 	}
 
 	@Test
-	void registerResourceHandlingFilterOnlyIfResourceChainIsEnabled() {
+	public void registerResourceHandlingFilterOnlyIfResourceChainIsEnabled() {
 		load("spring.resources.chain.enabled:true");
 		FilterRegistrationBean<?> registration = this.context.getBean(FilterRegistrationBean.class);
 		assertThat(registration.getFilter()).isInstanceOf(ResourceUrlEncodingFilter.class);
@@ -164,7 +164,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void registerResourceHandlingFilterWithOtherRegistrationBean() {
+	public void registerResourceHandlingFilterWithOtherRegistrationBean() {
 		// gh-14897
 		load(FilterRegistrationOtherConfiguration.class, "spring.resources.chain.enabled:true");
 		Map<String, FilterRegistrationBean> beans = this.context.getBeansOfType(FilterRegistrationBean.class);
@@ -177,7 +177,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void registerResourceHandlingFilterWithResourceRegistrationBean() {
+	public void registerResourceHandlingFilterWithResourceRegistrationBean() {
 		// gh-14926
 		load(FilterRegistrationResourceConfiguration.class, "spring.resources.chain.enabled:true");
 		Map<String, FilterRegistrationBean> beans = this.context.getBeansOfType(FilterRegistrationBean.class);
@@ -192,11 +192,15 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 	}
 
 	private void load(Class<?> config, String... env) {
-		this.context = new AnnotationConfigServletWebApplicationContext();
+		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.setServletContext(new MockServletContext());
 		TestPropertyValues.of(env).applyTo(this.context);
 		this.context.register(config);
 		this.context.refresh();
+	}
+
+	public String getGreeting() {
+		return "Hello World";
 	}
 
 	private MockHttpServletResponse render(String viewName) throws Exception {
@@ -210,19 +214,19 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 		return response;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
 	static class BaseConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class FilterRegistrationResourceConfiguration {
 
 		@Bean
-		FilterRegistrationBean<ResourceUrlEncodingFilter> filterRegistration() {
-			FilterRegistrationBean<ResourceUrlEncodingFilter> bean = new FilterRegistrationBean<>(
+		public FilterRegistrationBean<ResourceUrlEncodingFilter> filterRegistration() {
+			FilterRegistrationBean<ResourceUrlEncodingFilter> bean = new FilterRegistrationBean<ResourceUrlEncodingFilter>(
 					new ResourceUrlEncodingFilter());
 			bean.setDispatcherTypes(EnumSet.of(DispatcherType.INCLUDE));
 			return bean;
@@ -230,21 +234,13 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class FilterRegistrationOtherConfiguration {
 
 		@Bean
-		FilterRegistrationBean<OrderedCharacterEncodingFilter> filterRegistration() {
-			return new FilterRegistrationBean<>(new OrderedCharacterEncodingFilter());
-		}
-
-	}
-
-	public static class DataModel {
-
-		public String getGreeting() {
-			return "Hello World";
+		public FilterRegistrationBean<OrderedCharacterEncodingFilter> filterRegistration() {
+			return new FilterRegistrationBean<OrderedCharacterEncodingFilter>(new OrderedCharacterEncodingFilter());
 		}
 
 	}

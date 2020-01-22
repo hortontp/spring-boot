@@ -21,6 +21,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 /**
  * Configuration properties for JMX export of endpoints.
@@ -36,13 +39,25 @@ public class JmxEndpointProperties {
 	/**
 	 * Endpoints JMX domain name. Fallback to 'spring.jmx.default-domain' if set.
 	 */
-	private String domain;
+	private String domain = "org.springframework.boot";
+
+	/**
+	 * Whether unique runtime object names should be ensured.
+	 */
+	private Boolean uniqueNames;
 
 	/**
 	 * Additional static properties to append to all ObjectNames of MBeans representing
 	 * Endpoints.
 	 */
 	private final Properties staticNames = new Properties();
+
+	public JmxEndpointProperties(Environment environment) {
+		String defaultDomain = environment.getProperty("spring.jmx.default-domain");
+		if (StringUtils.hasText(defaultDomain)) {
+			this.domain = defaultDomain;
+		}
+	}
 
 	public Exposure getExposure() {
 		return this.exposure;
@@ -54,6 +69,17 @@ public class JmxEndpointProperties {
 
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+
+	@Deprecated
+	@DeprecatedConfigurationProperty(replacement = "spring.jmx.unique-names")
+	public Boolean getUniqueNames() {
+		return this.uniqueNames;
+	}
+
+	@Deprecated
+	public void setUniqueNames(Boolean uniqueNames) {
+		this.uniqueNames = uniqueNames;
 	}
 
 	public Properties getStaticNames() {

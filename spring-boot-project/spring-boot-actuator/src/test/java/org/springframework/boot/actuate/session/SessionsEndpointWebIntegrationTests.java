@@ -19,8 +19,10 @@ package org.springframework.boot.actuate.session;
 import java.util.Collections;
 
 import net.minidev.json.JSONArray;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import org.springframework.boot.actuate.endpoint.web.test.WebEndpointTest;
+import org.springframework.boot.actuate.endpoint.web.test.WebEndpointRunners;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -37,7 +39,8 @@ import static org.mockito.Mockito.mock;
  *
  * @author Vedran Pavic
  */
-class SessionsEndpointWebIntegrationTests {
+@RunWith(WebEndpointRunners.class)
+public class SessionsEndpointWebIntegrationTests {
 
 	private static final Session session = new MapSession();
 
@@ -45,38 +48,40 @@ class SessionsEndpointWebIntegrationTests {
 	private static final FindByIndexNameSessionRepository<Session> repository = mock(
 			FindByIndexNameSessionRepository.class);
 
-	@WebEndpointTest
-	void sessionsForUsernameWithoutUsernameParam(WebTestClient client) {
+	private static WebTestClient client;
+
+	@Test
+	public void sessionsForUsernameWithoutUsernameParam() {
 		client.get().uri((builder) -> builder.path("/actuator/sessions").build()).exchange().expectStatus()
 				.isBadRequest();
 	}
 
-	@WebEndpointTest
-	void sessionsForUsernameNoResults(WebTestClient client) {
+	@Test
+	public void sessionsForUsernameNoResults() {
 		given(repository.findByPrincipalName("user")).willReturn(Collections.emptyMap());
 		client.get().uri((builder) -> builder.path("/actuator/sessions").queryParam("username", "user").build())
 				.exchange().expectStatus().isOk().expectBody().jsonPath("sessions").isEmpty();
 	}
 
-	@WebEndpointTest
-	void sessionsForUsernameFound(WebTestClient client) {
+	@Test
+	public void sessionsForUsernameFound() {
 		given(repository.findByPrincipalName("user")).willReturn(Collections.singletonMap(session.getId(), session));
 		client.get().uri((builder) -> builder.path("/actuator/sessions").queryParam("username", "user").build())
 				.exchange().expectStatus().isOk().expectBody().jsonPath("sessions.[*].id")
 				.isEqualTo(new JSONArray().appendElement(session.getId()));
 	}
 
-	@WebEndpointTest
-	void sessionForIdNotFound(WebTestClient client) {
+	@Test
+	public void sessionForIdNotFound() {
 		client.get().uri((builder) -> builder.path("/actuator/sessions/session-id-not-found").build()).exchange()
 				.expectStatus().isNotFound();
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class TestConfiguration {
+	@Configuration
+	protected static class TestConfiguration {
 
 		@Bean
-		SessionsEndpoint sessionsEndpoint() {
+		public SessionsEndpoint sessionsEndpoint() {
 			return new SessionsEndpoint(repository);
 		}
 

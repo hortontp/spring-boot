@@ -11,7 +11,7 @@ class Example {
 	}
 }
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @Log
 class MvcConfiguration extends WebMvcConfigurerAdapter {
 

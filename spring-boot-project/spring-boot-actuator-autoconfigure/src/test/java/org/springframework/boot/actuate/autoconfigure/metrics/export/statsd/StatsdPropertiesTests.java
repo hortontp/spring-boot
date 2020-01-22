@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.statsd;
 
 import io.micrometer.statsd.StatsdConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class StatsdPropertiesTests {
+public class StatsdPropertiesTests {
 
 	@Test
-	void defaultValuesAreConsistent() {
+	public void defaultValuesAreConsistent() {
 		StatsdProperties properties = new StatsdProperties();
 		StatsdConfig config = StatsdConfig.DEFAULT;
 		assertThat(properties.isEnabled()).isEqualTo(config.enabled());

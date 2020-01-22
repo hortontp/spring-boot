@@ -18,9 +18,7 @@ package org.springframework.boot.autoconfigure.jms;
 
 import java.time.Duration;
 
-import org.junit.jupiter.api.Test;
-
-import org.springframework.jms.listener.AbstractPollingMessageListenerContainer;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,30 +27,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class JmsPropertiesTests {
+public class JmsPropertiesTests {
 
 	@Test
-	void formatConcurrencyNull() {
+	public void formatConcurrencyNull() {
 		JmsProperties properties = new JmsProperties();
 		assertThat(properties.getListener().formatConcurrency()).isNull();
 	}
 
 	@Test
-	void formatConcurrencyOnlyLowerBound() {
+	public void formatConcurrencyOnlyLowerBound() {
 		JmsProperties properties = new JmsProperties();
 		properties.getListener().setConcurrency(2);
 		assertThat(properties.getListener().formatConcurrency()).isEqualTo("2");
 	}
 
 	@Test
-	void formatConcurrencyOnlyHigherBound() {
+	public void formatConcurrencyOnlyHigherBound() {
 		JmsProperties properties = new JmsProperties();
 		properties.getListener().setMaxConcurrency(5);
 		assertThat(properties.getListener().formatConcurrency()).isEqualTo("1-5");
 	}
 
 	@Test
-	void formatConcurrencyBothBounds() {
+	public void formatConcurrencyBothBounds() {
 		JmsProperties properties = new JmsProperties();
 		properties.getListener().setConcurrency(2);
 		properties.getListener().setMaxConcurrency(10);
@@ -60,30 +58,24 @@ class JmsPropertiesTests {
 	}
 
 	@Test
-	void setDeliveryModeEnablesQoS() {
+	public void setDeliveryModeEnablesQoS() {
 		JmsProperties properties = new JmsProperties();
 		properties.getTemplate().setDeliveryMode(JmsProperties.DeliveryMode.PERSISTENT);
 		assertThat(properties.getTemplate().determineQosEnabled()).isTrue();
 	}
 
 	@Test
-	void setPriorityEnablesQoS() {
+	public void setPriorityEnablesQoS() {
 		JmsProperties properties = new JmsProperties();
 		properties.getTemplate().setPriority(6);
 		assertThat(properties.getTemplate().determineQosEnabled()).isTrue();
 	}
 
 	@Test
-	void setTimeToLiveEnablesQoS() {
+	public void setTimeToLiveEnablesQoS() {
 		JmsProperties properties = new JmsProperties();
 		properties.getTemplate().setTimeToLive(Duration.ofSeconds(5));
 		assertThat(properties.getTemplate().determineQosEnabled()).isTrue();
-	}
-
-	@Test
-	void defaultReceiveTimeoutMatchesListenerContainersDefault() {
-		assertThat(new JmsProperties().getListener().getReceiveTimeout())
-				.isEqualTo(Duration.ofMillis(AbstractPollingMessageListenerContainer.DEFAULT_RECEIVE_TIMEOUT));
 	}
 
 }

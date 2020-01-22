@@ -22,7 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
@@ -47,6 +48,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,16 +57,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
+@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = "management.endpoints.web.exposure.include=jolokia")
 @DirtiesContext
-class JolokiaEndpointAutoConfigurationIntegrationTests {
+public class JolokiaEndpointAutoConfigurationIntegrationTests {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
 
 	@Test
-	void jolokiaIsExposed() {
+	public void jolokiaIsExposed() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity("/actuator/jolokia", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).contains("\"agent\"");
@@ -72,7 +75,7 @@ class JolokiaEndpointAutoConfigurationIntegrationTests {
 	}
 
 	@Test
-	void search() {
+	public void search() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity("/actuator/jolokia/search/java.lang:*",
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -80,7 +83,7 @@ class JolokiaEndpointAutoConfigurationIntegrationTests {
 	}
 
 	@Test
-	void read() {
+	public void read() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity("/actuator/jolokia/read/java.lang:type=Memory",
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -88,20 +91,20 @@ class JolokiaEndpointAutoConfigurationIntegrationTests {
 	}
 
 	@Test
-	void list() {
+	public void list() {
 		ResponseEntity<String> response = this.restTemplate
 				.getForEntity("/actuator/jolokia/list/java.lang/type=Memory/attr", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).contains("NonHeapMemoryUsage");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@MinimalWebConfiguration
 	@Import({ JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
 			JolokiaEndpointAutoConfiguration.class, EndpointAutoConfiguration.class, WebEndpointAutoConfiguration.class,
 			ServletManagementContextAutoConfiguration.class, ManagementContextAutoConfiguration.class,
 			ServletEndpointManagementContextConfiguration.class })
-	static class Application {
+	protected static class Application {
 
 	}
 

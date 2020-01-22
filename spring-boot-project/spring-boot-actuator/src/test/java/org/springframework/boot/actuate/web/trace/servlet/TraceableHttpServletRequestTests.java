@@ -15,8 +15,8 @@
  */
 package org.springframework.boot.actuate.web.trace.servlet;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -27,34 +27,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Madhura Bhave
  */
-class TraceableHttpServletRequestTests {
+public class TraceableHttpServletRequestTests {
 
 	private MockHttpServletRequest request;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "/script");
 	}
 
 	@Test
-	void getUriWithoutQueryStringShouldReturnUri() {
+	public void getUriWithoutQueryStringShouldReturnUri() {
 		validate("http://localhost/script");
 	}
 
 	@Test
-	void getUriShouldReturnUriWithQueryString() {
+	public void getUriShouldReturnUriWithQueryString() {
 		this.request.setQueryString("a=b");
 		validate("http://localhost/script?a=b");
 	}
 
 	@Test
-	void getUriWithSpecialCharactersInQueryStringShouldEncode() {
+	public void getUriWithSpecialCharactersInQueryStringShouldEncode() {
 		this.request.setQueryString("a=${b}");
 		validate("http://localhost/script?a=$%7Bb%7D");
 	}
 
 	@Test
-	void getUriWithSpecialCharactersEncodedShouldNotDoubleEncode() {
+	public void getUriWithSpecialCharactersEncodedShouldNotDoubleEncode() {
 		this.request.setQueryString("a=$%7Bb%7D");
 		validate("http://localhost/script?a=$%7Bb%7D");
 	}

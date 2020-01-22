@@ -127,7 +127,7 @@ class ManagementContextConfigurationImportSelector implements DeferredImportSele
 			return (order != null) ? order : Ordered.LOWEST_PRECEDENCE;
 		}
 
-		String getClassName() {
+		public String getClassName() {
 			return this.className;
 		}
 
@@ -136,7 +136,7 @@ class ManagementContextConfigurationImportSelector implements DeferredImportSele
 			return this.order;
 		}
 
-		ManagementContextType getContextType() {
+		public ManagementContextType getContextType() {
 			return this.contextType;
 		}
 

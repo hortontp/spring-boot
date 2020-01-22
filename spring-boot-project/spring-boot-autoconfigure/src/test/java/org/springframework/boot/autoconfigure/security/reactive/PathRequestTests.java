@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.security.reactive;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,10 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Madhura Bhave
  */
-class PathRequestTests {
+public class PathRequestTests {
 
 	@Test
-	void toStaticResourcesShouldReturnStaticResourceRequest() {
+	public void toStaticResourcesShouldReturnStaticResourceRequest() {
 		assertThat(PathRequest.toStaticResources()).isInstanceOf(StaticResourceRequest.class);
 	}
 

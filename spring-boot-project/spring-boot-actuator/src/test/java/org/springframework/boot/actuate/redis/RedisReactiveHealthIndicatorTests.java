@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.redis;
 import java.util.Properties;
 
 import io.lettuce.core.RedisConnectionException;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -43,10 +43,10 @@ import static org.mockito.Mockito.verify;
  * @author Nikolay Rybak
  * @author Artsiom Yudovin
  */
-class RedisReactiveHealthIndicatorTests {
+public class RedisReactiveHealthIndicatorTests {
 
 	@Test
-	void redisIsUp() {
+	public void redisIsUp() {
 		Properties info = new Properties();
 		info.put("redis_version", "2.8.9");
 		ReactiveRedisConnection redisConnection = mock(ReactiveRedisConnection.class);
@@ -64,7 +64,7 @@ class RedisReactiveHealthIndicatorTests {
 	}
 
 	@Test
-	void redisCommandIsDown() {
+	public void redisCommandIsDown() {
 		ReactiveServerCommands commands = mock(ReactiveServerCommands.class);
 		given(commands.info()).willReturn(Mono.error(new RedisConnectionFailureException("Connection failed")));
 		ReactiveRedisConnection redisConnection = mock(ReactiveRedisConnection.class);
@@ -77,7 +77,7 @@ class RedisReactiveHealthIndicatorTests {
 	}
 
 	@Test
-	void redisConnectionIsDown() {
+	public void redisConnectionIsDown() {
 		ReactiveRedisConnectionFactory redisConnectionFactory = mock(ReactiveRedisConnectionFactory.class);
 		given(redisConnectionFactory.getReactiveConnection())
 				.willThrow(new RedisConnectionException("Unable to connect to localhost:6379"));

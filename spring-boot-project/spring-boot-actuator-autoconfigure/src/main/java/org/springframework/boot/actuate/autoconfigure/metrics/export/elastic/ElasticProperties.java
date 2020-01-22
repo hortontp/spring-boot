@@ -20,8 +20,7 @@ import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring Elastic
- * metrics export.
+ * {@link ConfigurationProperties} for configuring Elastic metrics export.
  *
  * @author Andy Wilkinson
  * @since 2.1.0

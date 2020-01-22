@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.webservices;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -31,34 +31,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eneias Silva
  * @author Stephane Nicoll
  */
-class OnWsdlLocationsConditionTests {
+public class OnWsdlLocationsConditionTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(TestConfig.class);
 
 	@Test
-	void wsdlLocationsNotDefined() {
+	public void wsdlLocationsNotDefined() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean("foo"));
 	}
 
 	@Test
-	void wsdlLocationsDefinedAsCommaSeparated() {
+	public void wsdlLocationsDefinedAsCommaSeparated() {
 		this.contextRunner.withPropertyValues("spring.webservices.wsdl-locations=value1")
 				.run((context) -> assertThat(context).hasBean("foo"));
 	}
 
 	@Test
-	void wsdlLocationsDefinedAsList() {
+	public void wsdlLocationsDefinedAsList() {
 		this.contextRunner.withPropertyValues("spring.webservices.wsdl-locations[0]=value1")
 				.run((context) -> assertThat(context).hasBean("foo"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Conditional(OnWsdlLocationsCondition.class)
-	static class TestConfig {
+	protected static class TestConfig {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

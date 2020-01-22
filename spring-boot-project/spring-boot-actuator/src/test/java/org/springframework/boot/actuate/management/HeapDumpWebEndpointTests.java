@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.management;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class HeapDumpWebEndpointTests {
+public class HeapDumpWebEndpointTests {
 
 	@Test
-	void parallelRequestProducesTooManyRequestsResponse() throws InterruptedException {
+	public void parallelRequestProducesTooManyRequestsResponse() throws InterruptedException {
 		CountDownLatch dumpingLatch = new CountDownLatch(1);
 		CountDownLatch blockingLatch = new CountDownLatch(1);
 		HeapDumpWebEndpoint slowEndpoint = new HeapDumpWebEndpoint(2500) {

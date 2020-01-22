@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.web.reactive;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
@@ -37,13 +37,13 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-class HttpHandlerAutoConfigurationTests {
+public class HttpHandlerAutoConfigurationTests {
 
 	private final ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(HttpHandlerAutoConfiguration.class));
 
 	@Test
-	void shouldNotProcessIfExistingHttpHandler() {
+	public void shouldNotProcessIfExistingHttpHandler() {
 		this.contextRunner.withUserConfiguration(CustomHttpHandler.class).run((context) -> {
 			assertThat(context).hasSingleBean(HttpHandler.class);
 			assertThat(context).getBean(HttpHandler.class).isSameAs(context.getBean("customHttpHandler"));
@@ -51,21 +51,21 @@ class HttpHandlerAutoConfigurationTests {
 	}
 
 	@Test
-	void shouldConfigureHttpHandlerAnnotation() {
+	public void shouldConfigureHttpHandlerAnnotation() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(WebFluxAutoConfiguration.class))
 				.run((context) -> assertThat(context).hasSingleBean(HttpHandler.class));
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class CustomHttpHandler {
+	@Configuration
+	protected static class CustomHttpHandler {
 
 		@Bean
-		HttpHandler customHttpHandler() {
+		public HttpHandler customHttpHandler() {
 			return (serverHttpRequest, serverHttpResponse) -> null;
 		}
 
 		@Bean
-		RouterFunction<ServerResponse> routerFunction() {
+		public RouterFunction<ServerResponse> routerFunction() {
 			return route(GET("/test"), (serverRequest) -> null);
 		}
 

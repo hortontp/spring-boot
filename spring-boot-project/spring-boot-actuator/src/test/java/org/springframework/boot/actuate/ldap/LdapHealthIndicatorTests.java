@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.ldap;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -35,11 +35,11 @@ import static org.mockito.Mockito.verify;
  *
  * @author Eddú Meléndez
  */
-class LdapHealthIndicatorTests {
+public class LdapHealthIndicatorTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void ldapIsUp() {
+	public void ldapIsUp() {
 		LdapTemplate ldapTemplate = mock(LdapTemplate.class);
 		given(ldapTemplate.executeReadOnly((ContextExecutor<String>) any())).willReturn("3");
 		LdapHealthIndicator healthIndicator = new LdapHealthIndicator(ldapTemplate);
@@ -51,7 +51,7 @@ class LdapHealthIndicatorTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void ldapIsDown() {
+	public void ldapIsDown() {
 		LdapTemplate ldapTemplate = mock(LdapTemplate.class);
 		given(ldapTemplate.executeReadOnly((ContextExecutor<String>) any()))
 				.willThrow(new CommunicationException(new javax.naming.CommunicationException("Connection failed")));

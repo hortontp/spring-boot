@@ -63,7 +63,10 @@ class CompositeHandlerAdapter implements HandlerAdapter {
 	@Override
 	public long getLastModified(HttpServletRequest request, Object handler) {
 		Optional<HandlerAdapter> adapter = getAdapter(handler);
-		return adapter.map((handlerAdapter) -> handlerAdapter.getLastModified(request, handler)).orElse(0L);
+		if (adapter.isPresent()) {
+			return adapter.get().getLastModified(request, handler);
+		}
+		return 0;
 	}
 
 	private Optional<HandlerAdapter> getAdapter(Object handler) {
@@ -74,7 +77,8 @@ class CompositeHandlerAdapter implements HandlerAdapter {
 	}
 
 	private List<HandlerAdapter> extractAdapters() {
-		List<HandlerAdapter> list = new ArrayList<>(this.beanFactory.getBeansOfType(HandlerAdapter.class).values());
+		List<HandlerAdapter> list = new ArrayList<>();
+		list.addAll(this.beanFactory.getBeansOfType(HandlerAdapter.class).values());
 		list.remove(this);
 		AnnotationAwareOrderComparator.sort(list);
 		return list;

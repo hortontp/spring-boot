@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.context.properties;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint.ApplicationConfigurationProperties;
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint.ConfigurationPropertiesBeanDescriptor;
@@ -35,10 +35,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Andy Wilkinson
  */
-class ConfigurationPropertiesReportEndpointMethodAnnotationsTests {
+public class ConfigurationPropertiesReportEndpointMethodAnnotationsTests {
 
 	@Test
-	void testNaming() {
+	public void testNaming() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(Config.class)
 				.withPropertyValues("other.name:foo", "first.name:bar");
 		contextRunner.run((context) -> {
@@ -56,7 +56,7 @@ class ConfigurationPropertiesReportEndpointMethodAnnotationsTests {
 	}
 
 	@Test
-	void prefixFromBeanMethodConfigurationPropertiesCanOverridePrefixOnClass() {
+	public void prefixFromBeanMethodConfigurationPropertiesCanOverridePrefixOnClass() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(OverriddenPrefix.class).withPropertyValues("other.name:foo");
 		contextRunner.run((context) -> {
@@ -73,41 +73,41 @@ class ConfigurationPropertiesReportEndpointMethodAnnotationsTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
-	static class Config {
+	public static class Config {
 
 		@Bean
-		ConfigurationPropertiesReportEndpoint endpoint() {
+		public ConfigurationPropertiesReportEndpoint endpoint() {
 			return new ConfigurationPropertiesReportEndpoint();
 		}
 
 		@Bean
 		@ConfigurationProperties(prefix = "first")
-		Foo foo() {
+		public Foo foo() {
 			return new Foo();
 		}
 
 		@Bean
 		@ConfigurationProperties(prefix = "other")
-		Foo other() {
+		public Foo other() {
 			return new Foo();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
-	static class OverriddenPrefix {
+	public static class OverriddenPrefix {
 
 		@Bean
-		ConfigurationPropertiesReportEndpoint endpoint() {
+		public ConfigurationPropertiesReportEndpoint endpoint() {
 			return new ConfigurationPropertiesReportEndpoint();
 		}
 
 		@Bean
 		@ConfigurationProperties(prefix = "other")
-		Bar bar() {
+		public Bar bar() {
 			return new Bar();
 		}
 

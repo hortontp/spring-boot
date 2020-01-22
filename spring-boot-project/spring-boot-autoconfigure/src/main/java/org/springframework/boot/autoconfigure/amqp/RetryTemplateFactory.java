@@ -38,7 +38,8 @@ class RetryTemplateFactory {
 		this.customizers = customizers;
 	}
 
-	RetryTemplate createRetryTemplate(RabbitProperties.Retry properties, RabbitRetryTemplateCustomizer.Target target) {
+	public RetryTemplate createRetryTemplate(RabbitProperties.Retry properties,
+			RabbitRetryTemplateCustomizer.Target target) {
 		PropertyMapper map = PropertyMapper.get();
 		RetryTemplate template = new RetryTemplate();
 		SimpleRetryPolicy policy = new SimpleRetryPolicy();

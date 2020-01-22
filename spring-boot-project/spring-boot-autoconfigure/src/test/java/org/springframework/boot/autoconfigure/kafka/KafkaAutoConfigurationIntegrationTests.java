@@ -21,8 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.Producer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -31,12 +32,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.kafka.test.condition.EmbeddedKafkaCondition;
-import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.messaging.handler.annotation.Header;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,17 +46,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Gary Russell
  * @author Stephane Nicoll
  */
-@EmbeddedKafka(topics = KafkaAutoConfigurationIntegrationTests.TEST_TOPIC)
-class KafkaAutoConfigurationIntegrationTests {
+public class KafkaAutoConfigurationIntegrationTests {
 
-	static final String TEST_TOPIC = "testTopic";
+	private static final String TEST_TOPIC = "testTopic";
 
 	private static final String ADMIN_CREATED_TOPIC = "adminCreatedTopic";
 
+	@ClassRule
+	public static final EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, TEST_TOPIC);
+
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -65,7 +66,7 @@ class KafkaAutoConfigurationIntegrationTests {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	void testEndToEnd() throws Exception {
+	public void testEndToEnd() throws Exception {
 		load(KafkaConfig.class, "spring.kafka.bootstrap-servers:" + getEmbeddedKafkaBrokersAsString(),
 				"spring.kafka.consumer.group-id=testGroup", "spring.kafka.consumer.auto-offset-reset=earliest");
 		KafkaTemplate<String, String> template = this.context.getBean(KafkaTemplate.class);
@@ -82,7 +83,7 @@ class KafkaAutoConfigurationIntegrationTests {
 	}
 
 	@Test
-	void testStreams() {
+	public void testStreams() {
 		load(KafkaStreamsConfig.class, "spring.application.name:my-app",
 				"spring.kafka.bootstrap-servers:" + getEmbeddedKafkaBrokersAsString());
 		assertThat(this.context.getBean(StreamsBuilderFactoryBean.class).isAutoStartup()).isTrue();
@@ -102,31 +103,31 @@ class KafkaAutoConfigurationIntegrationTests {
 	}
 
 	private String getEmbeddedKafkaBrokersAsString() {
-		return EmbeddedKafkaCondition.getBroker().getBrokersAsString();
+		return embeddedKafka.getEmbeddedKafka().getBrokersAsString();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class KafkaConfig {
 
 		@Bean
-		Listener listener() {
+		public Listener listener() {
 			return new Listener();
 		}
 
 		@Bean
-		NewTopic adminCreated() {
-			return TopicBuilder.name(ADMIN_CREATED_TOPIC).partitions(10).replicas(1).build();
+		public NewTopic adminCreated() {
+			return new NewTopic(ADMIN_CREATED_TOPIC, 10, (short) 1);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableKafkaStreams
 	static class KafkaStreamsConfig {
 
 	}
 
-	static class Listener {
+	public static class Listener {
 
 		private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -135,7 +136,7 @@ class KafkaAutoConfigurationIntegrationTests {
 		private volatile String key;
 
 		@KafkaListener(topics = TEST_TOPIC)
-		void listen(String foo, @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key) {
+		public void listen(String foo, @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key) {
 			this.received = foo;
 			this.key = key;
 			this.latch.countDown();

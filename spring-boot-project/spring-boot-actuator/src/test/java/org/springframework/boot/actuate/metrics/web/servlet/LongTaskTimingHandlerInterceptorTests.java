@@ -27,15 +27,15 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MockClock;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -63,9 +63,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
 @WebAppConfiguration
-class LongTaskTimingHandlerInterceptorTests {
+public class LongTaskTimingHandlerInterceptorTests {
 
 	@Autowired
 	private SimpleMeterRegistry registry;
@@ -78,13 +78,13 @@ class LongTaskTimingHandlerInterceptorTests {
 
 	private MockMvc mvc;
 
-	@BeforeEach
-	void setUpMockMvc() {
+	@Before
+	public void setUpMockMvc() {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 
 	@Test
-	void asyncRequestThatThrowsUncheckedException() throws Exception {
+	public void asyncRequestThatThrowsUncheckedException() throws Exception {
 		MvcResult result = this.mvc.perform(get("/api/c1/completableFutureException"))
 				.andExpect(request().asyncStarted()).andReturn();
 		assertThat(this.registry.get("my.long.request.exception").longTaskTimer().activeTasks()).isEqualTo(1);
@@ -95,7 +95,7 @@ class LongTaskTimingHandlerInterceptorTests {
 	}
 
 	@Test
-	void asyncCallableRequest() throws Exception {
+	public void asyncCallableRequest() throws Exception {
 		AtomicReference<MvcResult> result = new AtomicReference<>();
 		Thread backgroundRequest = new Thread(() -> {
 			try {
@@ -117,7 +117,7 @@ class LongTaskTimingHandlerInterceptorTests {
 				.isEqualTo(0);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebMvc
 	@Import(Controller1.class)
 	static class MetricsInterceptorConfiguration {
@@ -162,7 +162,7 @@ class LongTaskTimingHandlerInterceptorTests {
 		@Timed
 		@Timed(value = "my.long.request", extraTags = { "region", "test" }, longTask = true)
 		@GetMapping("/callable/{id}")
-		Callable<String> asyncCallable(@PathVariable Long id) throws Exception {
+		public Callable<String> asyncCallable(@PathVariable Long id) throws Exception {
 			this.callableBarrier.await();
 			return () -> {
 				try {

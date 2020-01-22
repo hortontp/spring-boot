@@ -16,25 +16,15 @@
 
 package org.springframework.boot.autoconfigure.h2;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import javax.sql.DataSource;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,31 +36,31 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Marten Deinum
  * @author Stephane Nicoll
  */
-class H2ConsoleAutoConfigurationTests {
+public class H2ConsoleAutoConfigurationTests {
 
-	private AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
+	private AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 
-	@BeforeEach
-	void setupContext() {
+	@Before
+	public void setupContext() {
 		this.context.setServletContext(new MockServletContext());
 	}
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void consoleIsDisabledByDefault() {
+	public void consoleIsDisabledByDefault() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBeansOfType(ServletRegistrationBean.class)).isEmpty();
 	}
 
 	@Test
-	void propertyCanEnableConsole() {
+	public void propertyCanEnableConsole() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		TestPropertyValues.of("spring.h2.console.enabled:true").applyTo(this.context);
 		this.context.refresh();
@@ -82,7 +72,7 @@ class H2ConsoleAutoConfigurationTests {
 	}
 
 	@Test
-	void customPathMustBeginWithASlash() {
+	public void customPathMustBeginWithASlash() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		TestPropertyValues.of("spring.h2.console.enabled:true", "spring.h2.console.path:custom").applyTo(this.context);
 		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(this.context::refresh)
@@ -90,7 +80,7 @@ class H2ConsoleAutoConfigurationTests {
 	}
 
 	@Test
-	void customPathWithTrailingSlash() {
+	public void customPathWithTrailingSlash() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		TestPropertyValues.of("spring.h2.console.enabled:true", "spring.h2.console.path:/custom/")
 				.applyTo(this.context);
@@ -101,7 +91,7 @@ class H2ConsoleAutoConfigurationTests {
 	}
 
 	@Test
-	void customPath() {
+	public void customPath() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		TestPropertyValues.of("spring.h2.console.enabled:true", "spring.h2.console.path:/custom").applyTo(this.context);
 		this.context.refresh();
@@ -111,7 +101,7 @@ class H2ConsoleAutoConfigurationTests {
 	}
 
 	@Test
-	void customInitParameters() {
+	public void customInitParameters() {
 		this.context.register(H2ConsoleAutoConfiguration.class);
 		TestPropertyValues.of("spring.h2.console.enabled:true", "spring.h2.console.settings.trace=true",
 				"spring.h2.console.settings.webAllowOthers=true").applyTo(this.context);
@@ -121,17 +111,6 @@ class H2ConsoleAutoConfigurationTests {
 		assertThat(registrationBean.getUrlMappings()).contains("/h2-console/*");
 		assertThat(registrationBean.getInitParameters()).containsEntry("trace", "");
 		assertThat(registrationBean.getInitParameters()).containsEntry("webAllowOthers", "");
-	}
-
-	@Test
-	@ExtendWith(OutputCaptureExtension.class)
-	void dataSourceUrlIsLoggedWhenAvailable(CapturedOutput output) throws BeansException, SQLException {
-		this.context.register(DataSourceAutoConfiguration.class, H2ConsoleAutoConfiguration.class);
-		TestPropertyValues.of("spring.h2.console.enabled:true").applyTo(this.context);
-		this.context.refresh();
-		try (Connection connection = this.context.getBean(DataSource.class).getConnection()) {
-			assertThat(output).contains("Database available at '" + connection.getMetaData().getURL() + "'");
-		}
 	}
 
 }

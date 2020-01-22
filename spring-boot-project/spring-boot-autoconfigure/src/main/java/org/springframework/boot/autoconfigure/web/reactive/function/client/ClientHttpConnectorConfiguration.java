@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.JettyClientHttpConnector;
 import org.springframework.http.client.reactive.JettyResourceFactory;
@@ -40,10 +39,10 @@ import org.springframework.http.client.reactive.ReactorResourceFactory;
  *
  * @author Brian Clozel
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 class ClientHttpConnectorConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(reactor.netty.http.client.HttpClient.class)
 	@ConditionalOnMissingBean(ClientHttpConnector.class)
 	public static class ReactorNetty {
@@ -55,14 +54,13 @@ class ClientHttpConnectorConfiguration {
 		}
 
 		@Bean
-		@Lazy
 		public ReactorClientHttpConnector reactorClientHttpConnector(ReactorResourceFactory reactorResourceFactory) {
 			return new ReactorClientHttpConnector(reactorResourceFactory, Function.identity());
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(org.eclipse.jetty.reactive.client.ReactiveRequest.class)
 	@ConditionalOnMissingBean(ClientHttpConnector.class)
 	public static class JettyClient {
@@ -74,11 +72,13 @@ class ClientHttpConnectorConfiguration {
 		}
 
 		@Bean
-		@Lazy
 		public JettyClientHttpConnector jettyClientHttpConnector(JettyResourceFactory jettyResourceFactory) {
 			SslContextFactory sslContextFactory = new SslContextFactory.Client();
 			HttpClient httpClient = new HttpClient(sslContextFactory);
-			return new JettyClientHttpConnector(httpClient, jettyResourceFactory);
+			httpClient.setExecutor(jettyResourceFactory.getExecutor());
+			httpClient.setByteBufferPool(jettyResourceFactory.getByteBufferPool());
+			httpClient.setScheduler(jettyResourceFactory.getScheduler());
+			return new JettyClientHttpConnector(httpClient);
 		}
 
 	}

@@ -18,8 +18,6 @@ package org.springframework.boot.autoconfigure.session;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceInitializationMode;
-import org.springframework.session.FlushMode;
-import org.springframework.session.SaveMode;
 
 /**
  * Configuration properties for JDBC backed Spring Session.
@@ -57,18 +55,6 @@ public class JdbcSessionProperties {
 	 */
 	private DataSourceInitializationMode initializeSchema = DataSourceInitializationMode.EMBEDDED;
 
-	/**
-	 * Sessions flush mode. Determines when session changes are written to the session
-	 * store.
-	 */
-	private FlushMode flushMode = FlushMode.ON_SAVE;
-
-	/**
-	 * Sessions save mode. Determines how session changes are tracked and saved to the
-	 * session store.
-	 */
-	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
-
 	public String getSchema() {
 		return this.schema;
 	}
@@ -99,22 +85,6 @@ public class JdbcSessionProperties {
 
 	public void setInitializeSchema(DataSourceInitializationMode initializeSchema) {
 		this.initializeSchema = initializeSchema;
-	}
-
-	public FlushMode getFlushMode() {
-		return this.flushMode;
-	}
-
-	public void setFlushMode(FlushMode flushMode) {
-		this.flushMode = flushMode;
-	}
-
-	public SaveMode getSaveMode() {
-		return this.saveMode;
-	}
-
-	public void setSaveMode(SaveMode saveMode) {
-		this.saveMode = saveMode;
 	}
 
 }

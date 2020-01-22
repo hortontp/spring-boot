@@ -40,9 +40,8 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
- * {@link ManagementContextConfiguration @ManagementContextConfiguration} for Spring MVC
- * infrastructure when a separate management context with a web server running on a
- * different port is required.
+ * {@link ManagementContextConfiguration} for Spring MVC infrastructure when a separate
+ * management context with a web server running on a different port is required.
  *
  * @author Stephane Nicoll
  * @author Andy Wilkinson
@@ -61,18 +60,18 @@ class WebMvcEndpointChildContextConfiguration {
 	 */
 	@Bean
 	@ConditionalOnBean(ErrorAttributes.class)
-	ManagementErrorEndpoint errorEndpoint(ErrorAttributes errorAttributes) {
+	public ManagementErrorEndpoint errorEndpoint(ErrorAttributes errorAttributes) {
 		return new ManagementErrorEndpoint(errorAttributes);
 	}
 
 	@Bean
 	@ConditionalOnBean(ErrorAttributes.class)
-	ManagementErrorPageCustomizer managementErrorPageCustomizer(ServerProperties serverProperties) {
+	public ManagementErrorPageCustomizer managementErrorPageCustomizer(ServerProperties serverProperties) {
 		return new ManagementErrorPageCustomizer(serverProperties);
 	}
 
 	@Bean(name = DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
-	DispatcherServlet dispatcherServlet() {
+	public DispatcherServlet dispatcherServlet() {
 		DispatcherServlet dispatcherServlet = new DispatcherServlet();
 		// Ensure the parent configuration does not leak down to us
 		dispatcherServlet.setDetectAllHandlerAdapters(false);
@@ -83,28 +82,28 @@ class WebMvcEndpointChildContextConfiguration {
 	}
 
 	@Bean(name = DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME)
-	DispatcherServletRegistrationBean dispatcherServletRegistrationBean(DispatcherServlet dispatcherServlet) {
+	public DispatcherServletRegistrationBean dispatcherServletRegistrationBean(DispatcherServlet dispatcherServlet) {
 		return new DispatcherServletRegistrationBean(dispatcherServlet, "/");
 	}
 
 	@Bean(name = DispatcherServlet.HANDLER_MAPPING_BEAN_NAME)
-	CompositeHandlerMapping compositeHandlerMapping() {
+	public CompositeHandlerMapping compositeHandlerMapping() {
 		return new CompositeHandlerMapping();
 	}
 
 	@Bean(name = DispatcherServlet.HANDLER_ADAPTER_BEAN_NAME)
-	CompositeHandlerAdapter compositeHandlerAdapter(ListableBeanFactory beanFactory) {
+	public CompositeHandlerAdapter compositeHandlerAdapter(ListableBeanFactory beanFactory) {
 		return new CompositeHandlerAdapter(beanFactory);
 	}
 
 	@Bean(name = DispatcherServlet.HANDLER_EXCEPTION_RESOLVER_BEAN_NAME)
-	CompositeHandlerExceptionResolver compositeHandlerExceptionResolver() {
+	public CompositeHandlerExceptionResolver compositeHandlerExceptionResolver() {
 		return new CompositeHandlerExceptionResolver();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean({ RequestContextListener.class, RequestContextFilter.class })
-	RequestContextFilter requestContextFilter() {
+	public RequestContextFilter requestContextFilter() {
 		return new OrderedRequestContextFilter();
 	}
 

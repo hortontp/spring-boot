@@ -34,7 +34,7 @@ import org.springframework.dao.annotation.PersistenceExceptionTranslationPostPro
  * @author Madhura Bhave
  * @since 1.2.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(PersistenceExceptionTranslationPostProcessor.class)
 public class PersistenceExceptionTranslationAutoConfiguration {
 

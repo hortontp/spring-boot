@@ -23,8 +23,7 @@ import io.micrometer.statsd.StatsdFlavor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring StatsD metrics
- * export.
+ * {@link ConfigurationProperties} for configuring StatsD metrics export.
  *
  * @author Jon Schneider
  * @author Stephane Nicoll

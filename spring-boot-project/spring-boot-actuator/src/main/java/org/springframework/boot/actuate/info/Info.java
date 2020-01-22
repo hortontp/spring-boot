@@ -40,7 +40,8 @@ public final class Info {
 	private final Map<String, Object> details;
 
 	private Info(Builder builder) {
-		Map<String, Object> content = new LinkedHashMap<>(builder.content);
+		Map<String, Object> content = new LinkedHashMap<>();
+		content.putAll(builder.content);
 		this.details = Collections.unmodifiableMap(content);
 	}
 
@@ -71,7 +72,7 @@ public final class Info {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof Info) {
+		if (obj != null && obj instanceof Info) {
 			Info other = (Info) obj;
 			return this.details.equals(other.details);
 		}

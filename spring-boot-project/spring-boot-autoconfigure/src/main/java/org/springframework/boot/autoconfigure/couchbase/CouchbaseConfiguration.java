@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.springframework.context.annotation.Primary;
  * Support class to configure Couchbase based on {@link CouchbaseProperties}.
  *
  * @author Stephane Nicoll
- * @author Brian Clozel
  * @since 2.1.0
  */
 @Configuration
@@ -58,11 +57,7 @@ public class CouchbaseConfiguration {
 	@Bean
 	@Primary
 	public Cluster couchbaseCluster() {
-		CouchbaseCluster couchbaseCluster = CouchbaseCluster.create(couchbaseEnvironment(), determineBootstrapHosts());
-		if (isRoleBasedAccessControlEnabled()) {
-			return couchbaseCluster.authenticate(this.properties.getUsername(), this.properties.getPassword());
-		}
-		return couchbaseCluster;
+		return CouchbaseCluster.create(couchbaseEnvironment(), determineBootstrapHosts());
 	}
 
 	/**
@@ -77,9 +72,6 @@ public class CouchbaseConfiguration {
 	@Primary
 	@DependsOn("couchbaseClient")
 	public ClusterInfo couchbaseClusterInfo() {
-		if (isRoleBasedAccessControlEnabled()) {
-			return couchbaseCluster().clusterManager().info();
-		}
 		return couchbaseCluster()
 				.clusterManager(this.properties.getBucket().getName(), this.properties.getBucket().getPassword())
 				.info();
@@ -88,15 +80,8 @@ public class CouchbaseConfiguration {
 	@Bean
 	@Primary
 	public Bucket couchbaseClient() {
-		if (isRoleBasedAccessControlEnabled()) {
-			return couchbaseCluster().openBucket(this.properties.getBucket().getName());
-		}
 		return couchbaseCluster().openBucket(this.properties.getBucket().getName(),
 				this.properties.getBucket().getPassword());
-	}
-
-	private boolean isRoleBasedAccessControlEnabled() {
-		return this.properties.getUsername() != null && this.properties.getPassword() != null;
 	}
 
 	/**
@@ -107,14 +92,7 @@ public class CouchbaseConfiguration {
 	protected DefaultCouchbaseEnvironment.Builder initializeEnvironmentBuilder(CouchbaseProperties properties) {
 		CouchbaseProperties.Endpoints endpoints = properties.getEnv().getEndpoints();
 		CouchbaseProperties.Timeouts timeouts = properties.getEnv().getTimeouts();
-		CouchbaseProperties.Bootstrap bootstrap = properties.getEnv().getBootstrap();
 		DefaultCouchbaseEnvironment.Builder builder = DefaultCouchbaseEnvironment.builder();
-		if (bootstrap.getHttpDirectPort() != null) {
-			builder.bootstrapHttpDirectPort(bootstrap.getHttpDirectPort());
-		}
-		if (bootstrap.getHttpSslPort() != null) {
-			builder.bootstrapHttpSslPort(bootstrap.getHttpSslPort());
-		}
 		if (timeouts.getConnect() != null) {
 			builder = builder.connectTimeout(timeouts.getConnect().toMillis());
 		}

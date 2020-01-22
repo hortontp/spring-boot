@@ -46,7 +46,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
  * @author Andy Wilkinson
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnMissingBean(RepositoryRestMvcConfiguration.class)
 @ConditionalOnClass(RepositoryRestMvcConfiguration.class)

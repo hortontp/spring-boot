@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import liquibase.integration.spring.SpringLiquibase;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.liquibase.LiquibaseEndpoint.LiquibaseBean;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Leo Li
  */
-class LiquibaseEndpointTests {
+public class LiquibaseEndpointTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(
@@ -54,7 +54,7 @@ class LiquibaseEndpointTests {
 			.withPropertyValues("spring.datasource.generate-unique-name=true");
 
 	@Test
-	void liquibaseReportIsReturned() {
+	public void liquibaseReportIsReturned() {
 		this.contextRunner.withUserConfiguration(Config.class).run((context) -> {
 			Map<String, LiquibaseBean> liquibaseBeans = context.getBean(LiquibaseEndpoint.class).liquibaseBeans()
 					.getContexts().get(context.getId()).getLiquibaseBeans();
@@ -63,7 +63,7 @@ class LiquibaseEndpointTests {
 	}
 
 	@Test
-	void invokeWithCustomSchema() {
+	public void invokeWithCustomSchema() {
 		this.contextRunner.withUserConfiguration(Config.class)
 				.withPropertyValues("spring.liquibase.default-schema=CUSTOMSCHEMA",
 						"spring.datasource.schema=classpath:/db/create-custom-schema.sql")
@@ -75,7 +75,7 @@ class LiquibaseEndpointTests {
 	}
 
 	@Test
-	void invokeWithCustomTables() {
+	public void invokeWithCustomTables() {
 		this.contextRunner.withUserConfiguration(Config.class)
 				.withPropertyValues("spring.liquibase.database-change-log-lock-table=liquibase_database_changelog_lock",
 						"spring.liquibase.database-change-log-table=liquibase_database_changelog")
@@ -87,7 +87,7 @@ class LiquibaseEndpointTests {
 	}
 
 	@Test
-	void connectionAutoCommitPropertyIsReset() {
+	public void connectionAutoCommitPropertyIsReset() {
 		this.contextRunner.withUserConfiguration(Config.class).run((context) -> {
 			DataSource dataSource = context.getBean(DataSource.class);
 			assertThat(getAutoCommit(dataSource)).isTrue();
@@ -97,7 +97,7 @@ class LiquibaseEndpointTests {
 	}
 
 	@Test
-	void whenMultipleLiquibaseBeansArePresentChangeSetsAreCorrectlyReportedForEachBean() {
+	public void whenMultipleLiquibaseBeansArePresentChangeSetsAreCorrectlyReportedForEachBean() {
 		this.contextRunner.withUserConfiguration(Config.class, MultipleDataSourceLiquibaseConfiguration.class)
 				.run((context) -> {
 					Map<String, LiquibaseBean> liquibaseBeans = context.getBean(LiquibaseEndpoint.class)
@@ -117,17 +117,17 @@ class LiquibaseEndpointTests {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class Config {
+	@Configuration
+	public static class Config {
 
 		@Bean
-		LiquibaseEndpoint endpoint(ApplicationContext context) {
+		public LiquibaseEndpoint endpoint(ApplicationContext context) {
 			return new LiquibaseEndpoint(context);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultipleDataSourceLiquibaseConfiguration {
 
 		@Bean

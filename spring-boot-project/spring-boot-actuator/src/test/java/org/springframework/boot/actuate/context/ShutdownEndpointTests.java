@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Andy Wilkinson
  */
-class ShutdownEndpointTests {
+public class ShutdownEndpointTests {
 
 	@Test
-	void shutdown() {
+	public void shutdown() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(EndpointConfig.class);
 		contextRunner.run((context) -> {
@@ -67,7 +67,7 @@ class ShutdownEndpointTests {
 	}
 
 	@Test
-	void shutdownChild() throws Exception {
+	public void shutdownChild() throws Exception {
 		ConfigurableApplicationContext context = new SpringApplicationBuilder(EmptyConfig.class)
 				.child(EndpointConfig.class).web(WebApplicationType.NONE).run();
 		CountDownLatch latch = context.getBean(EndpointConfig.class).latch;
@@ -77,7 +77,7 @@ class ShutdownEndpointTests {
 	}
 
 	@Test
-	void shutdownParent() throws Exception {
+	public void shutdownParent() throws Exception {
 		ConfigurableApplicationContext context = new SpringApplicationBuilder(EndpointConfig.class)
 				.child(EmptyConfig.class).web(WebApplicationType.NONE).run();
 		CountDownLatch parentLatch = context.getBean(EndpointConfig.class).latch;
@@ -88,20 +88,21 @@ class ShutdownEndpointTests {
 		assertThat(childLatch.await(10, TimeUnit.SECONDS)).isTrue();
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class EndpointConfig {
+	@Configuration
+	public static class EndpointConfig {
 
 		private final CountDownLatch latch = new CountDownLatch(1);
 
 		private volatile ClassLoader threadContextClassLoader;
 
 		@Bean
-		ShutdownEndpoint endpoint() {
-			return new ShutdownEndpoint();
+		public ShutdownEndpoint endpoint() {
+			ShutdownEndpoint endpoint = new ShutdownEndpoint();
+			return endpoint;
 		}
 
 		@Bean
-		ApplicationListener<ContextClosedEvent> listener() {
+		public ApplicationListener<ContextClosedEvent> listener() {
 			return (event) -> {
 				EndpointConfig.this.threadContextClassLoader = Thread.currentThread().getContextClassLoader();
 				EndpointConfig.this.latch.countDown();
@@ -110,13 +111,13 @@ class ShutdownEndpointTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class EmptyConfig {
+	@Configuration
+	public static class EmptyConfig {
 
 		private final CountDownLatch latch = new CountDownLatch(1);
 
 		@Bean
-		ApplicationListener<ContextClosedEvent> listener() {
+		public ApplicationListener<ContextClosedEvent> listener() {
 			return (event) -> EmptyConfig.this.latch.countDown();
 		}
 

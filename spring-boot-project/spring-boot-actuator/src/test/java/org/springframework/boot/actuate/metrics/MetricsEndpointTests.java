@@ -27,7 +27,7 @@ import io.micrometer.core.instrument.Statistic;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 
@@ -40,20 +40,20 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Andy Wilkinson
  * @author Jon Schneider
  */
-class MetricsEndpointTests {
+public class MetricsEndpointTests {
 
 	private final MeterRegistry registry = new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 
 	private final MetricsEndpoint endpoint = new MetricsEndpoint(this.registry);
 
 	@Test
-	void listNamesHandlesEmptyListOfMeters() {
+	public void listNamesHandlesEmptyListOfMeters() {
 		MetricsEndpoint.ListNamesResponse result = this.endpoint.listNames();
 		assertThat(result.getNames()).isEmpty();
 	}
 
 	@Test
-	void listNamesProducesListOfUniqueMeterNames() {
+	public void listNamesProducesListOfUniqueMeterNames() {
 		this.registry.counter("com.example.foo");
 		this.registry.counter("com.example.bar");
 		this.registry.counter("com.example.foo");
@@ -62,7 +62,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void listNamesRecursesOverCompositeRegistries() {
+	public void listNamesRecursesOverCompositeRegistries() {
 		CompositeMeterRegistry composite = new CompositeMeterRegistry();
 		SimpleMeterRegistry reg1 = new SimpleMeterRegistry();
 		SimpleMeterRegistry reg2 = new SimpleMeterRegistry();
@@ -75,7 +75,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void metricValuesAreTheSumOfAllTimeSeriesMatchingTags() {
+	public void metricValuesAreTheSumOfAllTimeSeriesMatchingTags() {
 		this.registry.counter("cache", "result", "hit", "host", "1").increment(2);
 		this.registry.counter("cache", "result", "miss", "host", "1").increment(2);
 		this.registry.counter("cache", "result", "hit", "host", "2").increment(2);
@@ -89,7 +89,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void findFirstMatchingMetersFromNestedRegistries() {
+	public void findFirstMatchingMetersFromNestedRegistries() {
 		CompositeMeterRegistry composite = new CompositeMeterRegistry();
 		SimpleMeterRegistry firstLevel0 = new SimpleMeterRegistry();
 		CompositeMeterRegistry firstLevel1 = new CompositeMeterRegistry();
@@ -111,7 +111,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void matchingMeterNotFoundInNestedRegistries() {
+	public void matchingMeterNotFoundInNestedRegistries() {
 		CompositeMeterRegistry composite = new CompositeMeterRegistry();
 		CompositeMeterRegistry firstLevel = new CompositeMeterRegistry();
 		SimpleMeterRegistry secondLevel = new SimpleMeterRegistry();
@@ -123,7 +123,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void metricTagValuesAreDeduplicated() {
+	public void metricTagValuesAreDeduplicated() {
 		this.registry.counter("cache", "host", "1", "region", "east", "result", "hit");
 		this.registry.counter("cache", "host", "1", "region", "east", "result", "miss");
 		MetricsEndpoint.MetricResponse response = this.endpoint.metric("cache", Collections.singletonList("host:1"));
@@ -132,7 +132,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void metricWithSpaceInTagValue() {
+	public void metricWithSpaceInTagValue() {
 		this.registry.counter("counter", "key", "a space").increment(2);
 		MetricsEndpoint.MetricResponse response = this.endpoint.metric("counter",
 				Collections.singletonList("key:a space"));
@@ -142,13 +142,13 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void metricWithInvalidTag() {
+	public void metricWithInvalidTag() {
 		assertThatExceptionOfType(InvalidEndpointRequestException.class)
 				.isThrownBy(() -> this.endpoint.metric("counter", Collections.singletonList("key")));
 	}
 
 	@Test
-	void metricPresentInOneRegistryOfACompositeAndNotAnother() {
+	public void metricPresentInOneRegistryOfACompositeAndNotAnother() {
 		CompositeMeterRegistry composite = new CompositeMeterRegistry();
 		SimpleMeterRegistry reg1 = new SimpleMeterRegistry();
 		SimpleMeterRegistry reg2 = new SimpleMeterRegistry();
@@ -162,13 +162,13 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void nonExistentMetric() {
+	public void nonExistentMetric() {
 		MetricsEndpoint.MetricResponse response = this.endpoint.metric("does.not.exist", Collections.emptyList());
 		assertThat(response).isNull();
 	}
 
 	@Test
-	void maxAggregation() {
+	public void maxAggregation() {
 		SimpleMeterRegistry reg = new SimpleMeterRegistry();
 		reg.timer("timer", "k", "v1").record(1, TimeUnit.SECONDS);
 		reg.timer("timer", "k", "v2").record(2, TimeUnit.SECONDS);
@@ -176,7 +176,7 @@ class MetricsEndpointTests {
 	}
 
 	@Test
-	void countAggregation() {
+	public void countAggregation() {
 		SimpleMeterRegistry reg = new SimpleMeterRegistry();
 		reg.counter("counter", "k", "v1").increment();
 		reg.counter("counter", "k", "v2").increment();

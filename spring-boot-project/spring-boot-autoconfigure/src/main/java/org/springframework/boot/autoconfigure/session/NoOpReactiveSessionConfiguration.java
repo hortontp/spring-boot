@@ -27,7 +27,7 @@ import org.springframework.session.ReactiveSessionRepository;
  * @author Tommy Ludwig
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnMissingBean(ReactiveSessionRepository.class)
 @Conditional(ReactiveSessionCondition.class)
 class NoOpReactiveSessionConfiguration {

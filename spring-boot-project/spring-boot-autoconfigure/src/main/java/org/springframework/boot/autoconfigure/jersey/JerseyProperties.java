@@ -22,7 +22,7 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for Jersey.
+ * {@link ConfigurationProperties} for Jersey.
  *
  * @author Dave Syer
  * @author Eddú Meléndez

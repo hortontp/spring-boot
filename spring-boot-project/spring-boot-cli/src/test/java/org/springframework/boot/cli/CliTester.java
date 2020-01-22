@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,11 @@ package org.springframework.boot.cli;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -33,39 +31,30 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.Extension;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.Assume;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import org.springframework.boot.cli.command.AbstractCommand;
 import org.springframework.boot.cli.command.OptionParsingCommand;
 import org.springframework.boot.cli.command.archive.JarCommand;
 import org.springframework.boot.cli.command.grab.GrabCommand;
 import org.springframework.boot.cli.command.run.RunCommand;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.testsupport.BuildOutput;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * JUnit 5 {@link Extension} that can be used to invoke CLI commands.
+ * {@link TestRule} that can be used to invoke CLI commands.
  *
  * @author Phillip Webb
  * @author Dave Syer
  * @author Andy Wilkinson
  */
-public class CliTester implements BeforeEachCallback, AfterEachCallback {
+public class CliTester implements TestRule {
 
-	private final File temp;
-
-	private final BuildOutput buildOutput = new BuildOutput(getClass());
-
-	private final CapturedOutput output;
-
-	private String previousOutput = "";
+	private final OutputCapture outputCapture = new OutputCapture();
 
 	private long timeout = TimeUnit.MINUTES.toMillis(6);
 
@@ -73,17 +62,8 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 
 	private final String prefix;
 
-	private File serverPortFile;
-
-	public CliTester(String prefix, CapturedOutput output) {
+	public CliTester(String prefix) {
 		this.prefix = prefix;
-		try {
-			this.temp = Files.createTempDirectory("cli-tester").toFile();
-		}
-		catch (IOException ex) {
-			throw new IllegalStateException("Failed to create temp directory");
-		}
-		this.output = output;
 	}
 
 	public void setTimeout(long timeout) {
@@ -95,15 +75,13 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 		boolean classpathUpdated = false;
 		for (String arg : args) {
 			if (arg.startsWith("--classpath=")) {
-				arg = arg + ":" + this.buildOutput.getTestClassesLocation().getAbsolutePath();
-				arg = arg + ":" + this.buildOutput.getTestResourcesLocation().getAbsolutePath();
+				arg = arg + ":" + new File("target/test-classes").getAbsolutePath();
 				classpathUpdated = true;
 			}
 			updatedArgs.add(arg);
 		}
 		if (!classpathUpdated) {
-			updatedArgs.add("--classpath=.:" + this.buildOutput.getTestClassesLocation().getAbsolutePath() + ":"
-					+ this.buildOutput.getTestResourcesLocation().getAbsolutePath());
+			updatedArgs.add("--classpath=.:" + new File("target/test-classes").getAbsolutePath());
 		}
 		Future<RunCommand> future = submitCommand(new RunCommand(), StringUtils.toStringArray(updatedArgs));
 		this.commands.add(future.get(this.timeout, TimeUnit.MILLISECONDS));
@@ -122,10 +100,6 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 		return getOutput();
 	}
 
-	public File getTemp() {
-		return this.temp;
-	}
-
 	private <T extends OptionParsingCommand> Future<T> submitCommand(T command, String... args) {
 		clearUrlHandler();
 		final String[] sources = getSources(args);
@@ -134,10 +108,7 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 			System.setProperty("server.port", "0");
 			System.setProperty("spring.application.class.name",
 					"org.springframework.boot.cli.CliTesterSpringApplication");
-			this.serverPortFile = new File(this.temp, "server.port");
-			System.setProperty("portfile", this.serverPortFile.getAbsolutePath());
-			String userHome = System.getProperty("user.home");
-			System.setProperty("user.home", "src/test/resources/cli-tester");
+			System.setProperty("portfile", new File("target/server.port").getAbsolutePath());
 			try {
 				command.run(sources);
 				return command;
@@ -146,7 +117,6 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 				System.clearProperty("server.port");
 				System.clearProperty("spring.application.class.name");
 				System.clearProperty("portfile");
-				System.setProperty("user.home", userHome);
 				Thread.currentThread().setContextClassLoader(loader);
 			}
 		});
@@ -187,27 +157,23 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 	}
 
 	private String getOutput() {
-		String output = this.output.toString().substring(this.previousOutput.length());
-		this.previousOutput = output;
+		String output = this.outputCapture.toString();
+		this.outputCapture.reset();
 		return output;
 	}
 
 	@Override
-	public void beforeEach(ExtensionContext extensionContext) {
-		Assumptions.assumeTrue(System.getProperty("spring.profiles.active", "integration").contains("integration"),
-				"Not running sample integration tests because integration profile not active");
-		System.setProperty("disableSpringSnapshotRepos", "false");
-	}
+	public Statement apply(Statement base, Description description) {
+		final Statement statement = CliTester.this.outputCapture.apply(new RunLauncherStatement(base), description);
+		return new Statement() {
 
-	@Override
-	public void afterEach(ExtensionContext extensionContext) {
-		for (AbstractCommand command : this.commands) {
-			if (command != null && command instanceof RunCommand) {
-				((RunCommand) command).stop();
+			@Override
+			public void evaluate() throws Throwable {
+				Assume.assumeTrue("Not running sample integration tests because integration profile not active",
+						System.getProperty("spring.profiles.active", "integration").contains("integration"));
+				statement.evaluate();
 			}
-		}
-		System.clearProperty("disableSpringSnapshotRepos");
-		FileSystemUtils.deleteRecursively(this.temp);
+		};
 	}
 
 	public String getHttpOutput() {
@@ -216,7 +182,7 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 
 	public String getHttpOutput(String uri) {
 		try {
-			int port = Integer.parseInt(FileCopyUtils.copyToString(new FileReader(this.serverPortFile)));
+			int port = Integer.parseInt(FileCopyUtils.copyToString(new FileReader("target/server.port")));
 			InputStream stream = URI.create("http://localhost:" + port + uri).toURL().openStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 			return reader.lines().collect(Collectors.joining());
@@ -224,6 +190,37 @@ public class CliTester implements BeforeEachCallback, AfterEachCallback {
 		catch (Exception ex) {
 			throw new IllegalStateException(ex);
 		}
+	}
+
+	private final class RunLauncherStatement extends Statement {
+
+		private final Statement base;
+
+		private RunLauncherStatement(Statement base) {
+			this.base = base;
+		}
+
+		@Override
+		public void evaluate() throws Throwable {
+			System.setProperty("disableSpringSnapshotRepos", "false");
+			try {
+				try {
+					this.base.evaluate();
+				}
+				finally {
+					for (AbstractCommand command : CliTester.this.commands) {
+						if (command != null && command instanceof RunCommand) {
+							((RunCommand) command).stop();
+						}
+					}
+					System.clearProperty("disableSpringSnapshotRepos");
+				}
+			}
+			catch (Exception ex) {
+				throw new IllegalStateException(ex);
+			}
+		}
+
 	}
 
 }

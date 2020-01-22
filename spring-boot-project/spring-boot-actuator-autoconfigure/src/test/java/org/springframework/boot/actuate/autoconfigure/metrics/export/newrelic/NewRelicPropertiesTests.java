@@ -17,7 +17,6 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.newrelic;
 
 import io.micrometer.newrelic.NewRelicConfig;
-import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesTests;
 
@@ -28,25 +27,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class NewRelicPropertiesTests extends StepRegistryPropertiesTests {
+public class NewRelicPropertiesTests extends StepRegistryPropertiesTests {
 
-	@Test
-	void defaultValuesAreConsistent() {
+	@Override
+	public void defaultValuesAreConsistent() {
 		NewRelicProperties properties = new NewRelicProperties();
 		NewRelicConfig config = (key) -> null;
 		assertStepRegistryDefaultValues(properties, config);
 		// apiKey and account are mandatory
 		assertThat(properties.getUri()).isEqualTo(config.uri());
-		assertThat(properties.isMeterNameEventTypeEnabled()).isEqualTo(config.meterNameEventTypeEnabled());
-	}
-
-	@Test
-	void eventTypeDefaultValueIsOverriden() {
-		NewRelicProperties properties = new NewRelicProperties();
-		NewRelicConfig config = (key) -> null;
-		assertThat(properties.getEventType()).isNotEqualTo(config.eventType());
-		assertThat(properties.getEventType()).isEqualTo("SpringBootSample");
-		assertThat(config.eventType()).isEqualTo("MicrometerSample");
 	}
 
 }

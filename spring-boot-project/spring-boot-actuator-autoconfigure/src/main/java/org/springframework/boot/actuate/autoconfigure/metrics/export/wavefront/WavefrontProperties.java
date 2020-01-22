@@ -19,18 +19,17 @@ package org.springframework.boot.actuate.autoconfigure.metrics.export.wavefront;
 import java.net.URI;
 import java.time.Duration;
 
-import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.PushRegistryProperties;
+import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring Wavefront
- * metrics export.
+ * {@link ConfigurationProperties} for configuring Wavefront metrics export.
  *
  * @author Jon Schneider
  * @since 2.0.0
  */
 @ConfigurationProperties("management.metrics.export.wavefront")
-public class WavefrontProperties extends PushRegistryProperties {
+public class WavefrontProperties extends StepRegistryProperties {
 
 	/**
 	 * Step size (i.e. reporting frequency) to use.

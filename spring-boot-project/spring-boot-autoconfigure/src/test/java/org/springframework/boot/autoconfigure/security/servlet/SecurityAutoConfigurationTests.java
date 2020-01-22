@@ -20,7 +20,8 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Rule;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.TestAutoConfigurationPackage;
@@ -29,6 +30,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.test.City;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBean;
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -56,13 +58,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Madhura Bhave
  */
-class SecurityAutoConfigurationTests {
+public class SecurityAutoConfigurationTests {
 
 	private WebApplicationContextRunner contextRunner = new WebApplicationContextRunner().withConfiguration(
 			AutoConfigurations.of(SecurityAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class));
 
+	@Rule
+	public OutputCapture outputCapture = new OutputCapture();
+
 	@Test
-	void testWebConfiguration() {
+	public void testWebConfiguration() {
 		this.contextRunner.run((context) -> {
 			assertThat(context.getBean(AuthenticationManagerBuilder.class)).isNotNull();
 			assertThat(context.getBean(FilterChainProxy.class).getFilterChains()).hasSize(1);
@@ -70,7 +75,7 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void testDefaultFilterOrderWithSecurityAdapter() {
+	public void testDefaultFilterOrderWithSecurityAdapter() {
 		this.contextRunner
 				.withConfiguration(AutoConfigurations.of(WebSecurity.class, SecurityFilterAutoConfiguration.class))
 				.run((context) -> assertThat(
@@ -79,7 +84,7 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void testFilterIsNotRegisteredInNonWeb() {
+	public void testFilterIsNotRegisteredInNonWeb() {
 		try (AnnotationConfigApplicationContext customContext = new AnnotationConfigApplicationContext()) {
 			customContext.register(SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
 					PropertyPlaceholderAutoConfiguration.class);
@@ -89,20 +94,20 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void defaultAuthenticationEventPublisherRegistered() {
+	public void defaultAuthenticationEventPublisherRegistered() {
 		this.contextRunner.run((context) -> assertThat(context.getBean(AuthenticationEventPublisher.class))
 				.isInstanceOf(DefaultAuthenticationEventPublisher.class));
 	}
 
 	@Test
-	void defaultAuthenticationEventPublisherIsConditionalOnMissingBean() {
+	public void defaultAuthenticationEventPublisherIsConditionalOnMissingBean() {
 		this.contextRunner.withUserConfiguration(AuthenticationEventPublisherConfiguration.class)
 				.run((context) -> assertThat(context.getBean(AuthenticationEventPublisher.class)).isInstanceOf(
 						AuthenticationEventPublisherConfiguration.TestAuthenticationEventPublisher.class));
 	}
 
 	@Test
-	void testDefaultFilterOrder() {
+	public void testDefaultFilterOrder() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(SecurityFilterAutoConfiguration.class))
 				.run((context) -> assertThat(
 						context.getBean("securityFilterChainRegistration", DelegatingFilterProxyRegistrationBean.class)
@@ -110,7 +115,7 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void testCustomFilterOrder() {
+	public void testCustomFilterOrder() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(SecurityFilterAutoConfiguration.class))
 				.withPropertyValues("spring.security.filter.order:12345")
 				.run((context) -> assertThat(
@@ -119,7 +124,7 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void testJpaCoexistsHappily() {
+	public void testJpaCoexistsHappily() {
 		this.contextRunner
 				.withPropertyValues("spring.datasource.url:jdbc:hsqldb:mem:testsecdb",
 						"spring.datasource.initialization-mode:never")
@@ -132,13 +137,13 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void testSecurityEvaluationContextExtensionSupport() {
+	public void testSecurityEvaluationContextExtensionSupport() {
 		this.contextRunner
 				.run((context) -> assertThat(context).getBean(SecurityEvaluationContextExtension.class).isNotNull());
 	}
 
 	@Test
-	void defaultFilterDispatcherTypes() {
+	public void defaultFilterDispatcherTypes() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(SecurityFilterAutoConfiguration.class))
 				.run((context) -> {
 					DelegatingFilterProxyRegistrationBean bean = context.getBean("securityFilterChainRegistration",
@@ -152,7 +157,7 @@ class SecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void customFilterDispatcherTypes() {
+	public void customFilterDispatcherTypes() {
 		this.contextRunner.withPropertyValues("spring.security.filter.dispatcher-types:INCLUDE,ERROR")
 				.withConfiguration(AutoConfigurations.of(SecurityFilterAutoConfiguration.class)).run((context) -> {
 					DelegatingFilterProxyRegistrationBean bean = context.getBean("securityFilterChainRegistration",
@@ -164,17 +169,17 @@ class SecurityAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@TestAutoConfigurationPackage(City.class)
-	static class EntityConfiguration {
+	protected static class EntityConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class AuthenticationEventPublisherConfiguration {
 
 		@Bean
-		AuthenticationEventPublisher authenticationEventPublisher() {
+		public AuthenticationEventPublisher authenticationEventPublisher() {
 			return new TestAuthenticationEventPublisher();
 		}
 
@@ -194,7 +199,7 @@ class SecurityAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurity extends WebSecurityConfigurerAdapter {
 

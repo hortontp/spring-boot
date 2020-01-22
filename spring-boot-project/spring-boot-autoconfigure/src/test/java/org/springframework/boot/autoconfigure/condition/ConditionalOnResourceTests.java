@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -26,16 +26,16 @@ import org.springframework.context.annotation.Configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnResource @ConditionalOnResource}.
+ * Tests for {@link ConditionalOnResource}.
  *
  * @author Dave Syer
  */
-class ConditionalOnResourceTests {
+public class ConditionalOnResourceTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
-	void testResourceExists() {
+	public void testResourceExists() {
 		this.context.register(BasicConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.containsBean("foo")).isTrue();
@@ -43,7 +43,7 @@ class ConditionalOnResourceTests {
 	}
 
 	@Test
-	void testResourceExistsWithPlaceholder() {
+	public void testResourceExistsWithPlaceholder() {
 		TestPropertyValues.of("schema=schema.sql").applyTo(this.context);
 		this.context.register(PlaceholderConfiguration.class);
 		this.context.refresh();
@@ -52,40 +52,40 @@ class ConditionalOnResourceTests {
 	}
 
 	@Test
-	void testResourceNotExists() {
+	public void testResourceNotExists() {
 		this.context.register(MissingConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.containsBean("foo")).isFalse();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnResource(resources = "foo")
-	static class MissingConfiguration {
+	protected static class MissingConfiguration {
 
 		@Bean
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnResource(resources = "schema.sql")
-	static class BasicConfiguration {
+	protected static class BasicConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnResource(resources = "${schema}")
-	static class PlaceholderConfiguration {
+	protected static class PlaceholderConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

@@ -42,18 +42,23 @@ import org.springframework.context.annotation.Configuration;
  * @author Stephane Nicoll
  * @see HazelcastConfigResourceCondition
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ HazelcastInstance.class, HazelcastCacheManager.class })
 @ConditionalOnMissingBean(CacheManager.class)
 @Conditional(CacheCondition.class)
 @ConditionalOnSingleCandidate(HazelcastInstance.class)
 class HazelcastCacheConfiguration {
 
+	private final CacheManagerCustomizers customizers;
+
+	HazelcastCacheConfiguration(CacheManagerCustomizers customizers) {
+		this.customizers = customizers;
+	}
+
 	@Bean
-	HazelcastCacheManager cacheManager(CacheManagerCustomizers customizers, HazelcastInstance existingHazelcastInstance)
-			throws IOException {
+	public HazelcastCacheManager cacheManager(HazelcastInstance existingHazelcastInstance) throws IOException {
 		HazelcastCacheManager cacheManager = new HazelcastCacheManager(existingHazelcastInstance);
-		return customizers.customize(cacheManager);
+		return this.customizers.customize(cacheManager);
 	}
 
 }

@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.endpoint.invoke.reflect;
 
 import java.lang.reflect.Method;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
@@ -30,30 +30,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class OperationMethodParameterTests {
+public class OperationMethodParameterTests {
 
 	private Method method = ReflectionUtils.findMethod(getClass(), "example", String.class, String.class);
 
 	@Test
-	void getNameShouldReturnName() {
+	public void getNameShouldReturnName() {
 		OperationMethodParameter parameter = new OperationMethodParameter("name", this.method.getParameters()[0]);
 		assertThat(parameter.getName()).isEqualTo("name");
 	}
 
 	@Test
-	void getTypeShouldReturnType() {
+	public void getTypeShouldReturnType() {
 		OperationMethodParameter parameter = new OperationMethodParameter("name", this.method.getParameters()[0]);
 		assertThat(parameter.getType()).isEqualTo(String.class);
 	}
 
 	@Test
-	void isMandatoryWhenNoAnnotationShouldReturnTrue() {
+	public void isMandatoryWhenNoAnnotationShouldReturnTrue() {
 		OperationMethodParameter parameter = new OperationMethodParameter("name", this.method.getParameters()[0]);
 		assertThat(parameter.isMandatory()).isTrue();
 	}
 
 	@Test
-	void isMandatoryWhenNullableAnnotationShouldReturnFalse() {
+	public void isMandatoryWhenNullableAnnotationShouldReturnFalse() {
 		OperationMethodParameter parameter = new OperationMethodParameter("name", this.method.getParameters()[1]);
 		assertThat(parameter.isMandatory()).isFalse();
 	}

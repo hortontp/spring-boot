@@ -40,24 +40,36 @@ import org.springframework.util.StringUtils;
  * @author Stephane Nicoll
  * @since 1.4.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ Bucket.class, CouchbaseCacheManager.class })
 @ConditionalOnMissingBean(CacheManager.class)
 @ConditionalOnSingleCandidate(Bucket.class)
 @Conditional(CacheCondition.class)
 public class CouchbaseCacheConfiguration {
 
-	@Bean
-	public CouchbaseCacheManager cacheManager(CacheProperties cacheProperties, CacheManagerCustomizers customizers,
+	private final CacheProperties cacheProperties;
+
+	private final CacheManagerCustomizers customizers;
+
+	private final Bucket bucket;
+
+	public CouchbaseCacheConfiguration(CacheProperties cacheProperties, CacheManagerCustomizers customizers,
 			Bucket bucket) {
-		List<String> cacheNames = cacheProperties.getCacheNames();
-		CacheBuilder builder = CacheBuilder.newInstance(bucket);
-		Couchbase couchbase = cacheProperties.getCouchbase();
+		this.cacheProperties = cacheProperties;
+		this.customizers = customizers;
+		this.bucket = bucket;
+	}
+
+	@Bean
+	public CouchbaseCacheManager cacheManager() {
+		List<String> cacheNames = this.cacheProperties.getCacheNames();
+		CacheBuilder builder = CacheBuilder.newInstance(this.bucket);
+		Couchbase couchbase = this.cacheProperties.getCouchbase();
 		PropertyMapper.get().from(couchbase::getExpiration).whenNonNull().asInt(Duration::getSeconds)
 				.to(builder::withExpiration);
 		String[] names = StringUtils.toStringArray(cacheNames);
 		CouchbaseCacheManager cacheManager = new CouchbaseCacheManager(builder, names);
-		return customizers.customize(cacheManager);
+		return this.customizers.customize(cacheManager);
 	}
 
 }

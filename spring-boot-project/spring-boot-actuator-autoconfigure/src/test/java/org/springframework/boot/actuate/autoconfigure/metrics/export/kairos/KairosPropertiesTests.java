@@ -17,7 +17,6 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.kairos;
 
 import io.micrometer.kairos.KairosConfig;
-import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesTests;
 
@@ -28,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class KairosPropertiesTests extends StepRegistryPropertiesTests {
+public class KairosPropertiesTests extends StepRegistryPropertiesTests {
 
-	@Test
-	void defaultValuesAreConsistent() {
+	@Override
+	public void defaultValuesAreConsistent() {
 		KairosProperties properties = new KairosProperties();
 		KairosConfig config = KairosConfig.DEFAULT;
 		assertStepRegistryDefaultValues(properties, config);

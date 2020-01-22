@@ -31,7 +31,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Stephane Nicoll
  * @author Nasko Vasilev
  * @author Mark Paluch
- * @author Artsiom Yudovin
  * @since 1.0.0
  */
 @ConfigurationProperties(prefix = "spring.data.mongodb")
@@ -80,7 +79,6 @@ public class MongoProperties {
 	/**
 	 * Login user of the mongo server. Cannot be set with URI.
 	 */
-
 	private String username;
 
 	/**
@@ -92,11 +90,6 @@ public class MongoProperties {
 	 * Fully qualified name of the FieldNamingStrategy to use.
 	 */
 	private Class<?> fieldNamingStrategy;
-
-	/**
-	 * Whether to enable auto-index creation.
-	 */
-	private Boolean autoIndexCreation;
 
 	public String getHost() {
 		return this.host;
@@ -179,14 +172,6 @@ public class MongoProperties {
 			return this.database;
 		}
 		return new MongoClientURI(determineUri()).getDatabase();
-	}
-
-	public Boolean isAutoIndexCreation() {
-		return this.autoIndexCreation;
-	}
-
-	public void setAutoIndexCreation(Boolean autoIndexCreation) {
-		this.autoIndexCreation = autoIndexCreation;
 	}
 
 }

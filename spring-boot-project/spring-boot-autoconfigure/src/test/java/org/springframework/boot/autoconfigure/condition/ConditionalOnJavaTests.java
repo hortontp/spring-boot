@@ -21,14 +21,13 @@ import java.nio.file.Files;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnJre;
-import org.junit.jupiter.api.condition.JRE;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnJava.Range;
 import org.springframework.boot.system.JavaVersion;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.testsupport.Assume;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ReflectionUtils;
@@ -36,38 +35,38 @@ import org.springframework.util.ReflectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnJava @ConditionalOnJava}.
+ * Tests for {@link ConditionalOnJava}.
  *
  * @author Oliver Gierke
  * @author Phillip Webb
  */
-class ConditionalOnJavaTests {
+public class ConditionalOnJavaTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	private final OnJavaCondition condition = new OnJavaCondition();
 
 	@Test
-	@EnabledOnJre(JRE.JAVA_8)
-	void doesNotMatchIfBetterVersionIsRequired() {
+	public void doesNotMatchIfBetterVersionIsRequired() {
+		Assume.javaEight();
 		this.contextRunner.withUserConfiguration(Java9Required.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void doesNotMatchIfLowerIsRequired() {
+	public void doesNotMatchIfLowerIsRequired() {
 		this.contextRunner.withUserConfiguration(Java7Required.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void matchesIfVersionIsInRange() {
+	public void matchesIfVersionIsInRange() {
 		this.contextRunner.withUserConfiguration(Java8Required.class)
 				.run((context) -> assertThat(context).hasSingleBean(String.class));
 	}
 
 	@Test
-	void boundsTests() {
+	public void boundsTests() {
 		testBounds(Range.EQUAL_OR_NEWER, JavaVersion.NINE, JavaVersion.EIGHT, true);
 		testBounds(Range.EQUAL_OR_NEWER, JavaVersion.EIGHT, JavaVersion.EIGHT, true);
 		testBounds(Range.EQUAL_OR_NEWER, JavaVersion.EIGHT, JavaVersion.NINE, false);
@@ -77,28 +76,28 @@ class ConditionalOnJavaTests {
 	}
 
 	@Test
-	void equalOrNewerMessage() {
+	public void equalOrNewerMessage() {
 		ConditionOutcome outcome = this.condition.getMatchOutcome(Range.EQUAL_OR_NEWER, JavaVersion.NINE,
 				JavaVersion.EIGHT);
-		assertThat(outcome.getMessage()).isEqualTo("@ConditionalOnJava (1.8 or newer) found 9");
+		assertThat(outcome.getMessage()).isEqualTo("@ConditionalOnJava (1.8 or newer) found 1.9");
 	}
 
 	@Test
-	void olderThanMessage() {
+	public void olderThanMessage() {
 		ConditionOutcome outcome = this.condition.getMatchOutcome(Range.OLDER_THAN, JavaVersion.NINE,
 				JavaVersion.EIGHT);
-		assertThat(outcome.getMessage()).isEqualTo("@ConditionalOnJava (older than 1.8) found 9");
+		assertThat(outcome.getMessage()).isEqualTo("@ConditionalOnJava (older than 1.8) found 1.9");
 	}
 
 	@Test
-	@EnabledOnJre(JRE.JAVA_8)
-	void java8IsDetected() throws Exception {
+	public void java8IsDetected() throws Exception {
+		Assume.javaEight();
 		assertThat(getJavaVersion()).isEqualTo("1.8");
 	}
 
 	@Test
-	@EnabledOnJre(JRE.JAVA_8)
-	void java8IsTheFallback() throws Exception {
+	public void java8IsTheFallback() throws Exception {
+		Assume.javaEight();
 		assertThat(getJavaVersion(Function.class, Files.class, ServiceLoader.class)).isEqualTo("1.8");
 	}
 
@@ -116,7 +115,7 @@ class ConditionalOnJavaTests {
 		assertThat(outcome.isMatch()).as(outcome.getMessage()).isEqualTo(expected);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJava(JavaVersion.NINE)
 	static class Java9Required {
 
@@ -127,7 +126,7 @@ class ConditionalOnJavaTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJava(range = Range.OLDER_THAN, value = JavaVersion.EIGHT)
 	static class Java7Required {
 
@@ -138,7 +137,7 @@ class ConditionalOnJavaTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJava(JavaVersion.EIGHT)
 	static class Java8Required {
 

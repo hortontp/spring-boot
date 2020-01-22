@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.couchbase;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -30,34 +30,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class OnBootstrapHostsConditionTests {
+public class OnBootstrapHostsConditionTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(TestConfig.class);
 
 	@Test
-	void bootstrapHostsNotDefined() {
+	public void bootstrapHostsNotDefined() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean("foo"));
 	}
 
 	@Test
-	void bootstrapHostsDefinedAsCommaSeparated() {
+	public void bootstrapHostsDefinedAsCommaSeparated() {
 		this.contextRunner.withPropertyValues("spring.couchbase.bootstrap-hosts=value1")
 				.run((context) -> assertThat(context).hasBean("foo"));
 	}
 
 	@Test
-	void bootstrapHostsDefinedAsList() {
+	public void bootstrapHostsDefinedAsList() {
 		this.contextRunner.withPropertyValues("spring.couchbase.bootstrap-hosts[0]=value1")
 				.run((context) -> assertThat(context).hasBean("foo"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Conditional(OnBootstrapHostsCondition.class)
-	static class TestConfig {
+	protected static class TestConfig {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

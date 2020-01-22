@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.endpoint.invoke.reflect;
 
 import java.lang.reflect.Method;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.OperationType;
 import org.springframework.boot.actuate.endpoint.invoke.OperationParameters;
@@ -32,36 +32,36 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Phillip Webb
  */
-class OperationMethodTests {
+public class OperationMethodTests {
 
 	private Method exampleMethod = ReflectionUtils.findMethod(getClass(), "example", String.class);
 
 	@Test
-	void createWhenMethodIsNullShouldThrowException() {
+	public void createWhenMethodIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new OperationMethod(null, OperationType.READ))
 				.withMessageContaining("Method must not be null");
 	}
 
 	@Test
-	void createWhenOperationTypeIsNullShouldThrowException() {
+	public void createWhenOperationTypeIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new OperationMethod(this.exampleMethod, null))
 				.withMessageContaining("OperationType must not be null");
 	}
 
 	@Test
-	void getMethodShouldReturnMethod() {
+	public void getMethodShouldReturnMethod() {
 		OperationMethod operationMethod = new OperationMethod(this.exampleMethod, OperationType.READ);
 		assertThat(operationMethod.getMethod()).isEqualTo(this.exampleMethod);
 	}
 
 	@Test
-	void getOperationTypeShouldReturnOperationType() {
+	public void getOperationTypeShouldReturnOperationType() {
 		OperationMethod operationMethod = new OperationMethod(this.exampleMethod, OperationType.READ);
 		assertThat(operationMethod.getOperationType()).isEqualTo(OperationType.READ);
 	}
 
 	@Test
-	void getParametersShouldReturnParameters() {
+	public void getParametersShouldReturnParameters() {
 		OperationMethod operationMethod = new OperationMethod(this.exampleMethod, OperationType.READ);
 		OperationParameters parameters = operationMethod.getParameters();
 		assertThat(parameters.getParameterCount()).isEqualTo(1);

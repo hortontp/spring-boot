@@ -53,43 +53,43 @@ import org.springframework.context.annotation.Configuration;
  * @author Andy Wilkinson
  * @since 1.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ Servlet.class, ServerContainer.class })
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 public class WebSocketServletAutoConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ Tomcat.class, WsSci.class })
 	static class TomcatWebSocketConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-		TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+		public TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
 			return new TomcatWebSocketServletWebServerCustomizer();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(WebSocketServerContainerInitializer.class)
 	static class JettyWebSocketConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-		JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+		public JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
 			return new JettyWebSocketServletWebServerCustomizer();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(io.undertow.websockets.jsr.Bootstrap.class)
 	static class UndertowWebSocketConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-		UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+		public UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
 			return new UndertowWebSocketServletWebServerCustomizer();
 		}
 

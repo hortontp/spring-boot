@@ -20,7 +20,7 @@ import java.security.Principal;
 import java.time.Duration;
 import java.util.EnumSet;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.trace.http.HttpExchangeTracer;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  */
-class HttpTraceWebFilterTests {
+public class HttpTraceWebFilterTests {
 
 	private final InMemoryHttpTraceRepository repository = new InMemoryHttpTraceRepository();
 
@@ -53,14 +53,14 @@ class HttpTraceWebFilterTests {
 			EnumSet.allOf(Include.class));
 
 	@Test
-	void filterTracesExchange() {
+	public void filterTracesExchange() {
 		executeFilter(MockServerWebExchange.from(MockServerHttpRequest.get("https://api.example.com")),
 				(exchange) -> Mono.empty()).block(Duration.ofSeconds(30));
 		assertThat(this.repository.findAll()).hasSize(1);
 	}
 
 	@Test
-	void filterCapturesSessionIdWhenSessionIsUsed() {
+	public void filterCapturesSessionIdWhenSessionIsUsed() {
 		executeFilter(MockServerWebExchange.from(MockServerHttpRequest.get("https://api.example.com")), (exchange) -> {
 			exchange.getSession().block(Duration.ofSeconds(30)).getAttributes().put("a", "alpha");
 			return Mono.empty();
@@ -72,7 +72,7 @@ class HttpTraceWebFilterTests {
 	}
 
 	@Test
-	void filterDoesNotCaptureIdOfUnusedSession() {
+	public void filterDoesNotCaptureIdOfUnusedSession() {
 		executeFilter(MockServerWebExchange.from(MockServerHttpRequest.get("https://api.example.com")), (exchange) -> {
 			exchange.getSession().block(Duration.ofSeconds(30));
 			return Mono.empty();
@@ -83,7 +83,7 @@ class HttpTraceWebFilterTests {
 	}
 
 	@Test
-	void filterCapturesPrincipal() {
+	public void filterCapturesPrincipal() {
 		Principal principal = mock(Principal.class);
 		given(principal.getName()).willReturn("alice");
 		executeFilter(new ServerWebExchangeDecorator(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.datastax.oss.driver.api.core.DefaultConsistencyLevel;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.ProtocolOptions;
+import com.datastax.driver.core.ProtocolOptions.Compression;
+import com.datastax.driver.core.QueryOptions;
+import com.datastax.driver.core.policies.LoadBalancingPolicy;
+import com.datastax.driver.core.policies.ReconnectionPolicy;
+import com.datastax.driver.core.policies.RetryPolicy;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
@@ -46,14 +52,19 @@ public class CassandraProperties {
 	private String keyspaceName;
 
 	/**
-	 * Name of the Cassandra session.
+	 * Name of the Cassandra cluster.
 	 */
-	private String sessionName;
+	private String clusterName;
 
 	/**
-	 * Cluster node addresses in the form 'host:port'.
+	 * Cluster node addresses.
 	 */
-	private final List<String> contactPoints = new ArrayList<>(Collections.singleton("127.0.0.1:9042"));
+	private final List<String> contactPoints = new ArrayList<>(Collections.singleton("localhost"));
+
+	/**
+	 * Port of the Cassandra server.
+	 */
+	private int port = ProtocolOptions.DEFAULT_PORT;
 
 	/**
 	 * Login user of the server.
@@ -71,19 +82,34 @@ public class CassandraProperties {
 	private Compression compression = Compression.NONE;
 
 	/**
+	 * Class name of the load balancing policy. The class must have a default constructor.
+	 */
+	private Class<? extends LoadBalancingPolicy> loadBalancingPolicy;
+
+	/**
 	 * Queries consistency level.
 	 */
-	private DefaultConsistencyLevel consistencyLevel;
+	private ConsistencyLevel consistencyLevel;
 
 	/**
 	 * Queries serial consistency level.
 	 */
-	private DefaultConsistencyLevel serialConsistencyLevel;
+	private ConsistencyLevel serialConsistencyLevel;
 
 	/**
-	 * Queries default page size.
+	 * Queries default fetch size.
 	 */
-	private int pageSize = 5000;
+	private int fetchSize = QueryOptions.DEFAULT_FETCH_SIZE;
+
+	/**
+	 * Class name of the reconnection policy. The class must have a default constructor.
+	 */
+	private Class<? extends ReconnectionPolicy> reconnectionPolicy;
+
+	/**
+	 * Class name of the retry policy. The class must have a default constructor.
+	 */
+	private Class<? extends RetryPolicy> retryPolicy;
 
 	/**
 	 * Socket option: connection time out.
@@ -106,6 +132,12 @@ public class CassandraProperties {
 	private boolean ssl = false;
 
 	/**
+	 * Whether to enable JMX reporting. Default to false as Cassandra JMX reporting is not
+	 * compatible with Dropwizard Metrics.
+	 */
+	private boolean jmxEnabled;
+
+	/**
 	 * Pool configuration.
 	 */
 	private final Pool pool = new Pool();
@@ -118,27 +150,24 @@ public class CassandraProperties {
 		this.keyspaceName = keyspaceName;
 	}
 
-	public String getSessionName() {
-		return this.sessionName;
-	}
-
-	public void setSessionName(String sessionName) {
-		this.sessionName = sessionName;
-	}
-
-	@Deprecated
-	@DeprecatedConfigurationProperty(replacement = "spring.data.cassandra.session-name")
 	public String getClusterName() {
-		return getSessionName();
+		return this.clusterName;
 	}
 
-	@Deprecated
 	public void setClusterName(String clusterName) {
-		setSessionName(clusterName);
+		this.clusterName = clusterName;
 	}
 
 	public List<String> getContactPoints() {
 		return this.contactPoints;
+	}
+
+	public int getPort() {
+		return this.port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	public String getUsername() {
@@ -165,39 +194,61 @@ public class CassandraProperties {
 		this.compression = compression;
 	}
 
-	public DefaultConsistencyLevel getConsistencyLevel() {
+	@DeprecatedConfigurationProperty(reason = "Implement a ClusterBuilderCustomizer bean instead.")
+	@Deprecated
+	public Class<? extends LoadBalancingPolicy> getLoadBalancingPolicy() {
+		return this.loadBalancingPolicy;
+	}
+
+	@Deprecated
+	public void setLoadBalancingPolicy(Class<? extends LoadBalancingPolicy> loadBalancingPolicy) {
+		this.loadBalancingPolicy = loadBalancingPolicy;
+	}
+
+	public ConsistencyLevel getConsistencyLevel() {
 		return this.consistencyLevel;
 	}
 
-	public void setConsistencyLevel(DefaultConsistencyLevel consistency) {
+	public void setConsistencyLevel(ConsistencyLevel consistency) {
 		this.consistencyLevel = consistency;
 	}
 
-	public DefaultConsistencyLevel getSerialConsistencyLevel() {
+	public ConsistencyLevel getSerialConsistencyLevel() {
 		return this.serialConsistencyLevel;
 	}
 
-	public void setSerialConsistencyLevel(DefaultConsistencyLevel serialConsistency) {
+	public void setSerialConsistencyLevel(ConsistencyLevel serialConsistency) {
 		this.serialConsistencyLevel = serialConsistency;
 	}
 
-	public int getPageSize() {
-		return this.pageSize;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	@Deprecated
-	@DeprecatedConfigurationProperty(replacement = "spring.data.cassandra.page-size")
 	public int getFetchSize() {
-		return getPageSize();
+		return this.fetchSize;
+	}
+
+	public void setFetchSize(int fetchSize) {
+		this.fetchSize = fetchSize;
+	}
+
+	@DeprecatedConfigurationProperty(reason = "Implement a ClusterBuilderCustomizer bean instead.")
+	@Deprecated
+	public Class<? extends ReconnectionPolicy> getReconnectionPolicy() {
+		return this.reconnectionPolicy;
 	}
 
 	@Deprecated
-	public void setFetchSize(int fetchSize) {
-		setPageSize(fetchSize);
+	public void setReconnectionPolicy(Class<? extends ReconnectionPolicy> reconnectionPolicy) {
+		this.reconnectionPolicy = reconnectionPolicy;
+	}
+
+	@DeprecatedConfigurationProperty(reason = "Implement a ClusterBuilderCustomizer bean instead.")
+	@Deprecated
+	public Class<? extends RetryPolicy> getRetryPolicy() {
+		return this.retryPolicy;
+	}
+
+	@Deprecated
+	public void setRetryPolicy(Class<? extends RetryPolicy> retryPolicy) {
+		this.retryPolicy = retryPolicy;
 	}
 
 	public Duration getConnectTimeout() {
@@ -222,6 +273,14 @@ public class CassandraProperties {
 
 	public void setSsl(boolean ssl) {
 		this.ssl = ssl;
+	}
+
+	public boolean isJmxEnabled() {
+		return this.jmxEnabled;
+	}
+
+	public void setJmxEnabled(boolean jmxEnabled) {
+		this.jmxEnabled = jmxEnabled;
 	}
 
 	public String getSchemaAction() {
@@ -249,6 +308,11 @@ public class CassandraProperties {
 		private Duration idleTimeout = Duration.ofSeconds(120);
 
 		/**
+		 * Pool timeout when trying to acquire a connection from a host's pool.
+		 */
+		private Duration poolTimeout = Duration.ofMillis(5000);
+
+		/**
 		 * Heartbeat interval after which a message is sent on an idle connection to make
 		 * sure it's still alive. If a duration suffix is not specified, seconds will be
 		 * used.
@@ -269,6 +333,14 @@ public class CassandraProperties {
 			this.idleTimeout = idleTimeout;
 		}
 
+		public Duration getPoolTimeout() {
+			return this.poolTimeout;
+		}
+
+		public void setPoolTimeout(Duration poolTimeout) {
+			this.poolTimeout = poolTimeout;
+		}
+
 		public Duration getHeartbeatInterval() {
 			return this.heartbeatInterval;
 		}
@@ -284,28 +356,6 @@ public class CassandraProperties {
 		public void setMaxQueueSize(int maxQueueSize) {
 			this.maxQueueSize = maxQueueSize;
 		}
-
-	}
-
-	/**
-	 * Name of the algorithm used to compress protocol frames.
-	 */
-	public enum Compression {
-
-		/**
-		 * Requires 'net.jpountz.lz4:lz4'.
-		 */
-		LZ4,
-
-		/**
-		 * Requires org.xerial.snappy:snappy-java.
-		 */
-		SNAPPY,
-
-		/**
-		 * No compression.
-		 */
-		NONE;
 
 	}
 

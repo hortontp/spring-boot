@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package org.springframework.boot.actuate.cassandra;
 
-import com.datastax.oss.driver.api.core.cql.ResultSet;
-import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import org.junit.jupiter.api.Test;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.querybuilder.Select;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -37,36 +37,36 @@ import static org.mockito.Mockito.mock;
  *
  * @author Oleksii Bondar
  */
-class CassandraHealthIndicatorTests {
+public class CassandraHealthIndicatorTests {
 
 	@Test
-	void createWhenCassandraOperationsIsNullShouldThrowException() {
+	public void createWhenCassandraOperationsIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new CassandraHealthIndicator(null));
 	}
 
 	@Test
-	void verifyHealthStatusWhenExhausted() {
+	public void verifyHealthStatusWhenExhausted() {
 		CassandraOperations cassandraOperations = mock(CassandraOperations.class);
 		CqlOperations cqlOperations = mock(CqlOperations.class);
 		ResultSet resultSet = mock(ResultSet.class);
 		CassandraHealthIndicator healthIndicator = new CassandraHealthIndicator(cassandraOperations);
 		given(cassandraOperations.getCqlOperations()).willReturn(cqlOperations);
-		given(cqlOperations.queryForResultSet(any(SimpleStatement.class))).willReturn(resultSet);
-		given(resultSet.isFullyFetched()).willReturn(true);
+		given(cqlOperations.queryForResultSet(any(Select.class))).willReturn(resultSet);
+		given(resultSet.isExhausted()).willReturn(true);
 		Health health = healthIndicator.health();
 		assertThat(health.getStatus()).isEqualTo(Status.UP);
 	}
 
 	@Test
-	void verifyHealthStatusWithVersion() {
+	public void verifyHealthStatusWithVersion() {
 		CassandraOperations cassandraOperations = mock(CassandraOperations.class);
 		CqlOperations cqlOperations = mock(CqlOperations.class);
 		ResultSet resultSet = mock(ResultSet.class);
 		Row row = mock(Row.class);
 		CassandraHealthIndicator healthIndicator = new CassandraHealthIndicator(cassandraOperations);
 		given(cassandraOperations.getCqlOperations()).willReturn(cqlOperations);
-		given(cqlOperations.queryForResultSet(any(SimpleStatement.class))).willReturn(resultSet);
-		given(resultSet.isFullyFetched()).willReturn(false);
+		given(cqlOperations.queryForResultSet(any(Select.class))).willReturn(resultSet);
+		given(resultSet.isExhausted()).willReturn(false);
 		given(resultSet.one()).willReturn(row);
 		String expectedVersion = "1.0.0";
 		given(row.getString(0)).willReturn(expectedVersion);

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.TestAutoConfigurationSorter;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
@@ -36,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class CloudServiceConnectorsAutoConfigurationTests {
+public class CloudServiceConnectorsAutoConfigurationTests {
 
 	@Test
-	void testOrder() {
+	public void testOrder() {
 		TestAutoConfigurationSorter sorter = new TestAutoConfigurationSorter(new CachingMetadataReaderFactory());
 		Collection<String> classNames = new ArrayList<>();
 		classNames.add(MongoAutoConfiguration.class.getName());

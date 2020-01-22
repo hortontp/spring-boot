@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.solr.repository.SolrRepository;
-import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.data.solr.repository.config.SolrRepositoryConfigExtension;
 import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean;
 
@@ -36,13 +35,14 @@ import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBea
  * classpath.
  * </p>
  * If active auto configuration does the same as
- * {@link EnableSolrRepositories @EnableSolrRepositories} would do.
+ * {@link org.springframework.data.solr.repository.config.EnableSolrRepositories} would
+ * do.
  *
  * @author Christoph Strobl
  * @author Oliver Gierke
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ SolrClient.class, SolrRepository.class })
 @ConditionalOnMissingBean({ SolrRepositoryFactoryBean.class, SolrRepositoryConfigExtension.class })
 @ConditionalOnProperty(prefix = "spring.data.solr.repositories", name = "enabled", havingValue = "true",

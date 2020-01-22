@@ -61,7 +61,7 @@ public final class ConditionMessage {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ConditionMessage)) {
+		if (obj == null || !ConditionMessage.class.isInstance(obj)) {
 			return false;
 		}
 		if (obj == this) {
@@ -290,7 +290,7 @@ public final class ConditionMessage {
 		}
 
 		/**
-		 * Indicates the reason. For example {@code because("running Linux")} results in
+		 * Indicates the reason. For example {@code reason("running Linux")} results in
 		 * the message "running Linux".
 		 * @param reason the reason for the message
 		 * @return a built {@link ConditionMessage}
@@ -382,13 +382,13 @@ public final class ConditionMessage {
 			StringBuilder message = new StringBuilder(this.reason);
 			items = style.applyTo(items);
 			if ((this.condition == null || items.size() <= 1) && StringUtils.hasLength(this.singular)) {
-				message.append(" ").append(this.singular);
+				message.append(" " + this.singular);
 			}
 			else if (StringUtils.hasLength(this.plural)) {
-				message.append(" ").append(this.plural);
+				message.append(" " + this.plural);
 			}
 			if (items != null && !items.isEmpty()) {
-				message.append(" ").append(StringUtils.collectionToDelimitedString(items, ", "));
+				message.append(" " + StringUtils.collectionToDelimitedString(items, ", "));
 			}
 			return this.condition.because(message.toString());
 		}

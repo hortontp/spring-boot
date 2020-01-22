@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.condition;
 
 import java.util.Collection;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -30,23 +30,23 @@ import org.springframework.context.annotation.ImportResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnClass @ConditionalOnClass}.
+ * Tests for {@link ConditionalOnClass}.
  *
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class ConditionalOnClassTests {
+public class ConditionalOnClassTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void testVanillaOnClassCondition() {
+	public void testVanillaOnClassCondition() {
 		this.contextRunner.withUserConfiguration(BasicConfiguration.class, FooConfiguration.class)
 				.run(this::hasBarBean);
 	}
 
 	@Test
-	void testMissingOnClassCondition() {
+	public void testMissingOnClassCondition() {
 		this.contextRunner.withUserConfiguration(MissingConfiguration.class, FooConfiguration.class).run((context) -> {
 			assertThat(context).doesNotHaveBean("bar");
 			assertThat(context).hasBean("foo");
@@ -55,18 +55,18 @@ class ConditionalOnClassTests {
 	}
 
 	@Test
-	void testOnClassConditionWithXml() {
+	public void testOnClassConditionWithXml() {
 		this.contextRunner.withUserConfiguration(BasicConfiguration.class, XmlConfiguration.class)
 				.run(this::hasBarBean);
 	}
 
 	@Test
-	void testOnClassConditionWithCombinedXml() {
+	public void testOnClassConditionWithCombinedXml() {
 		this.contextRunner.withUserConfiguration(CombinedXmlConfiguration.class).run(this::hasBarBean);
 	}
 
 	@Test
-	void onClassConditionOutputShouldNotContainConditionalOnMissingClassInMessage() {
+	public void onClassConditionOutputShouldNotContainConditionalOnMissingClassInMessage() {
 		this.contextRunner.withUserConfiguration(BasicConfiguration.class).run((context) -> {
 			Collection<ConditionEvaluationReport.ConditionAndOutcomes> conditionAndOutcomes = ConditionEvaluationReport
 					.get(context.getSourceApplicationContext().getBeanFactory()).getConditionAndOutcomesBySource()
@@ -81,48 +81,48 @@ class ConditionalOnClassTests {
 		assertThat(context.getBean("bar")).isEqualTo("bar");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(ConditionalOnClassTests.class)
-	static class BasicConfiguration {
+	protected static class BasicConfiguration {
 
 		@Bean
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(name = "FOO")
-	static class MissingConfiguration {
+	protected static class MissingConfiguration {
 
 		@Bean
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class FooConfiguration {
+	@Configuration
+	protected static class FooConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportResource("org/springframework/boot/autoconfigure/condition/foo.xml")
-	static class XmlConfiguration {
+	protected static class XmlConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BasicConfiguration.class)
 	@ImportResource("org/springframework/boot/autoconfigure/condition/foo.xml")
-	static class CombinedXmlConfiguration {
+	protected static class CombinedXmlConfiguration {
 
 	}
 

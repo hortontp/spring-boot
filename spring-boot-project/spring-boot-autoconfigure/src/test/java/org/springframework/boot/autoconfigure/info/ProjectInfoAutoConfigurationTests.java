@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.info;
 
 import java.util.Properties;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -35,18 +35,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class ProjectInfoAutoConfigurationTests {
+public class ProjectInfoAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner().withConfiguration(
 			AutoConfigurations.of(PropertyPlaceholderAutoConfiguration.class, ProjectInfoAutoConfiguration.class));
 
 	@Test
-	void gitPropertiesUnavailableIfResourceNotAvailable() {
+	public void gitPropertiesUnavailableIfResourceNotAvailable() {
 		this.contextRunner.run((context) -> assertThat(context.getBeansOfType(GitProperties.class)).isEmpty());
 	}
 
 	@Test
-	void gitPropertiesWithNoData() {
+	public void gitPropertiesWithNoData() {
 		this.contextRunner
 				.withPropertyValues("spring.info.git.location="
 						+ "classpath:/org/springframework/boot/autoconfigure/info/git-no-data.properties")
@@ -57,9 +57,9 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void gitPropertiesFallbackWithGitPropertiesBean() {
+	public void gitPropertiesFallbackWithGitPropertiesBean() {
 		this.contextRunner.withUserConfiguration(CustomInfoPropertiesConfiguration.class).withPropertyValues(
-				"spring.info.git.location=classpath:/org/springframework/boot/autoconfigure/info/git.properties")
+				"spring.info.git.location=" + "classpath:/org/springframework/boot/autoconfigure/info/git.properties")
 				.run((context) -> {
 					GitProperties gitProperties = context.getBean(GitProperties.class);
 					assertThat(gitProperties).isSameAs(context.getBean("customGitProperties"));
@@ -67,7 +67,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void gitPropertiesUsesUtf8ByDefault() {
+	public void gitPropertiesUsesUtf8ByDefault() {
 		this.contextRunner.withPropertyValues(
 				"spring.info.git.location=classpath:/org/springframework/boot/autoconfigure/info/git.properties")
 				.run((context) -> {
@@ -77,7 +77,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void gitPropertiesEncodingCanBeConfigured() {
+	public void gitPropertiesEncodingCanBeConfigured() {
 		this.contextRunner.withPropertyValues("spring.info.git.encoding=US-ASCII",
 				"spring.info.git.location=classpath:/org/springframework/boot/autoconfigure/info/git.properties")
 				.run((context) -> {
@@ -87,7 +87,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void buildPropertiesDefaultLocation() {
+	public void buildPropertiesDefaultLocation() {
 		this.contextRunner.run((context) -> {
 			BuildProperties buildProperties = context.getBean(BuildProperties.class);
 			assertThat(buildProperties.getGroup()).isEqualTo("com.example");
@@ -99,7 +99,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void buildPropertiesCustomLocation() {
+	public void buildPropertiesCustomLocation() {
 		this.contextRunner
 				.withPropertyValues("spring.info.build.location="
 						+ "classpath:/org/springframework/boot/autoconfigure/info/build-info.properties")
@@ -114,13 +114,14 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void buildPropertiesCustomInvalidLocation() {
-		this.contextRunner.withPropertyValues("spring.info.build.location=classpath:/org/acme/no-build-info.properties")
+	public void buildPropertiesCustomInvalidLocation() {
+		this.contextRunner
+				.withPropertyValues("spring.info.build.location=" + "classpath:/org/acme/no-build-info.properties")
 				.run((context) -> assertThat(context.getBeansOfType(BuildProperties.class)).hasSize(0));
 	}
 
 	@Test
-	void buildPropertiesFallbackWithBuildInfoBean() {
+	public void buildPropertiesFallbackWithBuildInfoBean() {
 		this.contextRunner.withUserConfiguration(CustomInfoPropertiesConfiguration.class).run((context) -> {
 			BuildProperties buildProperties = context.getBean(BuildProperties.class);
 			assertThat(buildProperties).isSameAs(context.getBean("customBuildProperties"));
@@ -128,7 +129,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void buildPropertiesUsesUtf8ByDefault() {
+	public void buildPropertiesUsesUtf8ByDefault() {
 		this.contextRunner.withPropertyValues(
 				"spring.info.build.location=classpath:/org/springframework/boot/autoconfigure/info/build-info.properties")
 				.run((context) -> {
@@ -138,7 +139,7 @@ class ProjectInfoAutoConfigurationTests {
 	}
 
 	@Test
-	void buildPropertiesEncodingCanBeConfigured() {
+	public void buildPropertiesEncodingCanBeConfigured() {
 		this.contextRunner.withPropertyValues("spring.info.build.encoding=US-ASCII",
 				"spring.info.build.location=classpath:/org/springframework/boot/autoconfigure/info/build-info.properties")
 				.run((context) -> {
@@ -147,16 +148,16 @@ class ProjectInfoAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomInfoPropertiesConfiguration {
 
 		@Bean
-		GitProperties customGitProperties() {
+		public GitProperties customGitProperties() {
 			return new GitProperties(new Properties());
 		}
 
 		@Bean
-		BuildProperties customBuildProperties() {
+		public BuildProperties customBuildProperties() {
 			return new BuildProperties(new Properties());
 		}
 

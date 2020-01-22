@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.jmx;
 
 import io.micrometer.jmx.JmxConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class JmxPropertiesTests {
+public class JmxPropertiesTests {
 
 	@Test
-	void defaultValuesAreConsistent() {
+	public void defaultValuesAreConsistent() {
 		JmxProperties properties = new JmxProperties();
 		JmxConfig config = JmxConfig.DEFAULT;
 		assertThat(properties.getDomain()).isEqualTo(config.domain());

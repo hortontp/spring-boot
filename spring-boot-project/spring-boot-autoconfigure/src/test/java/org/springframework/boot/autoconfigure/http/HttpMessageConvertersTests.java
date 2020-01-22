@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -44,10 +44,10 @@ import static org.mockito.Mockito.mock;
  * @author Dave Syer
  * @author Phillip Webb
  */
-class HttpMessageConvertersTests {
+public class HttpMessageConvertersTests {
 
 	@Test
-	void containsDefaults() {
+	public void containsDefaults() {
 		HttpMessageConverters converters = new HttpMessageConverters();
 		List<Class<?>> converterClasses = new ArrayList<>();
 		for (HttpMessageConverter<?> converter : converters) {
@@ -62,7 +62,7 @@ class HttpMessageConvertersTests {
 	}
 
 	@Test
-	void addBeforeExistingConverter() {
+	public void addBeforeExistingConverter() {
 		MappingJackson2HttpMessageConverter converter1 = new MappingJackson2HttpMessageConverter();
 		MappingJackson2HttpMessageConverter converter2 = new MappingJackson2HttpMessageConverter();
 		HttpMessageConverters converters = new HttpMessageConverters(converter1, converter2);
@@ -82,7 +82,7 @@ class HttpMessageConvertersTests {
 	}
 
 	@Test
-	void addNewConverters() {
+	public void addNewConverters() {
 		HttpMessageConverter<?> converter1 = mock(HttpMessageConverter.class);
 		HttpMessageConverter<?> converter2 = mock(HttpMessageConverter.class);
 		HttpMessageConverters converters = new HttpMessageConverters(converter1, converter2);
@@ -91,7 +91,7 @@ class HttpMessageConvertersTests {
 	}
 
 	@Test
-	void convertersAreAddedToFormPartConverter() {
+	public void convertersAreAddedToFormPartConverter() {
 		HttpMessageConverter<?> converter1 = mock(HttpMessageConverter.class);
 		HttpMessageConverter<?> converter2 = mock(HttpMessageConverter.class);
 		List<HttpMessageConverter<?>> converters = new HttpMessageConverters(converter1, converter2).getConverters();
@@ -101,7 +101,7 @@ class HttpMessageConvertersTests {
 	}
 
 	@Test
-	void postProcessConverters() {
+	public void postProcessConverters() {
 		HttpMessageConverters converters = new HttpMessageConverters() {
 
 			@Override
@@ -123,7 +123,7 @@ class HttpMessageConvertersTests {
 	}
 
 	@Test
-	void postProcessPartConverters() {
+	public void postProcessPartConverters() {
 		HttpMessageConverters converters = new HttpMessageConverters() {
 
 			@Override

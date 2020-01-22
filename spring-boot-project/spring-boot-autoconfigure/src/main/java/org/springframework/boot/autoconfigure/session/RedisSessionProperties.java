@@ -17,8 +17,7 @@
 package org.springframework.boot.autoconfigure.session;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.session.FlushMode;
-import org.springframework.session.SaveMode;
+import org.springframework.session.data.redis.RedisFlushMode;
 
 /**
  * Configuration properties for Redis backed Spring Session.
@@ -37,22 +36,9 @@ public class RedisSessionProperties {
 	private String namespace = "spring:session";
 
 	/**
-	 * Sessions flush mode. Determines when session changes are written to the session
-	 * store.
+	 * Sessions flush mode.
 	 */
-	private FlushMode flushMode = FlushMode.ON_SAVE;
-
-	/**
-	 * Sessions save mode. Determines how session changes are tracked and saved to the
-	 * session store.
-	 */
-	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
-
-	/**
-	 * The configure action to apply when no user defined ConfigureRedisAction bean is
-	 * present.
-	 */
-	private ConfigureAction configureAction = ConfigureAction.NOTIFY_KEYSPACE_EVENTS;
+	private RedisFlushMode flushMode = RedisFlushMode.ON_SAVE;
 
 	/**
 	 * Cron expression for expired session cleanup job.
@@ -67,20 +53,12 @@ public class RedisSessionProperties {
 		this.namespace = namespace;
 	}
 
-	public FlushMode getFlushMode() {
+	public RedisFlushMode getFlushMode() {
 		return this.flushMode;
 	}
 
-	public void setFlushMode(FlushMode flushMode) {
+	public void setFlushMode(RedisFlushMode flushMode) {
 		this.flushMode = flushMode;
-	}
-
-	public SaveMode getSaveMode() {
-		return this.saveMode;
-	}
-
-	public void setSaveMode(SaveMode saveMode) {
-		this.saveMode = saveMode;
 	}
 
 	public String getCleanupCron() {
@@ -89,32 +67,6 @@ public class RedisSessionProperties {
 
 	public void setCleanupCron(String cleanupCron) {
 		this.cleanupCron = cleanupCron;
-	}
-
-	public ConfigureAction getConfigureAction() {
-		return this.configureAction;
-	}
-
-	public void setConfigureAction(ConfigureAction configureAction) {
-		this.configureAction = configureAction;
-	}
-
-	/**
-	 * Strategies for configuring and validating Redis.
-	 */
-	public enum ConfigureAction {
-
-		/**
-		 * Ensure that Redis Keyspace events for Generic commands and Expired events are
-		 * enabled.
-		 */
-		NOTIFY_KEYSPACE_EVENTS,
-
-		/**
-		 * No not attempt to apply any custom Redis configuration.
-		 */
-		NONE
-
 	}
 
 }

@@ -27,7 +27,7 @@ import org.springframework.boot.actuate.endpoint.annotation.EndpointExtension;
 import org.springframework.core.annotation.AliasFor;
 
 /**
- * Identifies a type as being a Web-specific extension of an {@link Endpoint @Endpoint}.
+ * Identifies a type as being a Web-specific extension of an {@link Endpoint}.
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll

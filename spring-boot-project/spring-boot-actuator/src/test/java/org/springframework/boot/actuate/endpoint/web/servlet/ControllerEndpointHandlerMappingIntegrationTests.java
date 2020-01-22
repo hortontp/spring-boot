@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
 import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointDiscoverer;
@@ -57,29 +57,29 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ControllerEndpointHandlerMappingIntegrationTests {
+public class ControllerEndpointHandlerMappingIntegrationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner(
 			AnnotationConfigServletWebServerApplicationContext::new).withUserConfiguration(EndpointConfiguration.class,
 					ExampleMvcEndpoint.class);
 
 	@Test
-	void get() {
+	public void get() {
 		this.contextRunner.run(withWebTestClient((webTestClient) -> webTestClient.get().uri("/actuator/example/one")
 				.accept(MediaType.TEXT_PLAIN).exchange().expectStatus().isOk().expectHeader()
 				.contentTypeCompatibleWith(MediaType.TEXT_PLAIN).expectBody(String.class).isEqualTo("One")));
 	}
 
 	@Test
-	void getWithUnacceptableContentType() {
+	public void getWithUnacceptableContentType() {
 		this.contextRunner.run(withWebTestClient((webTestClient) -> webTestClient.get().uri("/actuator/example/one")
 				.accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isEqualTo(HttpStatus.NOT_ACCEPTABLE)));
 	}
 
 	@Test
-	void post() {
+	public void post() {
 		this.contextRunner.run(withWebTestClient((webTestClient) -> webTestClient.post().uri("/actuator/example/two")
-				.bodyValue(Collections.singletonMap("id", "test")).exchange().expectStatus().isCreated().expectHeader()
+				.syncBody(Collections.singletonMap("id", "test")).exchange().expectStatus().isCreated().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "/example/test")));
 	}
 
@@ -99,23 +99,24 @@ class ControllerEndpointHandlerMappingIntegrationTests {
 				.build();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportAutoConfiguration({ JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
 			WebMvcAutoConfiguration.class, DispatcherServletAutoConfiguration.class })
 	static class EndpointConfiguration {
 
 		@Bean
-		TomcatServletWebServerFactory tomcat() {
+		public TomcatServletWebServerFactory tomcat() {
 			return new TomcatServletWebServerFactory(0);
 		}
 
 		@Bean
-		ControllerEndpointDiscoverer webEndpointDiscoverer(ApplicationContext applicationContext) {
+		public ControllerEndpointDiscoverer webEndpointDiscoverer(ApplicationContext applicationContext) {
 			return new ControllerEndpointDiscoverer(applicationContext, null, Collections.emptyList());
 		}
 
 		@Bean
-		ControllerEndpointHandlerMapping webEndpointHandlerMapping(ControllerEndpointsSupplier endpointsSupplier) {
+		public ControllerEndpointHandlerMapping webEndpointHandlerMapping(
+				ControllerEndpointsSupplier endpointsSupplier) {
 			return new ControllerEndpointHandlerMapping(new EndpointMapping("actuator"),
 					endpointsSupplier.getEndpoints(), null);
 		}
@@ -123,15 +124,15 @@ class ControllerEndpointHandlerMappingIntegrationTests {
 	}
 
 	@RestControllerEndpoint(id = "example")
-	static class ExampleMvcEndpoint {
+	public static class ExampleMvcEndpoint {
 
 		@GetMapping(path = "one", produces = MediaType.TEXT_PLAIN_VALUE)
-		String one() {
+		public String one() {
 			return "One";
 		}
 
 		@PostMapping("/two")
-		ResponseEntity<String> two(@RequestBody Map<String, Object> content) {
+		public ResponseEntity<String> two(@RequestBody Map<String, Object> content) {
 			return ResponseEntity.created(URI.create("/example/" + content.get("id"))).build();
 		}
 

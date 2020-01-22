@@ -17,8 +17,8 @@
 package org.springframework.boot.actuate.metrics.web.reactive.client;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,21 +31,21 @@ import static org.mockito.Mockito.mock;
  *
  * @author Brian Clozel
  */
-class MetricsWebClientCustomizerTests {
+public class MetricsWebClientCustomizerTests {
 
 	private MetricsWebClientCustomizer customizer;
 
 	private WebClient.Builder clientBuilder;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.customizer = new MetricsWebClientCustomizer(mock(MeterRegistry.class),
-				mock(WebClientExchangeTagsProvider.class), "test", null);
+				mock(WebClientExchangeTagsProvider.class), "test");
 		this.clientBuilder = WebClient.builder();
 	}
 
 	@Test
-	void customizeShouldAddFilterFunction() {
+	public void customizeShouldAddFilterFunction() {
 		this.clientBuilder.filter(mock(ExchangeFilterFunction.class));
 		this.customizer.customize(this.clientBuilder);
 		this.clientBuilder.filters(
@@ -53,7 +53,7 @@ class MetricsWebClientCustomizerTests {
 	}
 
 	@Test
-	void customizeShouldNotAddDuplicateFilterFunction() {
+	public void customizeShouldNotAddDuplicateFilterFunction() {
 		this.customizer.customize(this.clientBuilder);
 		this.clientBuilder.filters((filters) -> assertThat(filters).hasSize(1));
 		this.customizer.customize(this.clientBuilder);

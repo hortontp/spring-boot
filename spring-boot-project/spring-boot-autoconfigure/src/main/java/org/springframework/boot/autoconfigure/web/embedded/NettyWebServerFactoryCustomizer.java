@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class NettyWebServerFactoryCustomizer
 
 	@Override
 	public void customize(NettyReactiveWebServerFactory factory) {
-		factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
+		factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders(this.serverProperties, this.environment));
 		PropertyMapper propertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
 		propertyMapper.from(this.serverProperties::getMaxHttpHeaderSize)
 				.to((maxHttpRequestHeaderSize) -> customizeMaxHttpHeaderSize(factory, maxHttpRequestHeaderSize));
@@ -67,12 +67,12 @@ public class NettyWebServerFactoryCustomizer
 				.to((connectionTimeout) -> customizeConnectionTimeout(factory, connectionTimeout));
 	}
 
-	private boolean getOrDeduceUseForwardHeaders() {
-		if (this.serverProperties.getForwardHeadersStrategy() == null) {
-			CloudPlatform platform = CloudPlatform.getActive(this.environment);
-			return platform != null && platform.isUsingForwardHeaders();
+	private boolean getOrDeduceUseForwardHeaders(ServerProperties serverProperties, Environment environment) {
+		if (serverProperties.isUseForwardHeaders() != null) {
+			return serverProperties.isUseForwardHeaders();
 		}
-		return this.serverProperties.getForwardHeadersStrategy().equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
+		CloudPlatform platform = CloudPlatform.getActive(environment);
+		return platform != null && platform.isUsingForwardHeaders();
 	}
 
 	private void customizeMaxHttpHeaderSize(NettyReactiveWebServerFactory factory, DataSize maxHttpHeaderSize) {

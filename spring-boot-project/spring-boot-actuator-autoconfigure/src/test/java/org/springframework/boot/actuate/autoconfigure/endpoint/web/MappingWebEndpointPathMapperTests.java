@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.autoconfigure.endpoint.web;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.web.PathMapper;
@@ -30,16 +30,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class MappingWebEndpointPathMapperTests {
+public class MappingWebEndpointPathMapperTests {
 
 	@Test
-	void defaultConfiguration() {
+	public void defaultConfiguration() {
 		MappingWebEndpointPathMapper mapper = new MappingWebEndpointPathMapper(Collections.emptyMap());
 		assertThat(PathMapper.getRootPath(Collections.singletonList(mapper), EndpointId.of("test"))).isEqualTo("test");
 	}
 
 	@Test
-	void userConfiguration() {
+	public void userConfiguration() {
 		MappingWebEndpointPathMapper mapper = new MappingWebEndpointPathMapper(
 				Collections.singletonMap("test", "custom"));
 		assertThat(PathMapper.getRootPath(Collections.singletonList(mapper), EndpointId.of("test")))
@@ -47,14 +47,14 @@ class MappingWebEndpointPathMapperTests {
 	}
 
 	@Test
-	void mixedCaseDefaultConfiguration() {
+	public void mixedCaseDefaultConfiguration() {
 		MappingWebEndpointPathMapper mapper = new MappingWebEndpointPathMapper(Collections.emptyMap());
 		assertThat(PathMapper.getRootPath(Collections.singletonList(mapper), EndpointId.of("testEndpoint")))
 				.isEqualTo("testEndpoint");
 	}
 
 	@Test
-	void mixedCaseUserConfiguration() {
+	public void mixedCaseUserConfiguration() {
 		MappingWebEndpointPathMapper mapper = new MappingWebEndpointPathMapper(
 				Collections.singletonMap("test-endpoint", "custom"));
 		assertThat(PathMapper.getRootPath(Collections.singletonList(mapper), EndpointId.of("testEndpoint")))

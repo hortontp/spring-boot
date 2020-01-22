@@ -28,7 +28,8 @@ import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -43,6 +44,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,16 +54,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eddú Meléndez
  * @author Andy Wilkinson
  */
+@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = "spring.jackson.default-property-inclusion:non-null")
 @DirtiesContext
-class JerseyAutoConfigurationObjectMapperProviderTests {
+public class JerseyAutoConfigurationObjectMapperProviderTests {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
 
 	@Test
-	void responseIsSerializedUsingAutoConfiguredObjectMapper() {
+	public void responseIsSerializedUsingAutoConfiguredObjectMapper() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity("/rest/message", String.class);
 		assertThat(HttpStatus.OK).isEqualTo(response.getStatusCode());
 		assertThat(response.getBody()).isEqualTo("{\"subject\":\"Jersey\"}");
@@ -72,16 +75,16 @@ class JerseyAutoConfigurationObjectMapperProviderTests {
 	@Path("/message")
 	public static class Application extends ResourceConfig {
 
-		Application() {
-			register(Application.class);
-		}
-
 		@GET
 		public Message message() {
 			return new Message("Jersey", null);
 		}
 
-		static void main(String[] args) {
+		public Application() {
+			register(Application.class);
+		}
+
+		public static void main(String[] args) {
 			SpringApplication.run(Application.class, args);
 		}
 
@@ -93,10 +96,11 @@ class JerseyAutoConfigurationObjectMapperProviderTests {
 
 		private String body;
 
-		Message() {
+		public Message() {
+
 		}
 
-		Message(String subject, String body) {
+		public Message(String subject, String body) {
 			this.subject = subject;
 			this.body = body;
 		}

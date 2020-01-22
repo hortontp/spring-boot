@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Phillip Webb
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(Servlet.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 public class ServletManagementContextAutoConfiguration {
@@ -53,7 +53,7 @@ public class ServletManagementContextAutoConfiguration {
 
 	// Put Servlets and Filters in their own nested class so they don't force early
 	// instantiation of ManagementServerProperties.
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnProperty(prefix = "management.server", name = "add-application-context-header", havingValue = "true")
 	protected static class ApplicationContextFilterConfiguration {
 

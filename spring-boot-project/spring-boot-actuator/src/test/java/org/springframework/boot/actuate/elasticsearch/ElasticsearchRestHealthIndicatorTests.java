@@ -25,7 +25,7 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  * @author Artsiom Yudovin
  * @author Filip Hrisafov
  */
-class ElasticsearchRestHealthIndicatorTests {
+public class ElasticsearchRestHealthIndicatorTests {
 
 	private final RestClient restClient = mock(RestClient.class);
 
@@ -50,7 +50,7 @@ class ElasticsearchRestHealthIndicatorTests {
 			this.restClient);
 
 	@Test
-	void elasticsearchIsUp() throws IOException {
+	public void elasticsearchIsUp() throws IOException {
 		BasicHttpEntity httpEntity = new BasicHttpEntity();
 		httpEntity.setContent(new ByteArrayInputStream(createJsonResult(200, "green").getBytes()));
 		Response response = mock(Response.class);
@@ -65,7 +65,7 @@ class ElasticsearchRestHealthIndicatorTests {
 	}
 
 	@Test
-	void elasticsearchWithYellowStatusIsUp() throws IOException {
+	public void elasticsearchWithYellowStatusIsUp() throws IOException {
 		BasicHttpEntity httpEntity = new BasicHttpEntity();
 		httpEntity.setContent(new ByteArrayInputStream(createJsonResult(200, "yellow").getBytes()));
 		Response response = mock(Response.class);
@@ -80,7 +80,7 @@ class ElasticsearchRestHealthIndicatorTests {
 	}
 
 	@Test
-	void elasticsearchIsDown() throws IOException {
+	public void elasticsearchIsDown() throws IOException {
 		given(this.restClient.performRequest(any(Request.class))).willThrow(new IOException("Couldn't connect"));
 		Health health = this.elasticsearchRestHealthIndicator.health();
 		assertThat(health.getStatus()).isEqualTo(Status.DOWN);
@@ -88,7 +88,7 @@ class ElasticsearchRestHealthIndicatorTests {
 	}
 
 	@Test
-	void elasticsearchIsDownByResponseCode() throws IOException {
+	public void elasticsearchIsDownByResponseCode() throws IOException {
 		Response response = mock(Response.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		given(statusLine.getStatusCode()).willReturn(500);
@@ -102,7 +102,7 @@ class ElasticsearchRestHealthIndicatorTests {
 	}
 
 	@Test
-	void elasticsearchIsOutOfServiceByStatus() throws IOException {
+	public void elasticsearchIsOutOfServiceByStatus() throws IOException {
 		BasicHttpEntity httpEntity = new BasicHttpEntity();
 		httpEntity.setContent(new ByteArrayInputStream(createJsonResult(200, "red").getBytes()));
 		Response response = mock(Response.class);
@@ -137,7 +137,7 @@ class ElasticsearchRestHealthIndicatorTests {
 							+ "\"task_max_waiting_in_queue_millis\":0,\"active_shards_percent_as_number\":100.0}",
 					status);
 		}
-		return "{\n  \"error\": \"Server Error\",\n  \"status\": " + responseCode + "\n}";
+		return "{\n" + "  \"error\": \"Server Error\",\n" + "  \"status\": " + responseCode + "\n" + "}";
 	}
 
 }

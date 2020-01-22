@@ -17,13 +17,15 @@
 package org.springframework.boot.actuate.autoconfigure.metrics;
 
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.slf4j.SLF4JLoggerContext;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.test.MetricsRun;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathOverrides;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,14 +34,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class Log4J2MetricsWithSlf4jLoggerContextAutoConfigurationTests {
+@RunWith(ModifiedClassPathRunner.class)
+@ClassPathOverrides({ "org.apache.logging.log4j:log4j-to-slf4j:2.11.1", "org.apache.logging.log4j:log4j-core:2.11.1" })
+@ClassPathExclusions("log4j-slf4j-impl-*.jar")
+public class Log4J2MetricsWithSlf4jLoggerContextAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner().with(MetricsRun.simple())
 			.withConfiguration(AutoConfigurations.of(Log4J2MetricsAutoConfiguration.class));
 
 	@Test
-	void backsOffWhenLoggerContextIsBackedBySlf4j() {
-		assertThat(LogManager.getContext()).isInstanceOf(SLF4JLoggerContext.class);
+	public void backsOffWhenLoggerContextIsBackedBySlf4j() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(Log4j2Metrics.class));
 	}
 

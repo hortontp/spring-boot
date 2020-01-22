@@ -16,8 +16,8 @@
 
 package org.springframework.boot.autoconfigure.web;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -27,45 +27,45 @@ import org.springframework.context.annotation.Configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnEnabledResourceChain @ConditionalOnEnabledResourceChain}.
+ * Tests for {@link ConditionalOnEnabledResourceChain}.
  *
  * @author Stephane Nicoll
  */
-class ConditionalOnEnabledResourceChainTests {
+public class ConditionalOnEnabledResourceChainTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@AfterEach
-	void closeContext() {
+	@After
+	public void closeContext() {
 		this.context.close();
 	}
 
 	@Test
-	void disabledByDefault() {
+	public void disabledByDefault() {
 		load();
 		assertThat(this.context.containsBean("foo")).isFalse();
 	}
 
 	@Test
-	void disabledExplicitly() {
+	public void disabledExplicitly() {
 		load("spring.resources.chain.enabled:false");
 		assertThat(this.context.containsBean("foo")).isFalse();
 	}
 
 	@Test
-	void enabledViaMainEnabledFlag() {
+	public void enabledViaMainEnabledFlag() {
 		load("spring.resources.chain.enabled:true");
 		assertThat(this.context.containsBean("foo")).isTrue();
 	}
 
 	@Test
-	void enabledViaFixedStrategyFlag() {
+	public void enabledViaFixedStrategyFlag() {
 		load("spring.resources.chain.strategy.fixed.enabled:true");
 		assertThat(this.context.containsBean("foo")).isTrue();
 	}
 
 	@Test
-	void enabledViaContentStrategyFlag() {
+	public void enabledViaContentStrategyFlag() {
 		load("spring.resources.chain.strategy.content.enabled:true");
 		assertThat(this.context.containsBean("foo")).isTrue();
 	}
@@ -76,12 +76,12 @@ class ConditionalOnEnabledResourceChainTests {
 		this.context.refresh();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class Config {
 
 		@Bean
 		@ConditionalOnEnabledResourceChain
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

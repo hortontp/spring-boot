@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure.sendgrid;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for SendGrid.
+ * {@link ConfigurationProperties} for SendGrid.
  *
  * @author Maciej Walkowiak
  * @author Andy Wilkinson

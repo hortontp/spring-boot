@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.util.thread.Scheduler;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.http.client.reactive.JettyClientHttpConnector;
 import org.springframework.http.client.reactive.JettyResourceFactory;
@@ -35,10 +35,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class ClientHttpConnectorConfigurationTests {
+public class ClientHttpConnectorConfigurationTests {
 
 	@Test
-	void jettyClientHttpConnectorAppliesJettyResourceFactory() {
+	public void jettyClientHttpConnectorAppliesJettyResourceFactory() {
 		Executor executor = mock(Executor.class);
 		ByteBufferPool byteBufferPool = mock(ByteBufferPool.class);
 		Scheduler scheduler = mock(Scheduler.class);
@@ -46,7 +46,8 @@ class ClientHttpConnectorConfigurationTests {
 		jettyResourceFactory.setExecutor(executor);
 		jettyResourceFactory.setByteBufferPool(byteBufferPool);
 		jettyResourceFactory.setScheduler(scheduler);
-		JettyClientHttpConnector connector = getClientHttpConnector(jettyResourceFactory);
+		JettyClientHttpConnector connector = new ClientHttpConnectorConfiguration.JettyClient()
+				.jettyClientHttpConnector(jettyResourceFactory);
 		HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(connector, "httpClient");
 		assertThat(httpClient.getExecutor()).isSameAs(executor);
 		assertThat(httpClient.getByteBufferPool()).isSameAs(byteBufferPool);
@@ -54,18 +55,13 @@ class ClientHttpConnectorConfigurationTests {
 	}
 
 	@Test
-	void JettyResourceFactoryHasSslContextFactory() {
+	public void JettyResourceFactoryHasSslContextFactory() {
 		// gh-16810
 		JettyResourceFactory jettyResourceFactory = new JettyResourceFactory();
-		JettyClientHttpConnector connector = getClientHttpConnector(jettyResourceFactory);
+		JettyClientHttpConnector connector = new ClientHttpConnectorConfiguration.JettyClient()
+				.jettyClientHttpConnector(jettyResourceFactory);
 		HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(connector, "httpClient");
 		assertThat(httpClient.getSslContextFactory()).isNotNull();
-	}
-
-	private JettyClientHttpConnector getClientHttpConnector(JettyResourceFactory jettyResourceFactory) {
-		ClientHttpConnectorConfiguration.JettyClient jettyClient = new ClientHttpConnectorConfiguration.JettyClient();
-		// We shouldn't usually call this method directly since it's on a non-proxy config
-		return ReflectionTestUtils.invokeMethod(jettyClient, "jettyClientHttpConnector", jettyResourceFactory);
 	}
 
 }

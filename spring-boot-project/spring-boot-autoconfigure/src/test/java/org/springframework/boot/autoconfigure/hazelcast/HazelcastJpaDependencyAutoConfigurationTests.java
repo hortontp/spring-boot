@@ -22,12 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.data.jpa.EntityManagerFactoryDependsOnPostProcessor;
-import org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration.HazelcastInstanceEntityManagerFactoryDependsOnPostProcessor;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
@@ -43,10 +42,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Stephane Nicoll
  */
-class HazelcastJpaDependencyAutoConfigurationTests {
-
-	private static final String POST_PROCESSOR_BEAN_NAME = HazelcastInstanceEntityManagerFactoryDependsOnPostProcessor.class
-			.getName();
+public class HazelcastJpaDependencyAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class,
@@ -55,34 +51,35 @@ class HazelcastJpaDependencyAutoConfigurationTests {
 					"spring.datasource.initialization-mode=never");
 
 	@Test
-	void registrationIfHazelcastInstanceHasRegularBeanName() {
+	public void registrationIfHazelcastInstanceHasRegularBeanName() {
 		this.contextRunner.withUserConfiguration(HazelcastConfiguration.class).run((context) -> {
-			assertThat(postProcessors(context)).containsKey(POST_PROCESSOR_BEAN_NAME);
+			assertThat(postProcessors(context)).containsKey("hazelcastInstanceJpaDependencyPostProcessor");
 			assertThat(entityManagerFactoryDependencies(context)).contains("hazelcastInstance");
 		});
 	}
 
 	@Test
-	void noRegistrationIfHazelcastInstanceHasCustomBeanName() {
+	public void noRegistrationIfHazelcastInstanceHasCustomBeanName() {
 		this.contextRunner.withUserConfiguration(HazelcastCustomNameConfiguration.class).run((context) -> {
 			assertThat(entityManagerFactoryDependencies(context)).doesNotContain("hazelcastInstance");
-			assertThat(postProcessors(context)).doesNotContainKey(POST_PROCESSOR_BEAN_NAME);
+			assertThat(postProcessors(context)).doesNotContainKey("hazelcastInstanceJpaDependencyPostProcessor");
 		});
 	}
 
 	@Test
-	void noRegistrationWithNoHazelcastInstance() {
+	public void noRegistrationWithNoHazelcastInstance() {
 		this.contextRunner.run((context) -> {
 			assertThat(entityManagerFactoryDependencies(context)).doesNotContain("hazelcastInstance");
-			assertThat(postProcessors(context)).doesNotContainKey(POST_PROCESSOR_BEAN_NAME);
+			assertThat(postProcessors(context)).doesNotContainKey("hazelcastInstanceJpaDependencyPostProcessor");
 		});
 	}
 
 	@Test
-	void noRegistrationWithNoEntityManagerFactory() {
+	public void noRegistrationWithNoEntityManagerFactory() {
 		new ApplicationContextRunner().withUserConfiguration(HazelcastConfiguration.class)
 				.withConfiguration(AutoConfigurations.of(HazelcastJpaDependencyAutoConfiguration.class))
-				.run((context) -> assertThat(postProcessors(context)).doesNotContainKey(POST_PROCESSOR_BEAN_NAME));
+				.run((context) -> assertThat(postProcessors(context))
+						.doesNotContainKey("hazelcastInstanceJpaDependencyPostProcessor"));
 	}
 
 	private Map<String, EntityManagerFactoryDependsOnPostProcessor> postProcessors(
@@ -96,21 +93,21 @@ class HazelcastJpaDependencyAutoConfigurationTests {
 		return (dependsOn != null) ? Arrays.asList(dependsOn) : Collections.emptyList();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class HazelcastConfiguration {
 
 		@Bean
-		HazelcastInstance hazelcastInstance() {
+		public HazelcastInstance hazelcastInstance() {
 			return mock(HazelcastInstance.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class HazelcastCustomNameConfiguration {
 
 		@Bean
-		HazelcastInstance myHazelcastInstance() {
+		public HazelcastInstance myHazelcastInstance() {
 			return mock(HazelcastInstance.class);
 		}
 

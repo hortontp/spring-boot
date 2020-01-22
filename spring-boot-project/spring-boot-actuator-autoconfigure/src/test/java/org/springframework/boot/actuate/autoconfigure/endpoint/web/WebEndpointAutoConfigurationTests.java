@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.ExposeExcludePropertyEndpointFilter;
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Yunkun Huang
  * @author Phillip Webb
  */
-class WebEndpointAutoConfigurationTests {
+public class WebEndpointAutoConfigurationTests {
 
 	private static final AutoConfigurations CONFIGURATIONS = AutoConfigurations.of(EndpointAutoConfiguration.class,
 			WebEndpointAutoConfiguration.class);
@@ -58,16 +58,15 @@ class WebEndpointAutoConfigurationTests {
 			.withConfiguration(CONFIGURATIONS);
 
 	@Test
-	void webApplicationConfiguresEndpointMediaTypes() {
+	public void webApplicationConfiguresEndpointMediaTypes() {
 		this.contextRunner.run((context) -> {
 			EndpointMediaTypes endpointMediaTypes = context.getBean(EndpointMediaTypes.class);
-			assertThat(endpointMediaTypes.getConsumed()).containsExactly(ActuatorMediaType.V3_JSON,
-					ActuatorMediaType.V2_JSON, "application/json");
+			assertThat(endpointMediaTypes.getConsumed()).containsExactly(ActuatorMediaType.V2_JSON, "application/json");
 		});
 	}
 
 	@Test
-	void webApplicationConfiguresPathMapper() {
+	public void webApplicationConfiguresPathMapper() {
 		this.contextRunner.withPropertyValues("management.endpoints.web.path-mapping.health=healthcheck")
 				.run((context) -> {
 					assertThat(context).hasSingleBean(PathMapper.class);
@@ -77,7 +76,7 @@ class WebEndpointAutoConfigurationTests {
 	}
 
 	@Test
-	void webApplicationSupportCustomPathMatcher() {
+	public void webApplicationSupportCustomPathMatcher() {
 		this.contextRunner
 				.withPropertyValues("management.endpoints.web.exposure.include=*",
 						"management.endpoints.web.path-mapping.testanotherone=foo")
@@ -94,7 +93,7 @@ class WebEndpointAutoConfigurationTests {
 	}
 
 	@Test
-	void webApplicationConfiguresEndpointDiscoverer() {
+	public void webApplicationConfiguresEndpointDiscoverer() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(ControllerEndpointDiscoverer.class);
 			assertThat(context).hasSingleBean(WebEndpointDiscoverer.class);
@@ -102,25 +101,25 @@ class WebEndpointAutoConfigurationTests {
 	}
 
 	@Test
-	void webApplicationConfiguresExposeExcludePropertyEndpointFilter() {
+	public void webApplicationConfiguresExposeExcludePropertyEndpointFilter() {
 		this.contextRunner
 				.run((context) -> assertThat(context).getBeans(ExposeExcludePropertyEndpointFilter.class).containsKeys(
 						"webExposeExcludePropertyEndpointFilter", "controllerExposeExcludePropertyEndpointFilter"));
 	}
 
 	@Test
-	void contextShouldConfigureServletEndpointDiscoverer() {
+	public void contextShouldConfigureServletEndpointDiscoverer() {
 		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(ServletEndpointDiscoverer.class));
 	}
 
 	@Test
-	void contextWhenNotServletShouldNotConfigureServletEndpointDiscoverer() {
+	public void contextWhenNotServletShouldNotConfigureServletEndpointDiscoverer() {
 		new ApplicationContextRunner().withConfiguration(CONFIGURATIONS)
 				.run((context) -> assertThat(context).doesNotHaveBean(ServletEndpointDiscoverer.class));
 	}
 
 	@Component
-	static class TestPathMatcher implements PathMapper {
+	private static class TestPathMatcher implements PathMapper {
 
 		@Override
 		public String getRootPath(EndpointId endpointId) {
@@ -134,19 +133,19 @@ class WebEndpointAutoConfigurationTests {
 
 	@Component
 	@Endpoint(id = "testone")
-	static class TestOneEndpoint {
+	private static class TestOneEndpoint {
 
 	}
 
 	@Component
 	@Endpoint(id = "testanotherone")
-	static class TestAnotherOneEndpoint {
+	private static class TestAnotherOneEndpoint {
 
 	}
 
 	@Component
 	@Endpoint(id = "testtwo")
-	static class TestTwoEndpoint {
+	private static class TestTwoEndpoint {
 
 	}
 

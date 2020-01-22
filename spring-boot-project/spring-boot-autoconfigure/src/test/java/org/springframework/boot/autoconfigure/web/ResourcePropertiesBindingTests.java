@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.web;
 
 import java.util.function.Consumer;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
@@ -33,13 +33,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class ResourcePropertiesBindingTests {
+public class ResourcePropertiesBindingTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(TestConfiguration.class);
 
 	@Test
-	void staticLocationsExpandArray() {
+	public void staticLocationsExpandArray() {
 		this.contextRunner
 				.withPropertyValues("spring.resources.static-locations[0]=classpath:/one/",
 						"spring.resources.static-locations[1]=classpath:/two",
@@ -60,7 +60,7 @@ class ResourcePropertiesBindingTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties(ResourceProperties.class)
 	static class TestConfiguration {
 

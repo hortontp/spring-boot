@@ -27,8 +27,8 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -47,7 +47,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Web {@link Endpoint @Endpoint} to expose heap dumps.
+ * Web {@link Endpoint} to expose heap dumps.
  *
  * @author Lari Hotari
  * @author Phillip Webb
@@ -106,7 +106,7 @@ public class HeapDumpWebEndpoint {
 	}
 
 	private File createTempFile(boolean live) throws IOException {
-		String date = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm").format(LocalDateTime.now());
+		String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
 		File file = File.createTempFile("heapdump" + date + (live ? "-live" : ""), ".hprof");
 		file.delete();
 		return file;

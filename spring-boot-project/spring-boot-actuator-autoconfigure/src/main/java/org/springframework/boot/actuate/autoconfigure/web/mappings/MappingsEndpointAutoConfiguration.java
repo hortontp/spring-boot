@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.web.mappings;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingDescriptionProvider;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.actuate.web.mappings.reactive.DispatcherHandlersMappingDescriptionProvider;
@@ -43,18 +43,18 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @author Andy Wilkinson
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class MappingsEndpointAutoConfiguration {
 
 	@Bean
-	@ConditionalOnAvailableEndpoint
+	@ConditionalOnEnabledEndpoint
 	public MappingsEndpoint mappingsEndpoint(ApplicationContext applicationContext,
 			ObjectProvider<MappingDescriptionProvider> descriptionProviders) {
 		return new MappingsEndpoint(descriptionProviders.orderedStream().collect(Collectors.toList()),
 				applicationContext);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	static class ServletWebConfiguration {
 
@@ -68,7 +68,7 @@ public class MappingsEndpointAutoConfiguration {
 			return new FiltersMappingDescriptionProvider();
 		}
 
-		@Configuration(proxyBeanMethods = false)
+		@Configuration
 		@ConditionalOnClass(DispatcherServlet.class)
 		@ConditionalOnBean(DispatcherServlet.class)
 		static class SpringMvcConfiguration {
@@ -82,14 +82,14 @@ public class MappingsEndpointAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnWebApplication(type = Type.REACTIVE)
 	@ConditionalOnClass(DispatcherHandler.class)
 	@ConditionalOnBean(DispatcherHandler.class)
 	static class ReactiveWebConfiguration {
 
 		@Bean
-		DispatcherHandlersMappingDescriptionProvider dispatcherHandlerMappingDescriptionProvider() {
+		public DispatcherHandlersMappingDescriptionProvider dispatcherHandlerMappingDescriptionProvider() {
 			return new DispatcherHandlersMappingDescriptionProvider();
 		}
 

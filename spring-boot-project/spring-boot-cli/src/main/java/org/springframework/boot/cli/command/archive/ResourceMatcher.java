@@ -59,7 +59,7 @@ class ResourceMatcher {
 		this.excludes = getOptions(excludes, DEFAULT_EXCLUDES);
 	}
 
-	List<MatchedResource> find(List<File> roots) throws IOException {
+	public List<MatchedResource> find(List<File> roots) throws IOException {
 		List<MatchedResource> matchedResources = new ArrayList<>();
 		for (File root : roots) {
 			if (root.isFile()) {

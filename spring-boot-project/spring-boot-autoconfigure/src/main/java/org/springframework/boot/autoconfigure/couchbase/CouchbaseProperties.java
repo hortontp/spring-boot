@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.util.StringUtils;
  * @author Eddú Meléndez
  * @author Stephane Nicoll
  * @author Yulin Qin
- * @author Brian Clozel
  * @since 1.4.0
  */
 @ConfigurationProperties(prefix = "spring.couchbase")
@@ -38,16 +37,6 @@ public class CouchbaseProperties {
 	 * Couchbase nodes (host or IP address) to bootstrap from.
 	 */
 	private List<String> bootstrapHosts;
-
-	/**
-	 * Cluster username when using role based access.
-	 */
-	private String username;
-
-	/**
-	 * Cluster password when using role based access.
-	 */
-	private String password;
 
 	private final Bucket bucket = new Bucket();
 
@@ -59,22 +48,6 @@ public class CouchbaseProperties {
 
 	public void setBootstrapHosts(List<String> bootstrapHosts) {
 		this.bootstrapHosts = bootstrapHosts;
-	}
-
-	public String getUsername() {
-		return this.username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public Bucket getBucket() {
@@ -117,17 +90,11 @@ public class CouchbaseProperties {
 
 	public static class Env {
 
-		private final Bootstrap bootstrap = new Bootstrap();
-
 		private final Endpoints endpoints = new Endpoints();
 
 		private final Ssl ssl = new Ssl();
 
 		private final Timeouts timeouts = new Timeouts();
-
-		public Bootstrap getBootstrap() {
-			return this.bootstrap;
-		}
 
 		public Endpoints getEndpoints() {
 			return this.endpoints;
@@ -317,36 +284,6 @@ public class CouchbaseProperties {
 
 		public void setView(Duration view) {
 			this.view = view;
-		}
-
-	}
-
-	public static class Bootstrap {
-
-		/**
-		 * Port for the HTTP bootstrap.
-		 */
-		private Integer httpDirectPort;
-
-		/**
-		 * Port for the HTTPS bootstrap.
-		 */
-		private Integer httpSslPort;
-
-		public Integer getHttpDirectPort() {
-			return this.httpDirectPort;
-		}
-
-		public void setHttpDirectPort(Integer httpDirectPort) {
-			this.httpDirectPort = httpDirectPort;
-		}
-
-		public Integer getHttpSslPort() {
-			return this.httpSslPort;
-		}
-
-		public void setHttpSslPort(Integer httpSslPort) {
-			this.httpSslPort = httpSslPort;
 		}
 
 	}

@@ -117,7 +117,10 @@ class DataSourceInitializedPublisher implements BeanPostProcessor {
 				: "none");
 		Map<String, Object> hibernate = this.hibernateProperties.determineHibernateProperties(
 				this.jpaProperties.getProperties(), new HibernateSettings().ddlAuto(defaultDdlAuto));
-		return hibernate.containsKey("hibernate.hbm2ddl.auto");
+		if (hibernate.containsKey("hibernate.hbm2ddl.auto")) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

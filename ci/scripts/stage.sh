@@ -12,7 +12,7 @@ git clone git-repo stage-git-repo > /dev/null
 
 pushd stage-git-repo > /dev/null
 
-snapshotVersion=$( awk -F '=' '$1 == "version" { print $2 }' gradle.properties )
+snapshotVersion=$( get_revision_from_pom )
 if [[ $RELEASE_TYPE = "M" ]]; then
 	stageVersion=$( get_next_milestone_release $snapshotVersion)
 	nextVersion=$snapshotVersion
@@ -27,20 +27,23 @@ else
 fi
 
 echo "Staging $stageVersion (next version will be $nextVersion)"
-sed -i "s/version=$snapshotVersion/version=$stageVersion/" gradle.properties
 
+set_revision_to_pom "$stageVersion"
 git config user.name "Spring Buildmaster" > /dev/null
 git config user.email "buildmaster@springframework.org" > /dev/null
-git add gradle.properties > /dev/null
+git add pom.xml > /dev/null
 git commit -m"Release v$stageVersion" > /dev/null
 git tag -a "v$stageVersion" -m"Release v$stageVersion" > /dev/null
 
-./gradlew --no-daemon --max-workers=4 -PdeploymentRepository=${repository} build publishAllPublicationsToDeploymentRepository
+run_maven -f spring-boot-project/pom.xml clean deploy -U -Dfull -DaltDeploymentRepository=distribution::default::file://${repository}
+run_maven -f spring-boot-samples/pom.xml clean install -U -Dfull -Drepository=file://${repository}
+run_maven -f spring-boot-tests/spring-boot-integration-tests/pom.xml clean install -U -Dfull -Drepository=file://${repository}
+run_maven -f spring-boot-tests/spring-boot-deployment-tests/pom.xml clean install -U -Dfull -Drepository=file://${repository}
 
 git reset --hard HEAD^ > /dev/null
 if [[ $nextVersion != $snapshotVersion ]]; then
 	echo "Setting next development version (v$nextVersion)"
-	sed -i "s/version=$snapshotVersion/version=$nextVersion/" gradle.properties
+	set_revision_to_pom "$nextVersion"
 	git add pom.xml > /dev/null
 	git commit -m"Next development version (v$nextVersion)" > /dev/null
 fi;

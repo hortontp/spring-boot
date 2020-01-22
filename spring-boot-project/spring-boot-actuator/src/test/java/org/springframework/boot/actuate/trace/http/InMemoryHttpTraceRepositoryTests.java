@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.trace.http;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -30,12 +30,12 @@ import static org.mockito.Mockito.mock;
  * @author Dave Syer
  * @author Andy Wilkinson
  */
-class InMemoryHttpTraceRepositoryTests {
+public class InMemoryHttpTraceRepositoryTests {
 
 	private final InMemoryHttpTraceRepository repository = new InMemoryHttpTraceRepository();
 
 	@Test
-	void capacityLimited() {
+	public void capacityLimited() {
 		this.repository.setCapacity(2);
 		this.repository.add(new HttpTrace(createRequest("GET")));
 		this.repository.add(new HttpTrace(createRequest("POST")));
@@ -47,7 +47,7 @@ class InMemoryHttpTraceRepositoryTests {
 	}
 
 	@Test
-	void reverseFalse() {
+	public void reverseFalse() {
 		this.repository.setReverse(false);
 		this.repository.setCapacity(2);
 		this.repository.add(new HttpTrace(createRequest("GET")));

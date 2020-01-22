@@ -49,7 +49,7 @@ import org.springframework.kafka.transaction.KafkaTransactionManager;
  * @author Nakul Mishra
  * @since 1.5.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(KafkaTemplate.class)
 @EnableConfigurationProperties(KafkaProperties.class)
 @Import({ KafkaAnnotationDrivenConfiguration.class, KafkaStreamsAnnotationDrivenConfiguration.class })
@@ -57,17 +57,21 @@ public class KafkaAutoConfiguration {
 
 	private final KafkaProperties properties;
 
-	public KafkaAutoConfiguration(KafkaProperties properties) {
+	private final RecordMessageConverter messageConverter;
+
+	public KafkaAutoConfiguration(KafkaProperties properties, ObjectProvider<RecordMessageConverter> messageConverter) {
 		this.properties = properties;
+		this.messageConverter = messageConverter.getIfUnique();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(KafkaTemplate.class)
 	public KafkaTemplate<?, ?> kafkaTemplate(ProducerFactory<Object, Object> kafkaProducerFactory,
-			ProducerListener<Object, Object> kafkaProducerListener,
-			ObjectProvider<RecordMessageConverter> messageConverter) {
+			ProducerListener<Object, Object> kafkaProducerListener) {
 		KafkaTemplate<Object, Object> kafkaTemplate = new KafkaTemplate<>(kafkaProducerFactory);
-		messageConverter.ifUnique(kafkaTemplate::setMessageConverter);
+		if (this.messageConverter != null) {
+			kafkaTemplate.setMessageConverter(this.messageConverter);
+		}
 		kafkaTemplate.setProducerListener(kafkaProducerListener);
 		kafkaTemplate.setDefaultTopic(this.properties.getTemplate().getDefaultTopic());
 		return kafkaTemplate;

@@ -19,11 +19,12 @@ package org.springframework.boot.autoconfigure.data.couchbase;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.TestAutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseAutoConfigurationTests;
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseTestConfigurer;
 import org.springframework.boot.autoconfigure.data.couchbase.city.CityRepository;
 import org.springframework.boot.autoconfigure.data.couchbase.city.ReactiveCityRepository;
@@ -45,17 +46,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class CouchbaseReactiveAndImperativeRepositoriesAutoConfigurationTests {
+public class CouchbaseReactiveAndImperativeRepositoriesAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		this.context.close();
 	}
 
 	@Test
-	void shouldCreateInstancesForReactiveAndImperativeRepositories() {
+	public void shouldCreateInstancesForReactiveAndImperativeRepositories() {
 		this.context = new AnnotationConfigApplicationContext();
 		TestPropertyValues.of("spring.datasource.initialization-mode:never").applyTo(this.context);
 		this.context.register(ImperativeAndReactiveConfiguration.class, BaseConfiguration.class);
@@ -64,21 +65,21 @@ class CouchbaseReactiveAndImperativeRepositoriesAutoConfigurationTests {
 		assertThat(this.context.getBean(ReactiveCityRepository.class)).isNotNull();
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	@TestAutoConfigurationPackage(CouchbaseAutoConfiguration.class)
+	@Configuration
+	@TestAutoConfigurationPackage(CouchbaseAutoConfigurationTests.class)
 	@EnableCouchbaseRepositories(basePackageClasses = CityRepository.class)
 	@EnableReactiveCouchbaseRepositories(basePackageClasses = ReactiveCityRepository.class)
-	static class ImperativeAndReactiveConfiguration {
+	protected static class ImperativeAndReactiveConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import({ CouchbaseTestConfigurer.class, Registrar.class })
-	static class BaseConfiguration {
+	protected static class BaseConfiguration {
 
 	}
 
-	static class Registrar implements ImportSelector {
+	protected static class Registrar implements ImportSelector {
 
 		@Override
 		public String[] selectImports(AnnotationMetadata importingClassMetadata) {

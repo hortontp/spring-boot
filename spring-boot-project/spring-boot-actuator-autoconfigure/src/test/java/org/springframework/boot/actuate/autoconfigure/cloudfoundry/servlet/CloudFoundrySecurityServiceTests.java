@@ -19,8 +19,8 @@ package org.springframework.boot.actuate.autoconfigure.cloudfoundry.servlet;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.cloudfoundry.AccessLevel;
 import org.springframework.boot.actuate.autoconfigure.cloudfoundry.CloudFoundryAuthorizationException;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  *
  * @author Madhura Bhave
  */
-class CloudFoundrySecurityServiceTests {
+public class CloudFoundrySecurityServiceTests {
 
 	private static final String CLOUD_CONTROLLER = "https://my-cloud-controller.com";
 
@@ -59,8 +59,8 @@ class CloudFoundrySecurityServiceTests {
 
 	private MockRestServiceServer server;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockServerRestTemplateCustomizer mockServerCustomizer = new MockServerRestTemplateCustomizer();
 		RestTemplateBuilder builder = new RestTemplateBuilder(mockServerCustomizer);
 		this.securityService = new CloudFoundrySecurityService(builder, CLOUD_CONTROLLER, false);
@@ -68,7 +68,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void skipSslValidationWhenTrue() {
+	public void skipSslValidationWhenTrue() {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
 		this.securityService = new CloudFoundrySecurityService(builder, CLOUD_CONTROLLER, true);
 		RestTemplate restTemplate = (RestTemplate) ReflectionTestUtils.getField(this.securityService, "restTemplate");
@@ -76,7 +76,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void doNotskipSslValidationWhenFalse() {
+	public void doNotskipSslValidationWhenFalse() {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
 		this.securityService = new CloudFoundrySecurityService(builder, CLOUD_CONTROLLER, false);
 		RestTemplate restTemplate = (RestTemplate) ReflectionTestUtils.getField(this.securityService, "restTemplate");
@@ -84,7 +84,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getAccessLevelWhenSpaceDeveloperShouldReturnFull() {
+	public void getAccessLevelWhenSpaceDeveloperShouldReturnFull() {
 		String responseBody = "{\"read_sensitive_data\": true,\"read_basic_data\": true}";
 		this.server.expect(requestTo(CLOUD_CONTROLLER_PERMISSIONS))
 				.andExpect(header("Authorization", "bearer my-access-token"))
@@ -95,7 +95,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getAccessLevelWhenNotSpaceDeveloperShouldReturnRestricted() {
+	public void getAccessLevelWhenNotSpaceDeveloperShouldReturnRestricted() {
 		String responseBody = "{\"read_sensitive_data\": false,\"read_basic_data\": true}";
 		this.server.expect(requestTo(CLOUD_CONTROLLER_PERMISSIONS))
 				.andExpect(header("Authorization", "bearer my-access-token"))
@@ -106,7 +106,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getAccessLevelWhenTokenIsNotValidShouldThrowException() {
+	public void getAccessLevelWhenTokenIsNotValidShouldThrowException() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER_PERMISSIONS))
 				.andExpect(header("Authorization", "bearer my-access-token")).andRespond(withUnauthorizedRequest());
 		assertThatExceptionOfType(CloudFoundryAuthorizationException.class)
@@ -115,7 +115,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getAccessLevelWhenForbiddenShouldThrowException() {
+	public void getAccessLevelWhenForbiddenShouldThrowException() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER_PERMISSIONS))
 				.andExpect(header("Authorization", "bearer my-access-token"))
 				.andRespond(withStatus(HttpStatus.FORBIDDEN));
@@ -125,7 +125,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getAccessLevelWhenCloudControllerIsNotReachableThrowsException() {
+	public void getAccessLevelWhenCloudControllerIsNotReachableThrowsException() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER_PERMISSIONS))
 				.andExpect(header("Authorization", "bearer my-access-token")).andRespond(withServerError());
 		assertThatExceptionOfType(CloudFoundryAuthorizationException.class)
@@ -134,7 +134,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void fetchTokenKeysWhenSuccessfulShouldReturnListOfKeysFromUAA() {
+	public void fetchTokenKeysWhenSuccessfulShouldReturnListOfKeysFromUAA() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER + "/info"))
 				.andRespond(withSuccess("{\"token_endpoint\":\"https://my-uaa.com\"}", MediaType.APPLICATION_JSON));
 		String tokenKeyValue = "-----BEGIN PUBLIC KEY-----\n"
@@ -155,7 +155,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void fetchTokenKeysWhenNoKeysReturnedFromUAA() {
+	public void fetchTokenKeysWhenNoKeysReturnedFromUAA() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER + "/info"))
 				.andRespond(withSuccess("{\"token_endpoint\":\"" + UAA_URL + "\"}", MediaType.APPLICATION_JSON));
 		String responseBody = "{\"keys\": []}";
@@ -167,7 +167,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void fetchTokenKeysWhenUnsuccessfulShouldThrowException() {
+	public void fetchTokenKeysWhenUnsuccessfulShouldThrowException() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER + "/info"))
 				.andRespond(withSuccess("{\"token_endpoint\":\"" + UAA_URL + "\"}", MediaType.APPLICATION_JSON));
 		this.server.expect(requestTo(UAA_URL + "/token_keys")).andRespond(withServerError());
@@ -177,7 +177,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getUaaUrlShouldCallCloudControllerInfoOnlyOnce() {
+	public void getUaaUrlShouldCallCloudControllerInfoOnlyOnce() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER + "/info"))
 				.andRespond(withSuccess("{\"token_endpoint\":\"" + UAA_URL + "\"}", MediaType.APPLICATION_JSON));
 		String uaaUrl = this.securityService.getUaaUrl();
@@ -189,7 +189,7 @@ class CloudFoundrySecurityServiceTests {
 	}
 
 	@Test
-	void getUaaUrlWhenCloudControllerUrlIsNotReachableShouldThrowException() {
+	public void getUaaUrlWhenCloudControllerUrlIsNotReachableShouldThrowException() {
 		this.server.expect(requestTo(CLOUD_CONTROLLER + "/info")).andRespond(withServerError());
 		assertThatExceptionOfType(CloudFoundryAuthorizationException.class)
 				.isThrownBy(() -> this.securityService.getUaaUrl())

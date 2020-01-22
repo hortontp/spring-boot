@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.jsonb;
 
 import javax.json.bind.Jsonb;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -30,13 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Eddú Meléndez
  */
-class JsonbAutoConfigurationTests {
+public class JsonbAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(JsonbAutoConfiguration.class));
 
 	@Test
-	void jsonbRegistration() {
+	public void jsonbRegistration() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(Jsonb.class);
 			Jsonb jsonb = context.getBean(Jsonb.class);

@@ -52,7 +52,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -90,27 +89,26 @@ public class JerseyWebEndpointIntegrationTests
 		// Jersey doesn't support the general error page handling
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class JerseyConfiguration {
 
 		@Bean
-		TomcatServletWebServerFactory tomcat() {
+		public TomcatServletWebServerFactory tomcat() {
 			return new TomcatServletWebServerFactory(0);
 		}
 
 		@Bean
-		ServletRegistrationBean<ServletContainer> servletContainer(ResourceConfig resourceConfig) {
+		public ServletRegistrationBean<ServletContainer> servletContainer(ResourceConfig resourceConfig) {
 			return new ServletRegistrationBean<>(new ServletContainer(resourceConfig), "/*");
 		}
 
 		@Bean
-		ResourceConfig resourceConfig(Environment environment, WebEndpointDiscoverer endpointDiscoverer,
+		public ResourceConfig resourceConfig(Environment environment, WebEndpointDiscoverer endpointDiscoverer,
 				EndpointMediaTypes endpointMediaTypes) {
 			ResourceConfig resourceConfig = new ResourceConfig();
-			String endpointPath = environment.getProperty("endpointPath");
 			Collection<Resource> resources = new JerseyEndpointResourceFactory().createEndpointResources(
-					new EndpointMapping(endpointPath), endpointDiscoverer.getEndpoints(), endpointMediaTypes,
-					new EndpointLinksResolver(endpointDiscoverer.getEndpoints()), StringUtils.hasText(endpointPath));
+					new EndpointMapping(environment.getProperty("endpointPath")), endpointDiscoverer.getEndpoints(),
+					endpointMediaTypes, new EndpointLinksResolver(endpointDiscoverer.getEndpoints()));
 			resourceConfig.registerResources(new HashSet<>(resources));
 			resourceConfig.register(JacksonFeature.class);
 			resourceConfig.register(new ObjectMapperContextResolver(new ObjectMapper()), ContextResolver.class);
@@ -119,11 +117,11 @@ public class JerseyWebEndpointIntegrationTests
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class AuthenticatedConfiguration {
 
 		@Bean
-		Filter securityFilter() {
+		public Filter securityFilter() {
 			return new OncePerRequestFilter() {
 
 				@Override

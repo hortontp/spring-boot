@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,12 @@ public class JacksonProperties {
 	 * `yyyy-MM-dd HH:mm:ss`.
 	 */
 	private String dateFormat;
+
+	/**
+	 * Joda date time format string. If not configured, "date-format" is used as a
+	 * fallback if it is configured with a format string.
+	 */
+	private String jodaDateTimeFormat;
 
 	/**
 	 * One of the constants on Jackson's PropertyNamingStrategy. Can also be a
@@ -109,6 +115,14 @@ public class JacksonProperties {
 
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
+	}
+
+	public String getJodaDateTimeFormat() {
+		return this.jodaDateTimeFormat;
+	}
+
+	public void setJodaDateTimeFormat(String jodaDataTimeFormat) {
+		this.jodaDateTimeFormat = jodaDataTimeFormat;
 	}
 
 	public String getPropertyNamingStrategy() {

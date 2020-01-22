@@ -27,8 +27,8 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.URLName;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -45,14 +45,14 @@ import static org.mockito.Mockito.mock;
  * @author Johannes Edmeier
  * @author Stephane Nicoll
  */
-class MailHealthIndicatorTests {
+public class MailHealthIndicatorTests {
 
 	private JavaMailSenderImpl mailSender;
 
 	private MailHealthIndicator indicator;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		Session session = Session.getDefaultInstance(new Properties());
 		session.addProvider(new Provider(Type.TRANSPORT, "success", SuccessTransport.class.getName(), "Test", "1.0.0"));
 		this.mailSender = mock(JavaMailSenderImpl.class);
@@ -63,7 +63,7 @@ class MailHealthIndicatorTests {
 	}
 
 	@Test
-	void smtpIsUp() {
+	public void smtpIsUp() {
 		given(this.mailSender.getProtocol()).willReturn("success");
 		Health health = this.indicator.health();
 		assertThat(health.getStatus()).isEqualTo(Status.UP);
@@ -71,7 +71,7 @@ class MailHealthIndicatorTests {
 	}
 
 	@Test
-	void smtpIsDown() throws MessagingException {
+	public void smtpIsDown() throws MessagingException {
 		willThrow(new MessagingException("A test exception")).given(this.mailSender).testConnection();
 		Health health = this.indicator.health();
 		assertThat(health.getStatus()).isEqualTo(Status.DOWN);
@@ -81,9 +81,9 @@ class MailHealthIndicatorTests {
 		assertThat(errorMessage.toString().contains("A test exception")).isTrue();
 	}
 
-	static class SuccessTransport extends Transport {
+	public static class SuccessTransport extends Transport {
 
-		SuccessTransport(Session session, URLName urlName) {
+		public SuccessTransport(Session session, URLName urlName) {
 			super(session, urlName);
 		}
 

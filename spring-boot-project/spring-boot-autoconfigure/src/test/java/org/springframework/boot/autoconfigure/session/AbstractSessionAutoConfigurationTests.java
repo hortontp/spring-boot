@@ -61,7 +61,7 @@ public abstract class AbstractSessionAutoConfigurationTests {
 	static class SessionRepositoryConfiguration {
 
 		@Bean
-		MapSessionRepository mySessionRepository() {
+		public MapSessionRepository mySessionRepository() {
 			return new MapSessionRepository(Collections.emptyMap());
 		}
 

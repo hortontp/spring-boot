@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
@@ -41,16 +42,15 @@ import static org.mockito.Mockito.mock;
  *
  * @author Eric Spiegelberg
  * @author Stephane Nicoll
- * @author Michael Simons
  */
-class Neo4jHealthIndicatorTests {
+public class Neo4jHealthIndicatorTests {
 
 	private Session session;
 
 	private Neo4jHealthIndicator neo4jHealthIndicator;
 
-	@BeforeEach
-	void before() {
+	@Before
+	public void before() {
 		this.session = mock(Session.class);
 		SessionFactory sessionFactory = mock(SessionFactory.class);
 		given(sessionFactory.openSession()).willReturn(this.session);
@@ -58,7 +58,7 @@ class Neo4jHealthIndicatorTests {
 	}
 
 	@Test
-	void neo4jUp() {
+	public void neo4jUp() {
 		Result result = mock(Result.class);
 		given(this.session.query(Neo4jHealthIndicator.CYPHER, Collections.emptyMap())).willReturn(result);
 		int nodeCount = 500;
@@ -71,13 +71,13 @@ class Neo4jHealthIndicatorTests {
 		assertThat(health.getStatus()).isEqualTo(Status.UP);
 		Map<String, Object> details = health.getDetails();
 		int nodeCountFromDetails = (int) details.get("nodes");
-		assertThat(nodeCountFromDetails).isEqualTo(nodeCount);
+		Assert.assertEquals(nodeCount, nodeCountFromDetails);
 	}
 
 	@Test
-	void neo4jDown() {
+	public void neo4jDown() {
 		CypherException cypherException = new CypherException("Neo.ClientError.Statement.SyntaxError",
-				"Error executing Cypher");
+				"Unable to execute invalid Cypher");
 		given(this.session.query(Neo4jHealthIndicator.CYPHER, Collections.emptyMap())).willThrow(cypherException);
 		Health health = this.neo4jHealthIndicator.health();
 		assertThat(health.getStatus()).isEqualTo(Status.DOWN);

@@ -36,7 +36,7 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
 		super("freemarker.template.Configuration", FreeMarkerTemplateAvailabilityProperties.class, "spring.freemarker");
 	}
 
-	protected static final class FreeMarkerTemplateAvailabilityProperties extends TemplateAvailabilityProperties {
+	static final class FreeMarkerTemplateAvailabilityProperties extends TemplateAvailabilityProperties {
 
 		private List<String> templateLoaderPath = new ArrayList<>(
 				Arrays.asList(FreeMarkerProperties.DEFAULT_TEMPLATE_LOADER_PATH));

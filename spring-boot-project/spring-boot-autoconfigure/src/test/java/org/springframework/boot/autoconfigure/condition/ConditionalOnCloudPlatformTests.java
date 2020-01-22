@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -26,47 +26,47 @@ import org.springframework.context.annotation.Configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnCloudPlatform @ConditionalOnCloudPlatform}.
+ * Tests for {@link ConditionalOnCloudPlatform}.
  */
-class ConditionalOnCloudPlatformTests {
+public class ConditionalOnCloudPlatformTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void outcomeWhenCloudfoundryPlatformNotPresentShouldNotMatch() {
+	public void outcomeWhenCloudfoundryPlatformNotPresentShouldNotMatch() {
 		this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
 				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
 	}
 
 	@Test
-	void outcomeWhenCloudfoundryPlatformPresentShouldMatch() {
+	public void outcomeWhenCloudfoundryPlatformPresentShouldMatch() {
 		this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
 				.withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
 	}
 
 	@Test
-	void outcomeWhenCloudfoundryPlatformPresentAndMethodTargetShouldMatch() {
+	public void outcomeWhenCloudfoundryPlatformPresentAndMethodTargetShouldMatch() {
 		this.contextRunner.withUserConfiguration(CloudFoundryPlatformOnMethodConfig.class)
 				.withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
 	static class CloudFoundryPlatformConfig {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CloudFoundryPlatformOnMethodConfig {
 
 		@Bean
 		@ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

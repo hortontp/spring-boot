@@ -38,49 +38,49 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(MeterBinder.class)
 class CacheMeterBinderProvidersConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ CaffeineCache.class, com.github.benmanes.caffeine.cache.Cache.class })
 	static class CaffeineCacheMeterBinderProviderConfiguration {
 
 		@Bean
-		CaffeineCacheMeterBinderProvider caffeineCacheMeterBinderProvider() {
+		public CaffeineCacheMeterBinderProvider caffeineCacheMeterBinderProvider() {
 			return new CaffeineCacheMeterBinderProvider();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ EhCacheCache.class, Ehcache.class })
 	static class EhCache2CacheMeterBinderProviderConfiguration {
 
 		@Bean
-		EhCache2CacheMeterBinderProvider ehCache2CacheMeterBinderProvider() {
+		public EhCache2CacheMeterBinderProvider ehCache2CacheMeterBinderProvider() {
 			return new EhCache2CacheMeterBinderProvider();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ HazelcastCache.class, Hazelcast.class })
 	static class HazelcastCacheMeterBinderProviderConfiguration {
 
 		@Bean
-		HazelcastCacheMeterBinderProvider hazelcastCacheMeterBinderProvider() {
+		public HazelcastCacheMeterBinderProvider hazelcastCacheMeterBinderProvider() {
 			return new HazelcastCacheMeterBinderProvider();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ JCacheCache.class, javax.cache.CacheManager.class })
 	static class JCacheCacheMeterBinderProviderConfiguration {
 
 		@Bean
-		JCacheCacheMeterBinderProvider jCacheCacheMeterBinderProvider() {
+		public JCacheCacheMeterBinderProvider jCacheCacheMeterBinderProvider() {
 			return new JCacheCacheMeterBinderProvider();
 		}
 

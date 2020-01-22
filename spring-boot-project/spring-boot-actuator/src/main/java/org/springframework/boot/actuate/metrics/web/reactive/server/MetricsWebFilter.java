@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import io.micrometer.core.instrument.Tag;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.actuate.metrics.AutoTimer;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -47,59 +46,61 @@ public class MetricsWebFilter implements WebFilter {
 
 	private final String metricName;
 
-	private final AutoTimer autoTimer;
+	private final boolean autoTimeRequests;
 
 	/**
 	 * Create a new {@code MetricsWebFilter}.
 	 * @param registry the registry to which metrics are recorded
 	 * @param tagsProvider provider for metrics tags
 	 * @param metricName name of the metric to record
-	 * @param autoTimer the auto-timers to apply or {@code null} to disable auto-timing
-	 * @since 2.2.0
+	 * @deprecated since 2.0.6 in favor of
+	 * {@link #MetricsWebFilter(MeterRegistry, WebFluxTagsProvider, String, boolean)}
 	 */
+	@Deprecated
+	public MetricsWebFilter(MeterRegistry registry, WebFluxTagsProvider tagsProvider, String metricName) {
+		this(registry, tagsProvider, metricName, true);
+	}
+
 	public MetricsWebFilter(MeterRegistry registry, WebFluxTagsProvider tagsProvider, String metricName,
-			AutoTimer autoTimer) {
+			boolean autoTimeRequests) {
 		this.registry = registry;
 		this.tagsProvider = tagsProvider;
 		this.metricName = metricName;
-		this.autoTimer = (autoTimer != null) ? autoTimer : AutoTimer.DISABLED;
+		this.autoTimeRequests = autoTimeRequests;
 	}
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		if (!this.autoTimer.isEnabled()) {
-			return chain.filter(exchange);
+		if (this.autoTimeRequests) {
+			return chain.filter(exchange).compose((call) -> filter(exchange, call));
 		}
-		return chain.filter(exchange).transformDeferred((call) -> filter(exchange, call));
+		return chain.filter(exchange);
 	}
 
 	private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {
 		long start = System.nanoTime();
-		return call.doOnSuccess((done) -> onSuccess(exchange, start))
-				.doOnError((cause) -> onError(exchange, start, cause));
-	}
-
-	private void onSuccess(ServerWebExchange exchange, long start) {
-		record(exchange, start, null);
-	}
-
-	private void onError(ServerWebExchange exchange, long start, Throwable cause) {
 		ServerHttpResponse response = exchange.getResponse();
-		if (response.isCommitted()) {
-			record(exchange, start, cause);
-		}
-		else {
-			response.beforeCommit(() -> {
-				record(exchange, start, cause);
-				return Mono.empty();
-			});
-		}
+		return call.doOnSuccess((done) -> success(exchange, start)).doOnError((cause) -> {
+			if (response.isCommitted()) {
+				error(exchange, start, cause);
+			}
+			else {
+				response.beforeCommit(() -> {
+					error(exchange, start, cause);
+					return Mono.empty();
+				});
+			}
+		});
 	}
 
-	private void record(ServerWebExchange exchange, long start, Throwable cause) {
+	private void success(ServerWebExchange exchange, long start) {
+		Iterable<Tag> tags = this.tagsProvider.httpRequestTags(exchange, null);
+		this.registry.timer(this.metricName, tags).record(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+	}
+
+	private void error(ServerWebExchange exchange, long start, Throwable cause) {
 		Iterable<Tag> tags = this.tagsProvider.httpRequestTags(exchange, cause);
-		this.autoTimer.builder(this.metricName).tags(tags).register(this.registry).record(System.nanoTime() - start,
-				TimeUnit.NANOSECONDS);
+		this.registry.timer(this.metricName, tags).record(System.nanoTime() - start, TimeUnit.NANOSECONDS);
 	}
 
 }

@@ -22,13 +22,15 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import org.springframework.util.Assert;
 
 /**
- * Carries information about the health of a component or subsystem. Extends
- * {@link HealthComponent} so that additional contextual details about the system can be
- * returned along with the {@link Status}.
+ * Carries information about the health of a component or subsystem.
+ * <p>
+ * {@link Health} contains a {@link Status} to express the state of a component or
+ * subsystem and some additional details to carry some contextual information.
  * <p>
  * {@link Health} instances can be created by using {@link Builder}'s fluent API. Typical
  * usage in a {@link HealthIndicator} would be:
@@ -36,10 +38,10 @@ import org.springframework.util.Assert;
  * <pre class="code">
  * try {
  * 	// do some test to determine state of component
- * 	return Health.up().withDetail("version", "1.1.2").build();
+ * 	return new Health.Builder().up().withDetail("version", "1.1.2").build();
  * }
  * catch (Exception ex) {
- * 	return Health.down(ex).build();
+ * 	return new Health.Builder().down(ex).build();
  * }
  * </pre>
  *
@@ -49,7 +51,7 @@ import org.springframework.util.Assert;
  * @since 1.1.0
  */
 @JsonInclude(Include.NON_EMPTY)
-public final class Health extends HealthComponent {
+public final class Health {
 
 	private final Status status;
 
@@ -65,16 +67,11 @@ public final class Health extends HealthComponent {
 		this.details = Collections.unmodifiableMap(builder.details);
 	}
 
-	Health(Status status, Map<String, Object> details) {
-		this.status = status;
-		this.details = details;
-	}
-
 	/**
 	 * Return the status of the health.
 	 * @return the status (never {@code null})
 	 */
-	@Override
+	@JsonUnwrapped
 	public Status getStatus() {
 		return this.status;
 	}
@@ -83,22 +80,8 @@ public final class Health extends HealthComponent {
 	 * Return the details of the health.
 	 * @return the details (or an empty map)
 	 */
-	@JsonInclude(Include.NON_EMPTY)
 	public Map<String, Object> getDetails() {
 		return this.details;
-	}
-
-	/**
-	 * Return a new instance of this {@link Health} with all {@link #getDetails() details}
-	 * removed.
-	 * @return a new instance without details
-	 * @since 2.2.0
-	 */
-	Health withoutDetails() {
-		if (this.details.isEmpty()) {
-			return this;
-		}
-		return status(getStatus()).build();
 	}
 
 	@Override
@@ -106,7 +89,7 @@ public final class Health extends HealthComponent {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof Health) {
+		if (obj != null && obj instanceof Health) {
 			Health other = (Health) obj;
 			return this.status.equals(other.status) && this.details.equals(other.details);
 		}

@@ -26,7 +26,7 @@ import org.springframework.session.SessionRepository;
  *
  * @author Tommy Ludwig
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnMissingBean(SessionRepository.class)
 @Conditional(ServletSessionCondition.class)
 class NoOpSessionConfiguration {

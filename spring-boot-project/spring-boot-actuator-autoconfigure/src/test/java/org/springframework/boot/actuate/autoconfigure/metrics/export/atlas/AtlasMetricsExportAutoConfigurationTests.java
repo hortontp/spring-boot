@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.metrics.export.atlas;
 import com.netflix.spectator.atlas.AtlasConfig;
 import io.micrometer.atlas.AtlasMeterRegistry;
 import io.micrometer.core.instrument.Clock;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -34,24 +34,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class AtlasMetricsExportAutoConfigurationTests {
+public class AtlasMetricsExportAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(AtlasMetricsExportAutoConfiguration.class));
 
 	@Test
-	void backsOffWithoutAClock() {
+	public void backsOffWithoutAClock() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(AtlasMeterRegistry.class));
 	}
 
 	@Test
-	void autoConfiguresItsConfigAndMeterRegistry() {
+	public void autoConfiguresItsConfigAndMeterRegistry() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class).run((context) -> assertThat(context)
 				.hasSingleBean(AtlasMeterRegistry.class).hasSingleBean(AtlasConfig.class));
 	}
 
 	@Test
-	void autoConfigurationCanBeDisabled() {
+	public void autoConfigurationCanBeDisabled() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.atlas.enabled=false")
 				.run((context) -> assertThat(context).doesNotHaveBean(AtlasMeterRegistry.class)
@@ -59,19 +59,19 @@ class AtlasMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void allowsCustomConfigToBeUsed() {
+	public void allowsCustomConfigToBeUsed() {
 		this.contextRunner.withUserConfiguration(CustomConfigConfiguration.class).run((context) -> assertThat(context)
 				.hasSingleBean(AtlasMeterRegistry.class).hasSingleBean(AtlasConfig.class).hasBean("customConfig"));
 	}
 
 	@Test
-	void allowsCustomRegistryToBeUsed() {
+	public void allowsCustomRegistryToBeUsed() {
 		this.contextRunner.withUserConfiguration(CustomRegistryConfiguration.class).run((context) -> assertThat(context)
 				.hasSingleBean(AtlasMeterRegistry.class).hasBean("customRegistry").hasSingleBean(AtlasConfig.class));
 	}
 
 	@Test
-	void stopsMeterRegistryWhenContextIsClosed() {
+	public void stopsMeterRegistryWhenContextIsClosed() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class).run((context) -> {
 			AtlasMeterRegistry registry = context.getBean(AtlasMeterRegistry.class);
 			assertThat(registry.isClosed()).isFalse();
@@ -80,33 +80,33 @@ class AtlasMetricsExportAutoConfigurationTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BaseConfiguration {
 
 		@Bean
-		Clock clock() {
+		public Clock clock() {
 			return Clock.SYSTEM;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomConfigConfiguration {
 
 		@Bean
-		AtlasConfig customConfig() {
+		public AtlasConfig customConfig() {
 			return (key) -> null;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomRegistryConfiguration {
 
 		@Bean
-		AtlasMeterRegistry customRegistry(AtlasConfig config, Clock clock) {
+		public AtlasMeterRegistry customRegistry(AtlasConfig config, Clock clock) {
 			return new AtlasMeterRegistry(config, clock);
 		}
 

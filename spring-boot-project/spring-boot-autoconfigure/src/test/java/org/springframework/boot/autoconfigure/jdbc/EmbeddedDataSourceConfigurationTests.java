@@ -22,8 +22,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -36,25 +36,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class EmbeddedDataSourceConfigurationTests {
+public class EmbeddedDataSourceConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterEach
-	void closeContext() {
+	@After
+	public void closeContext() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void defaultEmbeddedDatabase() {
+	public void defaultEmbeddedDatabase() {
 		this.context = load();
 		assertThat(this.context.getBean(DataSource.class)).isNotNull();
 	}
 
 	@Test
-	void generateUniqueName() throws Exception {
+	public void generateUniqueName() throws Exception {
 		this.context = load("spring.datasource.generate-unique-name=true");
 		try (AnnotationConfigApplicationContext context2 = load("spring.datasource.generate-unique-name=true")) {
 			DataSource dataSource = this.context.getBean(DataSource.class);

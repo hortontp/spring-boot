@@ -39,7 +39,7 @@ import org.springframework.transaction.jta.JtaTransactionManager;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(EnableJms.class)
 class JmsAnnotationDrivenConfiguration {
 
@@ -62,7 +62,7 @@ class JmsAnnotationDrivenConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	DefaultJmsListenerContainerFactoryConfigurer jmsListenerContainerFactoryConfigurer() {
+	public DefaultJmsListenerContainerFactoryConfigurer jmsListenerContainerFactoryConfigurer() {
 		DefaultJmsListenerContainerFactoryConfigurer configurer = new DefaultJmsListenerContainerFactoryConfigurer();
 		configurer.setDestinationResolver(this.destinationResolver.getIfUnique());
 		configurer.setTransactionManager(this.transactionManager.getIfUnique());
@@ -74,27 +74,27 @@ class JmsAnnotationDrivenConfiguration {
 	@Bean
 	@ConditionalOnSingleCandidate(ConnectionFactory.class)
 	@ConditionalOnMissingBean(name = "jmsListenerContainerFactory")
-	DefaultJmsListenerContainerFactory jmsListenerContainerFactory(
+	public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(
 			DefaultJmsListenerContainerFactoryConfigurer configurer, ConnectionFactory connectionFactory) {
 		DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
 		configurer.configure(factory, connectionFactory);
 		return factory;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableJms
 	@ConditionalOnMissingBean(name = JmsListenerConfigUtils.JMS_LISTENER_ANNOTATION_PROCESSOR_BEAN_NAME)
-	static class EnableJmsConfiguration {
+	protected static class EnableJmsConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJndi
-	static class JndiConfiguration {
+	protected static class JndiConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(DestinationResolver.class)
-		JndiDestinationResolver destinationResolver() {
+		public JndiDestinationResolver destinationResolver() {
 			JndiDestinationResolver resolver = new JndiDestinationResolver();
 			resolver.setFallbackToDynamicDestination(true);
 			return resolver;

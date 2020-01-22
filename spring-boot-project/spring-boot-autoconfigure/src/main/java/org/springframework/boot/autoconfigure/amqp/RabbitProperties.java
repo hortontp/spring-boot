@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory.CacheMode;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory.ConfirmType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
  * @author Josh Thornhill
  * @author Gary Russell
  * @author Artsiom Yudovin
- * @author Franjo Zilic
  * @since 1.0.0
  */
 @ConfigurationProperties(prefix = "spring.rabbitmq")
@@ -88,19 +87,14 @@ public class RabbitProperties {
 	private Duration requestedHeartbeat;
 
 	/**
-	 * Number of channels per connection requested by the client. Use 0 for unlimited.
+	 * Whether to enable publisher confirms.
 	 */
-	private int requestedChannelMax = 2047;
+	private boolean publisherConfirms;
 
 	/**
 	 * Whether to enable publisher returns.
 	 */
 	private boolean publisherReturns;
-
-	/**
-	 * Type of publisher confirms to use.
-	 */
-	private ConfirmType publisherConfirmType;
 
 	/**
 	 * Connection timeout. Set it to zero to wait forever.
@@ -280,12 +274,12 @@ public class RabbitProperties {
 		this.requestedHeartbeat = requestedHeartbeat;
 	}
 
-	public int getRequestedChannelMax() {
-		return this.requestedChannelMax;
+	public boolean isPublisherConfirms() {
+		return this.publisherConfirms;
 	}
 
-	public void setRequestedChannelMax(int requestedChannelMax) {
-		this.requestedChannelMax = requestedChannelMax;
+	public void setPublisherConfirms(boolean publisherConfirms) {
+		this.publisherConfirms = publisherConfirms;
 	}
 
 	public boolean isPublisherReturns() {
@@ -298,14 +292,6 @@ public class RabbitProperties {
 
 	public Duration getConnectionTimeout() {
 		return this.connectionTimeout;
-	}
-
-	public void setPublisherConfirmType(ConfirmType publisherConfirmType) {
-		this.publisherConfirmType = publisherConfirmType;
-	}
-
-	public ConfirmType getPublisherConfirmType() {
-		return this.publisherConfirmType;
 	}
 
 	public void setConnectionTimeout(Duration connectionTimeout) {
@@ -692,10 +678,10 @@ public class RabbitProperties {
 		private Integer maxConcurrency;
 
 		/**
-		 * Batch size, expressed as the number of physical messages, to be used by the
-		 * container.
+		 * Number of messages to be processed between acks when the acknowledge mode is
+		 * AUTO. If larger than prefetch, prefetch will be increased to this value.
 		 */
-		private Integer batchSize;
+		private Integer transactionSize;
 
 		/**
 		 * Whether to fail if the queues declared by the container are not available on
@@ -720,12 +706,12 @@ public class RabbitProperties {
 			this.maxConcurrency = maxConcurrency;
 		}
 
-		public Integer getBatchSize() {
-			return this.batchSize;
+		public Integer getTransactionSize() {
+			return this.transactionSize;
 		}
 
-		public void setBatchSize(Integer batchSize) {
-			this.batchSize = batchSize;
+		public void setTransactionSize(Integer transactionSize) {
+			this.transactionSize = transactionSize;
 		}
 
 		@Override
@@ -859,6 +845,17 @@ public class RabbitProperties {
 
 		public void setDefaultReceiveQueue(String defaultReceiveQueue) {
 			this.defaultReceiveQueue = defaultReceiveQueue;
+		}
+
+		@Deprecated
+		@DeprecatedConfigurationProperty(replacement = "spring.rabbitmq.template.default-receive-queue")
+		public String getQueue() {
+			return getDefaultReceiveQueue();
+		}
+
+		@Deprecated
+		public void setQueue(String queue) {
+			setDefaultReceiveQueue(queue);
 		}
 
 	}
@@ -1025,7 +1022,7 @@ public class RabbitProperties {
 			}
 			else {
 				this.host = input.substring(0, portIndex);
-				this.port = Integer.parseInt(input.substring(portIndex + 1));
+				this.port = Integer.valueOf(input.substring(portIndex + 1));
 			}
 		}
 

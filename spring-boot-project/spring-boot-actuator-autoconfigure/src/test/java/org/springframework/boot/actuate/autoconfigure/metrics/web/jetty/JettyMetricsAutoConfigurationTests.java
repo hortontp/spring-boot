@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.autoconfigure.metrics.web.jetty;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.metrics.web.jetty.JettyServerThreadPoolMetricsBinder;
@@ -44,10 +44,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  */
-class JettyMetricsAutoConfigurationTests {
+public class JettyMetricsAutoConfigurationTests {
 
 	@Test
-	void autoConfiguresThreadPoolMetricsWithEmbeddedServletJetty() {
+	public void autoConfiguresThreadPoolMetricsWithEmbeddedServletJetty() {
 		new WebApplicationContextRunner(AnnotationConfigServletWebServerApplicationContext::new)
 				.withConfiguration(AutoConfigurations.of(JettyMetricsAutoConfiguration.class,
 						ServletWebServerFactoryAutoConfiguration.class))
@@ -62,7 +62,7 @@ class JettyMetricsAutoConfigurationTests {
 	}
 
 	@Test
-	void autoConfiguresThreadPoolMetricsWithEmbeddedReactiveJetty() {
+	public void autoConfiguresThreadPoolMetricsWithEmbeddedReactiveJetty() {
 		new ReactiveWebApplicationContextRunner(AnnotationConfigReactiveWebServerApplicationContext::new)
 				.withConfiguration(AutoConfigurations.of(JettyMetricsAutoConfiguration.class,
 						ReactiveWebServerFactoryAutoConfiguration.class))
@@ -76,53 +76,54 @@ class JettyMetricsAutoConfigurationTests {
 	}
 
 	@Test
-	void allowsCustomJettyServerThreadPoolMetricsBinderToBeUsed() {
+	public void allowsCustomJettyServerThreadPoolMetricsBinderToBeUsed() {
 		new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(JettyMetricsAutoConfiguration.class))
 				.withUserConfiguration(CustomJettyServerThreadPoolMetricsBinder.class, MeterRegistryConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(JettyServerThreadPoolMetricsBinder.class)
 						.hasBean("customJettyServerThreadPoolMetricsBinder"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MeterRegistryConfiguration {
 
 		@Bean
-		SimpleMeterRegistry meterRegistry() {
+		public SimpleMeterRegistry meterRegistry() {
 			return new SimpleMeterRegistry();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ServletWebServerConfiguration {
 
 		@Bean
-		JettyServletWebServerFactory jettyFactory() {
+		public JettyServletWebServerFactory jettyFactory() {
 			return new JettyServletWebServerFactory(0);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ReactiveWebServerConfiguration {
 
 		@Bean
-		JettyReactiveWebServerFactory jettyFactory() {
+		public JettyReactiveWebServerFactory jettyFactory() {
 			return new JettyReactiveWebServerFactory(0);
 		}
 
 		@Bean
-		HttpHandler httpHandler() {
+		public HttpHandler httpHandler() {
 			return mock(HttpHandler.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomJettyServerThreadPoolMetricsBinder {
 
 		@Bean
-		JettyServerThreadPoolMetricsBinder customJettyServerThreadPoolMetricsBinder(MeterRegistry meterRegistry) {
+		public JettyServerThreadPoolMetricsBinder customJettyServerThreadPoolMetricsBinder(
+				MeterRegistry meterRegistry) {
 			return new JettyServerThreadPoolMetricsBinder(meterRegistry);
 		}
 

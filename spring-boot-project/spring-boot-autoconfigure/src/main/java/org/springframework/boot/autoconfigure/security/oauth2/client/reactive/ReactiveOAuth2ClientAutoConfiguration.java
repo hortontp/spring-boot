@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
  * @author Madhura Bhave
  * @since 2.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureBefore(ReactiveSecurityAutoConfiguration.class)
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 @Conditional(ReactiveOAuth2ClientAutoConfiguration.NonServletApplicationCondition.class)

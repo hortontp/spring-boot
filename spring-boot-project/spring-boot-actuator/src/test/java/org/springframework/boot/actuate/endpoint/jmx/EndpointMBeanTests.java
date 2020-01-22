@@ -27,7 +27,7 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.FatalBeanException;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class EndpointMBeanTests {
+public class EndpointMBeanTests {
 
 	private static final Object[] NO_PARAMS = {};
 
@@ -59,35 +59,35 @@ class EndpointMBeanTests {
 	private TestJmxOperationResponseMapper responseMapper = new TestJmxOperationResponseMapper();
 
 	@Test
-	void createWhenResponseMapperIsNullShouldThrowException() {
+	public void createWhenResponseMapperIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new EndpointMBean(null, null, mock(ExposableJmxEndpoint.class)))
 				.withMessageContaining("ResponseMapper must not be null");
 	}
 
 	@Test
-	void createWhenEndpointIsNullShouldThrowException() {
+	public void createWhenEndpointIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new EndpointMBean(mock(JmxOperationResponseMapper.class), null, null))
 				.withMessageContaining("Endpoint must not be null");
 	}
 
 	@Test
-	void getMBeanInfoShouldReturnMBeanInfo() {
+	public void getMBeanInfoShouldReturnMBeanInfo() {
 		EndpointMBean bean = createEndpointMBean();
 		MBeanInfo info = bean.getMBeanInfo();
 		assertThat(info.getDescription()).isEqualTo("MBean operations for endpoint test");
 	}
 
 	@Test
-	void invokeShouldInvokeJmxOperation() throws MBeanException, ReflectionException {
+	public void invokeShouldInvokeJmxOperation() throws MBeanException, ReflectionException {
 		EndpointMBean bean = createEndpointMBean();
 		Object result = bean.invoke("testOperation", NO_PARAMS, NO_SIGNATURE);
 		assertThat(result).isEqualTo("result");
 	}
 
 	@Test
-	void invokeWhenOperationFailedShouldTranslateException() throws MBeanException, ReflectionException {
+	public void invokeWhenOperationFailedShouldTranslateException() throws MBeanException, ReflectionException {
 		TestExposableJmxEndpoint endpoint = new TestExposableJmxEndpoint(new TestJmxOperation((arguments) -> {
 			throw new FatalBeanException("test failure");
 		}));
@@ -99,7 +99,8 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeWhenOperationFailedWithJdkExceptionShouldReuseException() throws MBeanException, ReflectionException {
+	public void invokeWhenOperationFailedWithJdkExceptionShouldReuseException()
+			throws MBeanException, ReflectionException {
 		TestExposableJmxEndpoint endpoint = new TestExposableJmxEndpoint(new TestJmxOperation((arguments) -> {
 			throw new UnsupportedOperationException("test failure");
 		}));
@@ -110,7 +111,7 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeWhenActionNameIsNotAnOperationShouldThrowException() throws MBeanException, ReflectionException {
+	public void invokeWhenActionNameIsNotAnOperationShouldThrowException() throws MBeanException, ReflectionException {
 		EndpointMBean bean = createEndpointMBean();
 		assertThatExceptionOfType(ReflectionException.class)
 				.isThrownBy(() -> bean.invoke("missingOperation", NO_PARAMS, NO_SIGNATURE))
@@ -119,7 +120,7 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeShouldInvokeJmxOperationWithBeanClassLoader() throws ReflectionException, MBeanException {
+	public void invokeShouldInvokeJmxOperationWithBeanClassLoader() throws ReflectionException, MBeanException {
 		ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 		TestExposableJmxEndpoint endpoint = new TestExposableJmxEndpoint(
 				new TestJmxOperation((arguments) -> ClassUtils.getDefaultClassLoader()));
@@ -131,7 +132,7 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeWhenOperationIsInvalidShouldThrowException() throws MBeanException, ReflectionException {
+	public void invokeWhenOperationIsInvalidShouldThrowException() throws MBeanException, ReflectionException {
 		TestJmxOperation operation = new TestJmxOperation() {
 
 			@Override
@@ -148,7 +149,7 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeWhenMonoResultShouldBlockOnMono() throws MBeanException, ReflectionException {
+	public void invokeWhenMonoResultShouldBlockOnMono() throws MBeanException, ReflectionException {
 		TestExposableJmxEndpoint endpoint = new TestExposableJmxEndpoint(
 				new TestJmxOperation((arguments) -> Mono.just("monoResult")));
 		EndpointMBean bean = new EndpointMBean(this.responseMapper, null, endpoint);
@@ -157,7 +158,7 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void invokeShouldCallResponseMapper() throws MBeanException, ReflectionException {
+	public void invokeShouldCallResponseMapper() throws MBeanException, ReflectionException {
 		TestJmxOperationResponseMapper responseMapper = spy(this.responseMapper);
 		EndpointMBean bean = new EndpointMBean(responseMapper, null, this.endpoint);
 		bean.invoke("testOperation", NO_PARAMS, NO_SIGNATURE);
@@ -166,14 +167,15 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void getAttributeShouldThrowException() throws AttributeNotFoundException, MBeanException, ReflectionException {
+	public void getAttributeShouldThrowException()
+			throws AttributeNotFoundException, MBeanException, ReflectionException {
 		EndpointMBean bean = createEndpointMBean();
 		assertThatExceptionOfType(AttributeNotFoundException.class).isThrownBy(() -> bean.getAttribute("test"))
 				.withMessageContaining("EndpointMBeans do not support attributes");
 	}
 
 	@Test
-	void setAttributeShouldThrowException()
+	public void setAttributeShouldThrowException()
 			throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
 		EndpointMBean bean = createEndpointMBean();
 		assertThatExceptionOfType(AttributeNotFoundException.class)
@@ -182,14 +184,14 @@ class EndpointMBeanTests {
 	}
 
 	@Test
-	void getAttributesShouldReturnEmptyAttributeList() {
+	public void getAttributesShouldReturnEmptyAttributeList() {
 		EndpointMBean bean = createEndpointMBean();
 		AttributeList attributes = bean.getAttributes(new String[] { "test" });
 		assertThat(attributes).isEmpty();
 	}
 
 	@Test
-	void setAttributesShouldReturnEmptyAttributeList() {
+	public void setAttributesShouldReturnEmptyAttributeList() {
 		EndpointMBean bean = createEndpointMBean();
 		AttributeList sourceAttributes = new AttributeList();
 		sourceAttributes.add(new Attribute("test", "test"));

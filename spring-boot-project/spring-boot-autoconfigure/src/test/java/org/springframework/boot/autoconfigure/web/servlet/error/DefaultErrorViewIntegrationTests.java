@@ -22,8 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -51,22 +53,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Dave Syer
  */
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-class DefaultErrorViewIntegrationTests {
+public class DefaultErrorViewIntegrationTests {
 
 	@Autowired
 	private WebApplicationContext wac;
 
 	private MockMvc mockMvc;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 	}
 
 	@Test
-	void testErrorForBrowserClient() throws Exception {
+	public void testErrorForBrowserClient() throws Exception {
 		MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
 				.andExpect(status().is5xxServerError()).andReturn();
 		String content = response.getResponse().getContentAsString();
@@ -75,7 +78,7 @@ class DefaultErrorViewIntegrationTests {
 	}
 
 	@Test
-	void testErrorWithHtmlEscape() throws Exception {
+	public void testErrorWithHtmlEscape() throws Exception {
 		MvcResult response = this.mockMvc
 				.perform(get("/error")
 						.requestAttr("javax.servlet.error.exception",
@@ -89,7 +92,7 @@ class DefaultErrorViewIntegrationTests {
 	}
 
 	@Test
-	void testErrorWithSpelEscape() throws Exception {
+	public void testErrorWithSpelEscape() throws Exception {
 		String spel = "${T(" + getClass().getName() + ").injectCall()}";
 		MvcResult response = this.mockMvc.perform(get("/error")
 				.requestAttr("javax.servlet.error.exception", new RuntimeException(spel)).accept(MediaType.TEXT_HTML))
@@ -98,7 +101,7 @@ class DefaultErrorViewIntegrationTests {
 		assertThat(content).doesNotContain("injection");
 	}
 
-	static String injectCall() {
+	public static String injectCall() {
 		return "injection";
 	}
 
@@ -112,12 +115,12 @@ class DefaultErrorViewIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@MinimalWebConfiguration
-	static class TestConfiguration {
+	public static class TestConfiguration {
 
 		// For manual testing
-		static void main(String[] args) {
+		public static void main(String[] args) {
 			SpringApplication.run(TestConfiguration.class, args);
 		}
 

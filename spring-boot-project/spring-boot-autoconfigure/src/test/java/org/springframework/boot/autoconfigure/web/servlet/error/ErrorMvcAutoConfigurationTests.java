@@ -16,14 +16,13 @@
 
 package org.springframework.boot.autoconfigure.web.servlet.error;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Rule;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -38,14 +37,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Brian Clozel
  */
-@ExtendWith(OutputCaptureExtension.class)
-class ErrorMvcAutoConfigurationTests {
+public class ErrorMvcAutoConfigurationTests {
 
 	private WebApplicationContextRunner contextRunner = new WebApplicationContextRunner().withConfiguration(
 			AutoConfigurations.of(DispatcherServletAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
+	@Rule
+	public OutputCapture outputCapture = new OutputCapture();
+
 	@Test
-	void renderContainsViewWithExceptionDetails() throws Exception {
+	public void renderContainsViewWithExceptionDetails() throws Exception {
 		this.contextRunner.run((context) -> {
 			View errorView = context.getBean("error", View.class);
 			ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
@@ -53,7 +54,6 @@ class ErrorMvcAutoConfigurationTests {
 					false);
 			errorView.render(errorAttributes.getErrorAttributes(webRequest, true), webRequest.getRequest(),
 					webRequest.getResponse());
-			assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html;charset=UTF-8");
 			String responseString = ((MockHttpServletResponse) webRequest.getResponse()).getContentAsString();
 			assertThat(responseString).contains(
 					"<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
@@ -63,7 +63,7 @@ class ErrorMvcAutoConfigurationTests {
 	}
 
 	@Test
-	void renderWhenAlreadyCommittedLogsMessage(CapturedOutput output) {
+	public void renderWhenAlreadyCommittedLogsMessage() {
 		this.contextRunner.run((context) -> {
 			View errorView = context.getBean("error", View.class);
 			ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
@@ -71,9 +71,9 @@ class ErrorMvcAutoConfigurationTests {
 					true);
 			errorView.render(errorAttributes.getErrorAttributes(webRequest, true), webRequest.getRequest(),
 					webRequest.getResponse());
-			assertThat(output).contains("Cannot render error page for request [/path] "
+			assertThat(this.outputCapture.toString()).contains("Cannot render error page for request [/path] "
 					+ "and exception [Exception message] as the response has "
-					+ "already been committed. As a result, the response may have the wrong status code.");
+					+ "already been committed. As a result, the response may " + "have the wrong status code.");
 		});
 	}
 

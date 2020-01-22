@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.trace.http;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class HttpTraceEndpointTests {
+public class HttpTraceEndpointTests {
 
 	@Test
-	void trace() {
+	public void trace() {
 		HttpTraceRepository repository = new InMemoryHttpTraceRepository();
 		repository.add(new HttpTrace(createRequest("GET")));
 		List<HttpTrace> traces = new HttpTraceEndpoint(repository).traces().getTraces();

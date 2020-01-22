@@ -47,23 +47,23 @@ class ProjectType {
 		}
 	}
 
-	String getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	String getName() {
+	public String getName() {
 		return this.name;
 	}
 
-	String getAction() {
+	public String getAction() {
 		return this.action;
 	}
 
-	boolean isDefaultType() {
+	public boolean isDefaultType() {
 		return this.defaultType;
 	}
 
-	Map<String, String> getTags() {
+	public Map<String, String> getTags() {
 		return Collections.unmodifiableMap(this.tags);
 	}
 

@@ -16,17 +16,13 @@
 
 package org.springframework.boot.autoconfigure.security.reactive;
 
-import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Flux;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.web.server.WebFilterChainProxy;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,40 +32,30 @@ import static org.mockito.Mockito.mock;
  *
  * @author Madhura Bhave
  */
-class ReactiveSecurityAutoConfigurationTests {
+public class ReactiveSecurityAutoConfigurationTests {
 
 	private ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner();
 
 	@Test
-	void backsOffWhenWebFilterChainProxyBeanPresent() {
+	public void backsOffWhenWebFilterChainProxyBeanPresent() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(ReactiveSecurityAutoConfiguration.class))
 				.withUserConfiguration(WebFilterChainProxyConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(WebFilterChainProxy.class));
 	}
 
 	@Test
-	void enablesWebFluxSecurity() {
+	public void enablesWebFluxSecurity() {
 		this.contextRunner
 				.withConfiguration(AutoConfigurations.of(ReactiveSecurityAutoConfiguration.class,
 						ReactiveUserDetailsServiceAutoConfiguration.class))
 				.run((context) -> assertThat(context).getBean(WebFilterChainProxy.class).isNotNull());
 	}
 
-	@Test
-	void autoConfigurationIsConditionalOnClass() {
-		this.contextRunner
-				.withClassLoader(new FilteredClassLoader(Flux.class, EnableWebFluxSecurity.class,
-						WebFilterChainProxy.class, WebFluxConfigurer.class))
-				.withConfiguration(AutoConfigurations.of(ReactiveSecurityAutoConfiguration.class,
-						ReactiveUserDetailsServiceAutoConfiguration.class))
-				.run((context) -> assertThat(context).doesNotHaveBean(WebFilterChainProxy.class));
-	}
-
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WebFilterChainProxyConfiguration {
 
 		@Bean
-		WebFilterChainProxy webFilterChainProxy() {
+		public WebFilterChainProxy webFilterChainProxy() {
 			return mock(WebFilterChainProxy.class);
 		}
 

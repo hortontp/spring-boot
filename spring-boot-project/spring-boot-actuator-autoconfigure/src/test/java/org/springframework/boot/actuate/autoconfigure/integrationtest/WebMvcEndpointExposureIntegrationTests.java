@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import org.springframework.boot.actuate.audit.InMemoryAuditEventRepository;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.endpoint.web.EndpointServlet;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoint;
-import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -47,14 +45,11 @@ import org.springframework.boot.test.context.assertj.AssertableWebApplicationCon
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Phillip Webb
  */
-class WebMvcEndpointExposureIntegrationTests {
+public class WebMvcEndpointExposureIntegrationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner(
 			AnnotationConfigServletWebServerApplicationContext::new)
@@ -74,14 +69,13 @@ class WebMvcEndpointExposureIntegrationTests {
 							EndpointAutoConfiguration.class, WebEndpointAutoConfiguration.class,
 							ManagementContextAutoConfiguration.class, ServletManagementContextAutoConfiguration.class,
 							ManagementContextAutoConfiguration.class, ServletManagementContextAutoConfiguration.class,
-							HttpTraceAutoConfiguration.class, HealthContributorAutoConfiguration.class))
+							HttpTraceAutoConfiguration.class, HealthIndicatorAutoConfiguration.class))
 					.withConfiguration(AutoConfigurations.of(EndpointAutoConfigurationClasses.ALL))
-					.withUserConfiguration(CustomMvcEndpoint.class, CustomServletEndpoint.class,
-							HttpTraceRepositoryConfiguration.class, AuditEventRepositoryConfiguration.class)
+					.withUserConfiguration(CustomMvcEndpoint.class, CustomServletEndpoint.class)
 					.withPropertyValues("server.port:0");
 
 	@Test
-	void webEndpointsAreDisabledByDefault() {
+	public void webEndpointsAreDisabledByDefault() {
 		this.contextRunner.run((context) -> {
 			WebTestClient client = createClient(context);
 			assertThat(isExposed(client, HttpMethod.GET, "beans")).isFalse();
@@ -100,7 +94,7 @@ class WebMvcEndpointExposureIntegrationTests {
 	}
 
 	@Test
-	void webEndpointsCanBeExposed() {
+	public void webEndpointsCanBeExposed() {
 		WebApplicationContextRunner contextRunner = this.contextRunner
 				.withPropertyValues("management.endpoints.web.exposure.include=*");
 		contextRunner.run((context) -> {
@@ -121,7 +115,7 @@ class WebMvcEndpointExposureIntegrationTests {
 	}
 
 	@Test
-	void singleWebEndpointCanBeExposed() {
+	public void singleWebEndpointCanBeExposed() {
 		WebApplicationContextRunner contextRunner = this.contextRunner
 				.withPropertyValues("management.endpoints.web.exposure.include=beans");
 		contextRunner.run((context) -> {
@@ -142,7 +136,7 @@ class WebMvcEndpointExposureIntegrationTests {
 	}
 
 	@Test
-	void singleWebEndpointCanBeExcluded() {
+	public void singleWebEndpointCanBeExcluded() {
 		WebApplicationContextRunner contextRunner = this.contextRunner.withPropertyValues(
 				"management.endpoints.web.exposure.include=*", "management.endpoints.web.exposure.exclude=shutdown");
 		contextRunner.run((context) -> {
@@ -165,10 +159,7 @@ class WebMvcEndpointExposureIntegrationTests {
 	private WebTestClient createClient(AssertableWebApplicationContext context) {
 		int port = context.getSourceApplicationContext(ServletWebServerApplicationContext.class).getWebServer()
 				.getPort();
-		ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
-				.codecs((configurer) -> configurer.defaultCodecs().maxInMemorySize(512 * 1024)).build();
-		return WebTestClient.bindToServer().baseUrl("http://localhost:" + port).exchangeStrategies(exchangeStrategies)
-				.build();
+		return WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
 	}
 
 	private boolean isExposed(WebTestClient client, HttpMethod method, String path) throws Exception {
@@ -181,14 +172,14 @@ class WebMvcEndpointExposureIntegrationTests {
 			return false;
 		}
 		throw new IllegalStateException(
-				String.format("Unexpected %s HTTP status for endpoint %s", result.getStatus(), path));
+				String.format("Unexpected %s HTTP status for " + "endpoint %s", result.getStatus(), path));
 	}
 
 	@RestControllerEndpoint(id = "custommvc")
 	static class CustomMvcEndpoint {
 
 		@GetMapping("/")
-		String main() {
+		public String main() {
 			return "test";
 		}
 
@@ -207,26 +198,6 @@ class WebMvcEndpointExposureIntegrationTests {
 				}
 
 			});
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class HttpTraceRepositoryConfiguration {
-
-		@Bean
-		InMemoryHttpTraceRepository httpTraceRepository() {
-			return new InMemoryHttpTraceRepository();
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class AuditEventRepositoryConfiguration {
-
-		@Bean
-		InMemoryAuditEventRepository auditEventRepository() {
-			return new InMemoryAuditEventRepository();
 		}
 
 	}

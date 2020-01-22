@@ -23,7 +23,7 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.OperationType;
 
@@ -37,12 +37,12 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Phillip Webb
  */
-class MBeanInfoFactoryTests {
+public class MBeanInfoFactoryTests {
 
 	private MBeanInfoFactory factory = new MBeanInfoFactory(new TestJmxOperationResponseMapper());
 
 	@Test
-	void getMBeanInfoShouldReturnMBeanInfo() {
+	public void getMBeanInfoShouldReturnMBeanInfo() {
 		MBeanInfo info = this.factory.getMBeanInfo(new TestExposableJmxEndpoint(new TestJmxOperation()));
 		assertThat(info).isNotNull();
 		assertThat(info.getClassName()).isEqualTo(EndpointMBean.class.getName());
@@ -59,21 +59,21 @@ class MBeanInfoFactoryTests {
 	}
 
 	@Test
-	void getMBeanInfoWhenReadOperationShouldHaveInfoImpact() {
+	public void getMBeanInfoWhenReadOperationShouldHaveInfoImpact() {
 		MBeanInfo info = this.factory
 				.getMBeanInfo(new TestExposableJmxEndpoint(new TestJmxOperation(OperationType.READ)));
 		assertThat(info.getOperations()[0].getImpact()).isEqualTo(MBeanOperationInfo.INFO);
 	}
 
 	@Test
-	void getMBeanInfoWhenWriteOperationShouldHaveActionImpact() {
+	public void getMBeanInfoWhenWriteOperationShouldHaveActionImpact() {
 		MBeanInfo info = this.factory
 				.getMBeanInfo(new TestExposableJmxEndpoint(new TestJmxOperation(OperationType.WRITE)));
 		assertThat(info.getOperations()[0].getImpact()).isEqualTo(MBeanOperationInfo.ACTION);
 	}
 
 	@Test
-	void getMBeanInfoWhenDeleteOperationShouldHaveActionImpact() {
+	public void getMBeanInfoWhenDeleteOperationShouldHaveActionImpact() {
 		MBeanInfo info = this.factory
 				.getMBeanInfo(new TestExposableJmxEndpoint(new TestJmxOperation(OperationType.DELETE)));
 		assertThat(info.getOperations()[0].getImpact()).isEqualTo(MBeanOperationInfo.ACTION);
@@ -81,7 +81,7 @@ class MBeanInfoFactoryTests {
 
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	void getMBeanInfoShouldUseJmxOperationResponseMapper() {
+	public void getMBeanInfoShouldUseJmxOperationResponseMapper() {
 		JmxOperationResponseMapper mapper = mock(JmxOperationResponseMapper.class);
 		given(mapper.mapResponseType(String.class)).willReturn((Class) Integer.class);
 		MBeanInfoFactory factory = new MBeanInfoFactory(mapper);
@@ -91,7 +91,7 @@ class MBeanInfoFactoryTests {
 	}
 
 	@Test
-	void getMBeanShouldMapOperationParameters() {
+	public void getMBeanShouldMapOperationParameters() {
 		List<JmxOperationParameter> parameters = new ArrayList<>();
 		parameters.add(mockParameter("one", String.class, "myone"));
 		parameters.add(mockParameter("two", Object.class, null));

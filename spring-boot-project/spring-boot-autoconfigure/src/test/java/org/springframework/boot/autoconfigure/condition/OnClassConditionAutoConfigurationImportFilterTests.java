@@ -16,8 +16,8 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurationImportFilter;
@@ -33,33 +33,33 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class OnClassConditionAutoConfigurationImportFilterTests {
+public class OnClassConditionAutoConfigurationImportFilterTests {
 
 	private OnClassCondition filter = new OnClassCondition();
 
 	private DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.filter.setBeanClassLoader(getClass().getClassLoader());
 		this.filter.setBeanFactory(this.beanFactory);
 	}
 
 	@Test
-	void shouldBeRegistered() {
+	public void shouldBeRegistered() {
 		assertThat(SpringFactoriesLoader.loadFactories(AutoConfigurationImportFilter.class, null))
 				.hasAtLeastOneElementOfType(OnClassCondition.class);
 	}
 
 	@Test
-	void matchShouldMatchClasses() {
+	public void matchShouldMatchClasses() {
 		String[] autoConfigurationClasses = new String[] { "test.match", "test.nomatch" };
 		boolean[] result = this.filter.match(autoConfigurationClasses, getAutoConfigurationMetadata());
 		assertThat(result).containsExactly(true, false);
 	}
 
 	@Test
-	void matchShouldRecordOutcome() {
+	public void matchShouldRecordOutcome() {
 		String[] autoConfigurationClasses = new String[] { "test.match", "test.nomatch" };
 		this.filter.match(autoConfigurationClasses, getAutoConfigurationMetadata());
 		ConditionEvaluationReport report = ConditionEvaluationReport.get(this.beanFactory);

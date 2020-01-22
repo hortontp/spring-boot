@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.info;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -27,16 +27,16 @@ import static org.assertj.core.api.Assertions.entry;
  *
  * @author Stephane Nicoll
  */
-class InfoTests {
+public class InfoTests {
 
 	@Test
-	void infoIsImmutable() {
+	public void infoIsImmutable() {
 		Info info = new Info.Builder().withDetail("foo", "bar").build();
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(info.getDetails()::clear);
 	}
 
 	@Test
-	void infoTakesCopyOfMap() {
+	public void infoTakesCopyOfMap() {
 		Info.Builder builder = new Info.Builder();
 		builder.withDetail("foo", "bar");
 		Info build = builder.build();

@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.autoconfigure.env;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.env.EnvironmentEndpoint;
 import org.springframework.boot.actuate.env.EnvironmentEndpoint.EnvironmentDescriptor;
@@ -36,33 +36,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class EnvironmentEndpointAutoConfigurationTests {
+public class EnvironmentEndpointAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EnvironmentEndpointAutoConfiguration.class));
 
 	@Test
-	void runShouldHaveEndpointBean() {
-		this.contextRunner.withPropertyValues("management.endpoints.web.exposure.include=env")
-				.withSystemProperties("dbPassword=123456", "apiKey=123456")
+	public void runShouldHaveEndpointBean() {
+		this.contextRunner.withSystemProperties("dbPassword=123456", "apiKey=123456")
 				.run(validateSystemProperties("******", "******"));
 	}
 
 	@Test
-	void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
+	public void runWhenEnabledPropertyIsFalseShouldNotHaveEndpointBean() {
 		this.contextRunner.withPropertyValues("management.endpoint.env.enabled:false")
 				.run((context) -> assertThat(context).doesNotHaveBean(EnvironmentEndpoint.class));
 	}
 
 	@Test
-	void runWhenNotExposedShouldNotHaveEndpointBean() {
-		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(EnvironmentEndpoint.class));
-	}
-
-	@Test
-	void keysToSanitizeCanBeConfiguredViaTheEnvironment() {
-		this.contextRunner.withPropertyValues("management.endpoints.web.exposure.include=env")
-				.withSystemProperties("dbPassword=123456", "apiKey=123456")
+	public void keysToSanitizeCanBeConfiguredViaTheEnvironment() {
+		this.contextRunner.withSystemProperties("dbPassword=123456", "apiKey=123456")
 				.withPropertyValues("management.endpoint.env.keys-to-sanitize=.*pass.*")
 				.run(validateSystemProperties("******", "123456"));
 	}

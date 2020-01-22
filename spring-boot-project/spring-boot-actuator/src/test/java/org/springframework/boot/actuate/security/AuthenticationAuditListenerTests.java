@@ -16,8 +16,8 @@
 
 package org.springframework.boot.actuate.security;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
@@ -42,26 +42,26 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link AuthenticationAuditListener}.
  */
-class AuthenticationAuditListenerTests {
+public class AuthenticationAuditListenerTests {
 
 	private final AuthenticationAuditListener listener = new AuthenticationAuditListener();
 
 	private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
 
-	@BeforeEach
-	void init() {
+	@Before
+	public void init() {
 		this.listener.setApplicationEventPublisher(this.publisher);
 	}
 
 	@Test
-	void testAuthenticationSuccess() {
+	public void testAuthenticationSuccess() {
 		AuditApplicationEvent event = handleAuthenticationEvent(
 				new AuthenticationSuccessEvent(new UsernamePasswordAuthenticationToken("user", "password")));
 		assertThat(event.getAuditEvent().getType()).isEqualTo(AuthenticationAuditListener.AUTHENTICATION_SUCCESS);
 	}
 
 	@Test
-	void testOtherAuthenticationSuccess() {
+	public void testOtherAuthenticationSuccess() {
 		this.listener.onApplicationEvent(new InteractiveAuthenticationSuccessEvent(
 				new UsernamePasswordAuthenticationToken("user", "password"), getClass()));
 		// No need to audit this one (it shadows a regular AuthenticationSuccessEvent)
@@ -69,14 +69,14 @@ class AuthenticationAuditListenerTests {
 	}
 
 	@Test
-	void testAuthenticationFailed() {
+	public void testAuthenticationFailed() {
 		AuditApplicationEvent event = handleAuthenticationEvent(new AuthenticationFailureExpiredEvent(
 				new UsernamePasswordAuthenticationToken("user", "password"), new BadCredentialsException("Bad user")));
 		assertThat(event.getAuditEvent().getType()).isEqualTo(AuthenticationAuditListener.AUTHENTICATION_FAILURE);
 	}
 
 	@Test
-	void testAuthenticationSwitch() {
+	public void testAuthenticationSwitch() {
 		AuditApplicationEvent event = handleAuthenticationEvent(
 				new AuthenticationSwitchUserEvent(new UsernamePasswordAuthenticationToken("user", "password"),
 						new User("user", "password", AuthorityUtils.commaSeparatedStringToAuthorityList("USER"))));
@@ -84,14 +84,14 @@ class AuthenticationAuditListenerTests {
 	}
 
 	@Test
-	void testAuthenticationSwitchBackToAnonymous() {
+	public void testAuthenticationSwitchBackToAnonymous() {
 		AuditApplicationEvent event = handleAuthenticationEvent(
 				new AuthenticationSwitchUserEvent(new UsernamePasswordAuthenticationToken("user", "password"), null));
 		assertThat(event.getAuditEvent().getType()).isEqualTo(AuthenticationAuditListener.AUTHENTICATION_SWITCH);
 	}
 
 	@Test
-	void testDetailsAreIncludedInAuditEvent() {
+	public void testDetailsAreIncludedInAuditEvent() {
 		Object details = new Object();
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("user",
 				"password");

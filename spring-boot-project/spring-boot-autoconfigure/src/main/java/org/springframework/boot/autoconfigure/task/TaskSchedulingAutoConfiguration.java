@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.task.TaskSchedulingProperties.Shutdown;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.boot.task.TaskSchedulerCustomizer;
@@ -42,7 +41,7 @@ import org.springframework.scheduling.config.TaskManagementConfigUtils;
  * @since 2.1.0
  */
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 @AutoConfigureAfter(TaskExecutionAutoConfiguration.class)
 public class TaskSchedulingAutoConfiguration {
@@ -60,9 +59,6 @@ public class TaskSchedulingAutoConfiguration {
 			ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
 		TaskSchedulerBuilder builder = new TaskSchedulerBuilder();
 		builder = builder.poolSize(properties.getPool().getSize());
-		Shutdown shutdown = properties.getShutdown();
-		builder = builder.awaitTermination(shutdown.isAwaitTermination());
-		builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
 		builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
 		builder = builder.customizers(taskSchedulerCustomizers);
 		return builder;

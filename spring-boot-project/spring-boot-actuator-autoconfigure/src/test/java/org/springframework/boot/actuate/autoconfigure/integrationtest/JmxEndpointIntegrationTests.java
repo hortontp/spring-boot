@@ -24,19 +24,15 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import org.springframework.boot.actuate.audit.InMemoryAuditEventRepository;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration;
-import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,18 +43,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-class JmxEndpointIntegrationTests {
+public class JmxEndpointIntegrationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(JmxAutoConfiguration.class, EndpointAutoConfiguration.class,
-					JmxEndpointAutoConfiguration.class, HealthContributorAutoConfiguration.class,
+					JmxEndpointAutoConfiguration.class, HealthIndicatorAutoConfiguration.class,
 					HttpTraceAutoConfiguration.class))
-			.withUserConfiguration(HttpTraceRepositoryConfiguration.class, AuditEventRepositoryConfiguration.class)
-			.withPropertyValues("spring.jmx.enabled=true")
 			.withConfiguration(AutoConfigurations.of(EndpointAutoConfigurationClasses.ALL));
 
 	@Test
-	void jmxEndpointsAreExposed() {
+	public void jmxEndpointsAreExposed() {
 		this.contextRunner.run((context) -> {
 			MBeanServer mBeanServer = context.getBean(MBeanServer.class);
 			checkEndpointMBeans(mBeanServer, new String[] { "beans", "conditions", "configprops", "env", "health",
@@ -67,7 +61,7 @@ class JmxEndpointIntegrationTests {
 	}
 
 	@Test
-	void jmxEndpointsCanBeExcluded() {
+	public void jmxEndpointsCanBeExcluded() {
 		this.contextRunner.withPropertyValues("management.endpoints.jmx.exposure.exclude:*").run((context) -> {
 			MBeanServer mBeanServer = context.getBean(MBeanServer.class);
 			checkEndpointMBeans(mBeanServer, new String[0], new String[] { "beans", "conditions", "configprops", "env",
@@ -77,7 +71,7 @@ class JmxEndpointIntegrationTests {
 	}
 
 	@Test
-	void singleJmxEndpointCanBeExposed() {
+	public void singleJmxEndpointCanBeExposed() {
 		this.contextRunner.withPropertyValues("management.endpoints.jmx.exposure.include=beans").run((context) -> {
 			MBeanServer mBeanServer = context.getBean(MBeanServer.class);
 			checkEndpointMBeans(mBeanServer, new String[] { "beans" }, new String[] { "conditions", "configprops",
@@ -126,26 +120,6 @@ class JmxEndpointIntegrationTests {
 		}
 		catch (MalformedObjectNameException ex) {
 			throw new IllegalStateException("Invalid object name", ex);
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class HttpTraceRepositoryConfiguration {
-
-		@Bean
-		InMemoryHttpTraceRepository httpTraceRepository() {
-			return new InMemoryHttpTraceRepository();
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class AuditEventRepositoryConfiguration {
-
-		@Bean
-		InMemoryAuditEventRepository auditEventRepository() {
-			return new InMemoryAuditEventRepository();
 		}
 
 	}

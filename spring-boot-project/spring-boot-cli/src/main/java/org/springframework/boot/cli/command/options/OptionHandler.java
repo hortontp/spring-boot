@@ -143,7 +143,7 @@ public class OptionHandler {
 			return "";
 		}
 
-		Collection<OptionHelp> getOptionHelp() {
+		public Collection<OptionHelp> getOptionHelp() {
 			return Collections.unmodifiableList(this.help);
 		}
 

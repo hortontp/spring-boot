@@ -25,7 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -37,62 +37,62 @@ import org.springframework.util.StringUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ConditionalOnMissingFilterBean @ConditionalOnMissingFilterBean}.
+ * Tests for {@link ConditionalOnMissingFilterBean}.
  *
  * @author Phillip Webb
  */
-class ConditionalOnMissingFilterBeanTests {
+public class ConditionalOnMissingFilterBeanTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void outcomeWhenValueIsOfMissingBeanReturnsMatch() {
+	public void outcomeWhenValueIsOfMissingBeanReturnsMatch() {
 
 		this.contextRunner.withUserConfiguration(WithoutTestFilterConfig.class, OnMissingWithValueConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myOtherFilter", "testFilter")));
 	}
 
 	@Test
-	void outcomeWhenValueIsOfExistingBeanReturnsNoMatch() {
+	public void outcomeWhenValueIsOfExistingBeanReturnsNoMatch() {
 		this.contextRunner.withUserConfiguration(WithTestFilterConfig.class, OnMissingWithValueConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myTestFilter")));
 	}
 
 	@Test
-	void outcomeWhenValueIsOfMissingBeanRegistrationReturnsMatch() {
+	public void outcomeWhenValueIsOfMissingBeanRegistrationReturnsMatch() {
 		this.contextRunner
 				.withUserConfiguration(WithoutTestFilterRegistrationConfig.class, OnMissingWithValueConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myOtherFilter", "testFilter")));
 	}
 
 	@Test
-	void outcomeWhenValueIsOfExistingBeanRegistrationReturnsNoMatch() {
+	public void outcomeWhenValueIsOfExistingBeanRegistrationReturnsNoMatch() {
 		this.contextRunner.withUserConfiguration(WithTestFilterRegistrationConfig.class, OnMissingWithValueConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myTestFilter")));
 	}
 
 	@Test
-	void outcomeWhenReturnTypeIsOfExistingBeanReturnsNoMatch() {
+	public void outcomeWhenReturnTypeIsOfExistingBeanReturnsNoMatch() {
 		this.contextRunner.withUserConfiguration(WithTestFilterConfig.class, OnMissingWithReturnTypeConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myTestFilter")));
 	}
 
 	@Test
-	void outcomeWhenReturnTypeIsOfExistingBeanRegistrationReturnsNoMatch() {
+	public void outcomeWhenReturnTypeIsOfExistingBeanRegistrationReturnsNoMatch() {
 		this.contextRunner
 				.withUserConfiguration(WithTestFilterRegistrationConfig.class, OnMissingWithReturnTypeConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myTestFilter")));
 	}
 
 	@Test
-	void outcomeWhenReturnRegistrationTypeIsOfExistingBeanReturnsNoMatch() {
+	public void outcomeWhenReturnRegistrationTypeIsOfExistingBeanReturnsNoMatch() {
 		this.contextRunner
 				.withUserConfiguration(WithTestFilterConfig.class, OnMissingWithReturnRegistrationTypeConfig.class)
 				.run((context) -> assertThat(context).satisfies(filterBeanRequirement("myTestFilter")));
 	}
 
 	@Test
-	void outcomeWhenReturnRegistrationTypeIsOfExistingBeanRegistrationReturnsNoMatch() {
+	public void outcomeWhenReturnRegistrationTypeIsOfExistingBeanRegistrationReturnsNoMatch() {
 		this.contextRunner
 				.withUserConfiguration(WithTestFilterRegistrationConfig.class,
 						OnMissingWithReturnRegistrationTypeConfig.class)
@@ -107,75 +107,75 @@ class ConditionalOnMissingFilterBeanTests {
 		};
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WithTestFilterConfig {
 
 		@Bean
-		TestFilter myTestFilter() {
+		public TestFilter myTestFilter() {
 			return new TestFilter();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WithoutTestFilterConfig {
 
 		@Bean
-		OtherFilter myOtherFilter() {
+		public OtherFilter myOtherFilter() {
 			return new OtherFilter();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WithoutTestFilterRegistrationConfig {
 
 		@Bean
-		FilterRegistrationBean<OtherFilter> myOtherFilter() {
-			return new FilterRegistrationBean<>(new OtherFilter());
+		public FilterRegistrationBean<OtherFilter> myOtherFilter() {
+			return new FilterRegistrationBean<OtherFilter>(new OtherFilter());
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WithTestFilterRegistrationConfig {
 
 		@Bean
-		FilterRegistrationBean<TestFilter> myTestFilter() {
-			return new FilterRegistrationBean<>(new TestFilter());
+		public FilterRegistrationBean<TestFilter> myTestFilter() {
+			return new FilterRegistrationBean<TestFilter>(new TestFilter());
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class OnMissingWithValueConfig {
 
 		@Bean
 		@ConditionalOnMissingFilterBean(TestFilter.class)
-		TestFilter testFilter() {
+		public TestFilter testFilter() {
 			return new TestFilter();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class OnMissingWithReturnTypeConfig {
 
 		@Bean
 		@ConditionalOnMissingFilterBean
-		TestFilter testFilter() {
+		public TestFilter testFilter() {
 			return new TestFilter();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class OnMissingWithReturnRegistrationTypeConfig {
 
 		@Bean
 		@ConditionalOnMissingFilterBean
-		FilterRegistrationBean<TestFilter> testFilter() {
-			return new FilterRegistrationBean<>(new TestFilter());
+		public FilterRegistrationBean<TestFilter> testFilter() {
+			return new FilterRegistrationBean<TestFilter>(new TestFilter());
 		}
 
 	}

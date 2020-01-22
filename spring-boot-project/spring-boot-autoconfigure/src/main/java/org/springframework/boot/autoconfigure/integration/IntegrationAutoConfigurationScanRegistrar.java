@@ -25,6 +25,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.config.IntegrationComponentScanRegistrar;
 
@@ -47,7 +48,7 @@ class IntegrationAutoConfigurationScanRegistrar extends IntegrationComponentScan
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
 			final BeanDefinitionRegistry registry) {
-		super.registerBeanDefinitions(AnnotationMetadata.introspect(IntegrationComponentScanConfiguration.class),
+		super.registerBeanDefinitions(new StandardAnnotationMetadata(IntegrationComponentScanConfiguration.class, true),
 				registry);
 	}
 

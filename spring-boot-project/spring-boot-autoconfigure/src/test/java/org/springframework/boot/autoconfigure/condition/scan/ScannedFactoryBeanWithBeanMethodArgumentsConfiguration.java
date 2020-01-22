@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class ScannedFactoryBeanWithBeanMethodArgumentsConfiguration {
 
 	@Bean

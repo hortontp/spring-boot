@@ -120,7 +120,7 @@ public class LdapProperties {
 		Assert.notNull(environment, "Environment must not be null");
 		String localPort = environment.getProperty("local.ldap.port");
 		if (localPort != null) {
-			return Integer.parseInt(localPort);
+			return Integer.valueOf(localPort);
 		}
 		return DEFAULT_PORT;
 	}

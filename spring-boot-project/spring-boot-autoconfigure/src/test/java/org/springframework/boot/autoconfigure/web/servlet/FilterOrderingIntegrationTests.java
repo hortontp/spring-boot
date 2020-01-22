@@ -23,14 +23,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.testsupport.web.servlet.MockServletWebServer.RegisteredFilter;
 import org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
@@ -55,19 +54,19 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Eddú Meléndez
  */
-class FilterOrderingIntegrationTests {
+public class FilterOrderingIntegrationTests {
 
 	private AnnotationConfigServletWebServerApplicationContext context;
 
-	@AfterEach
-	void cleanup() {
+	@After
+	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void testFilterOrdering() {
+	public void testFilterOrdering() {
 		load();
 		List<RegisteredFilter> registeredFilters = this.context.getBean(MockServletWebServerFactory.class)
 				.getWebServer().getRegisteredFilters();
@@ -90,41 +89,40 @@ class FilterOrderingIntegrationTests {
 				TestRedisConfiguration.class, WebMvcAutoConfiguration.class, SecurityAutoConfiguration.class,
 				SessionAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
 				PropertyPlaceholderAutoConfiguration.class, HttpEncodingAutoConfiguration.class);
-		TestPropertyValues.of("spring.mvc.hiddenmethod.filter.enabled:true").applyTo(this.context);
 		this.context.refresh();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MockWebServerConfiguration {
 
 		@Bean
-		MockServletWebServerFactory webServerFactory() {
+		public MockServletWebServerFactory webServerFactory() {
 			return new MockServletWebServerFactory();
 		}
 
 		@Bean
-		WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
+		public WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
 			return new WebServerFactoryCustomizerBeanPostProcessor();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class TestSessionConfiguration {
 
 		@Bean
-		MapSessionRepository mapSessionRepository() {
+		public MapSessionRepository mapSessionRepository() {
 			return new MapSessionRepository(new ConcurrentHashMap<>());
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestRedisConfiguration {
 
 		@Bean
-		RedisConnectionFactory redisConnectionFactory() {
+		public RedisConnectionFactory redisConnectionFactory() {
 			RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
 			given(connectionFactory.getConnection()).willReturn(connection);

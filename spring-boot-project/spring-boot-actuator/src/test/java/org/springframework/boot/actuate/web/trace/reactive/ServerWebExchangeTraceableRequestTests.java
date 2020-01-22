@@ -19,8 +19,8 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Collections;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -36,21 +36,21 @@ import static org.mockito.Mockito.mock;
  *
  * @author Dmytro Nosan
  */
-class ServerWebExchangeTraceableRequestTests {
+public class ServerWebExchangeTraceableRequestTests {
 
 	private ServerWebExchange exchange;
 
 	private ServerHttpRequest request;
 
-	@BeforeEach
-	void setUp() {
+	@Before
+	public void setUp() {
 		this.exchange = mock(ServerWebExchange.class);
 		this.request = mock(ServerHttpRequest.class);
 		given(this.exchange.getRequest()).willReturn(this.request);
 	}
 
 	@Test
-	void getMethod() {
+	public void getMethod() {
 		String method = "POST";
 		given(this.request.getMethodValue()).willReturn(method);
 		ServerWebExchangeTraceableRequest traceableRequest = new ServerWebExchangeTraceableRequest(this.exchange);
@@ -58,7 +58,7 @@ class ServerWebExchangeTraceableRequestTests {
 	}
 
 	@Test
-	void getUri() {
+	public void getUri() {
 		URI uri = URI.create("http://localhost:8080/");
 		given(this.request.getURI()).willReturn(uri);
 		ServerWebExchangeTraceableRequest traceableRequest = new ServerWebExchangeTraceableRequest(this.exchange);
@@ -66,7 +66,7 @@ class ServerWebExchangeTraceableRequestTests {
 	}
 
 	@Test
-	void getHeaders() {
+	public void getHeaders() {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("name", "value");
 		given(this.request.getHeaders()).willReturn(httpHeaders);
@@ -75,7 +75,7 @@ class ServerWebExchangeTraceableRequestTests {
 	}
 
 	@Test
-	void getUnresolvedRemoteAddress() {
+	public void getUnresolvedRemoteAddress() {
 		InetSocketAddress socketAddress = InetSocketAddress.createUnresolved("unresolved.example.com", 8080);
 		given(this.request.getRemoteAddress()).willReturn(socketAddress);
 		ServerWebExchangeTraceableRequest traceableRequest = new ServerWebExchangeTraceableRequest(this.exchange);
@@ -83,7 +83,7 @@ class ServerWebExchangeTraceableRequestTests {
 	}
 
 	@Test
-	void getRemoteAddress() {
+	public void getRemoteAddress() {
 		InetSocketAddress socketAddress = new InetSocketAddress(0);
 		given(this.request.getRemoteAddress()).willReturn(socketAddress);
 		ServerWebExchangeTraceableRequest traceableRequest = new ServerWebExchangeTraceableRequest(this.exchange);

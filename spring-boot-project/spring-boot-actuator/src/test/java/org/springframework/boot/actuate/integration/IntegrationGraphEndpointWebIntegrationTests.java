@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.boot.actuate.integration;
 
-import org.springframework.boot.actuate.endpoint.web.test.WebEndpointTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.boot.actuate.endpoint.web.test.WebEndpointRunners;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -30,33 +33,36 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  *
  * @author Tim Ysewyn
  */
-class IntegrationGraphEndpointWebIntegrationTests {
+@RunWith(WebEndpointRunners.class)
+public class IntegrationGraphEndpointWebIntegrationTests {
 
-	@WebEndpointTest
-	void graph(WebTestClient client) {
+	private static WebTestClient client;
+
+	@Test
+	public void graph() {
 		client.get().uri("/actuator/integrationgraph").accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
 				.isOk().expectBody().jsonPath("contentDescriptor.providerVersion").isNotEmpty()
-				.jsonPath("contentDescriptor.providerFormatVersion").isEqualTo(1.2f)
+				.jsonPath("contentDescriptor.providerFormatVersion").isEqualTo(1.0f)
 				.jsonPath("contentDescriptor.provider").isEqualTo("spring-integration");
 	}
 
-	@WebEndpointTest
-	void rebuild(WebTestClient client) {
+	@Test
+	public void rebuild() {
 		client.post().uri("/actuator/integrationgraph").accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
 				.isNoContent();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableIntegration
-	static class TestConfiguration {
+	public static class TestConfiguration {
 
 		@Bean
-		IntegrationGraphEndpoint endpoint(IntegrationGraphServer integrationGraphServer) {
+		public IntegrationGraphEndpoint endpoint(IntegrationGraphServer integrationGraphServer) {
 			return new IntegrationGraphEndpoint(integrationGraphServer);
 		}
 
 		@Bean
-		IntegrationGraphServer integrationGraphServer() {
+		public IntegrationGraphServer integrationGraphServer() {
 			return new IntegrationGraphServer();
 		}
 

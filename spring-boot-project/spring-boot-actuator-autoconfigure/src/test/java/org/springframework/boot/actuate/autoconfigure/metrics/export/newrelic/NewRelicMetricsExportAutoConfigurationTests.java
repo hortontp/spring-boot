@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.metrics.export.newrelic;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.newrelic.NewRelicConfig;
 import io.micrometer.newrelic.NewRelicMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -35,62 +35,32 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class NewRelicMetricsExportAutoConfigurationTests {
+public class NewRelicMetricsExportAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(NewRelicMetricsExportAutoConfiguration.class));
 
 	@Test
-	void backsOffWithoutAClock() {
+	public void backsOffWithoutAClock() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(NewRelicMeterRegistry.class));
 	}
 
 	@Test
-	void failsWithoutAnApiKey() {
+	public void failsWithoutAnApiKey() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.account-id=12345")
 				.run((context) -> assertThat(context).hasFailed());
 	}
 
 	@Test
-	void failsWithoutAnAccountId() {
+	public void failsWithoutAnAccountId() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde")
 				.run((context) -> assertThat(context).hasFailed());
 	}
 
 	@Test
-	void failsToAutoConfigureWithoutEventType() {
-		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
-				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
-						"management.metrics.export.newrelic.account-id=12345",
-						"management.metrics.export.newrelic.event-type=")
-				.run((context) -> assertThat(context).hasFailed());
-	}
-
-	@Test
-	void autoConfiguresWithEventTypeOverriden() {
-		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
-				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
-						"management.metrics.export.newrelic.account-id=12345",
-						"management.metrics.export.newrelic.event-type=wxyz")
-				.run((context) -> assertThat(context).hasSingleBean(NewRelicMeterRegistry.class)
-						.hasSingleBean(Clock.class).hasSingleBean(NewRelicConfig.class));
-	}
-
-	@Test
-	void autoConfiguresWithMeterNameEventTypeEnabledAndWithoutEventType() {
-		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
-				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
-						"management.metrics.export.newrelic.account-id=12345",
-						"management.metrics.export.newrelic.event-type=",
-						"management.metrics.export.newrelic.meter-name-event-type-enabled=true")
-				.run((context) -> assertThat(context).hasSingleBean(NewRelicMeterRegistry.class)
-						.hasSingleBean(Clock.class).hasSingleBean(NewRelicConfig.class));
-	}
-
-	@Test
-	void autoConfiguresWithAccountIdAndApiKey() {
+	public void autoConfiguresWithAccountIdAndApiKey() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
 						"management.metrics.export.newrelic.account-id=12345")
@@ -99,7 +69,7 @@ class NewRelicMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void autoConfigurationCanBeDisabled() {
+	public void autoConfigurationCanBeDisabled() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.enabled=false")
 				.run((context) -> assertThat(context).doesNotHaveBean(NewRelicMeterRegistry.class)
@@ -107,7 +77,7 @@ class NewRelicMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void allowsConfigToBeCustomized() {
+	public void allowsConfigToBeCustomized() {
 		this.contextRunner.withUserConfiguration(CustomConfigConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
 						"management.metrics.export.newrelic.account-id=12345")
@@ -115,7 +85,7 @@ class NewRelicMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void allowsRegistryToBeCustomized() {
+	public void allowsRegistryToBeCustomized() {
 		this.contextRunner.withUserConfiguration(CustomRegistryConfiguration.class)
 				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
 						"management.metrics.export.newrelic.account-id=12345")
@@ -124,7 +94,7 @@ class NewRelicMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void stopsMeterRegistryWhenContextIsClosed() {
+	public void stopsMeterRegistryWhenContextIsClosed() {
 		this.contextRunner
 				.withPropertyValues("management.metrics.export.newrelic.api-key=abcde",
 						"management.metrics.export.newrelic.account-id=abcde")
@@ -136,22 +106,22 @@ class NewRelicMetricsExportAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BaseConfiguration {
 
 		@Bean
-		Clock customClock() {
+		public Clock customClock() {
 			return Clock.SYSTEM;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomConfigConfiguration {
 
 		@Bean
-		NewRelicConfig customConfig() {
+		public NewRelicConfig customConfig() {
 			return (key) -> {
 				if ("newrelic.accountId".equals(key)) {
 					return "abcde";
@@ -165,12 +135,12 @@ class NewRelicMetricsExportAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomRegistryConfiguration {
 
 		@Bean
-		NewRelicMeterRegistry customRegistry(NewRelicConfig config, Clock clock) {
+		public NewRelicMeterRegistry customRegistry(NewRelicConfig config, Clock clock) {
 			return new NewRelicMeterRegistry(config, clock);
 		}
 

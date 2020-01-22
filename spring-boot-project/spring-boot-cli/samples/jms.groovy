@@ -5,7 +5,7 @@ package org.test
 import java.util.concurrent.CountDownLatch
 
 @Log
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableJms
 class JmsExample implements CommandLineRunner {
 

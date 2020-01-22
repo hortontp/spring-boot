@@ -37,7 +37,7 @@ import org.springframework.core.Ordered;
  * @author Ivan Golovko
  * @since 1.2.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(Gson.class)
 @EnableConfigurationProperties(GsonProperties.class)
 public class GsonAutoConfiguration {

@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.mongo;
 
 import com.mongodb.MongoException;
 import org.bson.Document;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -35,10 +35,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author Yulin Qin
  */
-class MongoReactiveHealthIndicatorTests {
+public class MongoReactiveHealthIndicatorTests {
 
 	@Test
-	void testMongoIsUp() {
+	public void testMongoIsUp() {
 		Document buildInfo = mock(Document.class);
 		given(buildInfo.getString("version")).willReturn("2.6.4");
 		ReactiveMongoTemplate reactiveMongoTemplate = mock(ReactiveMongoTemplate.class);
@@ -54,7 +54,7 @@ class MongoReactiveHealthIndicatorTests {
 	}
 
 	@Test
-	void testMongoIsDown() {
+	public void testMongoIsDown() {
 		ReactiveMongoTemplate reactiveMongoTemplate = mock(ReactiveMongoTemplate.class);
 		given(reactiveMongoTemplate.executeCommand("{ buildInfo: 1 }"))
 				.willThrow(new MongoException("Connection failed"));

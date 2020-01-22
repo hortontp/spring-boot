@@ -18,8 +18,8 @@ package org.springframework.boot.autoconfigure.web.reactive;
 
 import java.net.InetAddress;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.reactive.server.ConfigurableReactiveWebServerFactory;
@@ -34,19 +34,19 @@ import static org.mockito.Mockito.verify;
  * @author Brian Clozel
  * @author Yunkun Huang
  */
-class ReactiveWebServerFactoryCustomizerTests {
+public class ReactiveWebServerFactoryCustomizerTests {
 
 	private ServerProperties properties = new ServerProperties();
 
 	private ReactiveWebServerFactoryCustomizer customizer;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.customizer = new ReactiveWebServerFactoryCustomizer(this.properties);
 	}
 
 	@Test
-	void testCustomizeServerPort() {
+	public void testCustomizeServerPort() {
 		ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
 		this.properties.setPort(9000);
 		this.customizer.customize(factory);
@@ -54,7 +54,7 @@ class ReactiveWebServerFactoryCustomizerTests {
 	}
 
 	@Test
-	void testCustomizeServerAddress() {
+	public void testCustomizeServerAddress() {
 		ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
 		InetAddress address = mock(InetAddress.class);
 		this.properties.setAddress(address);
@@ -63,7 +63,7 @@ class ReactiveWebServerFactoryCustomizerTests {
 	}
 
 	@Test
-	void testCustomizeServerSsl() {
+	public void testCustomizeServerSsl() {
 		ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
 		Ssl ssl = mock(Ssl.class);
 		this.properties.setSsl(ssl);

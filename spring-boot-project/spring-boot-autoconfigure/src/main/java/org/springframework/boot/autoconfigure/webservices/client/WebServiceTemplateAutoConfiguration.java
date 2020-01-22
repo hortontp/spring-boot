@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
 /**
@@ -37,18 +38,24 @@ import org.springframework.ws.client.core.WebServiceTemplate;
  * @author Dmytro Nosan
  * @since 2.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ WebServiceTemplate.class, Unmarshaller.class, Marshaller.class })
 public class WebServiceTemplateAutoConfiguration {
 
+	private final ObjectProvider<WebServiceTemplateCustomizer> webServiceTemplateCustomizers;
+
+	public WebServiceTemplateAutoConfiguration(
+			ObjectProvider<WebServiceTemplateCustomizer> webServiceTemplateCustomizers) {
+		this.webServiceTemplateCustomizers = webServiceTemplateCustomizers;
+	}
+
 	@Bean
 	@ConditionalOnMissingBean
-	public WebServiceTemplateBuilder webServiceTemplateBuilder(
-			ObjectProvider<WebServiceTemplateCustomizer> webServiceTemplateCustomizers) {
+	public WebServiceTemplateBuilder webServiceTemplateBuilder() {
 		WebServiceTemplateBuilder builder = new WebServiceTemplateBuilder();
-		List<WebServiceTemplateCustomizer> customizers = webServiceTemplateCustomizers.orderedStream()
+		List<WebServiceTemplateCustomizer> customizers = this.webServiceTemplateCustomizers.orderedStream()
 				.collect(Collectors.toList());
-		if (!customizers.isEmpty()) {
+		if (!CollectionUtils.isEmpty(customizers)) {
 			builder = builder.customizers(customizers);
 		}
 		return builder;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -71,12 +71,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class BasicErrorControllerIntegrationTests {
+public class BasicErrorControllerIntegrationTests {
 
 	private ConfigurableApplicationContext context;
 
-	@AfterEach
-	void closeContext() {
+	@After
+	public void closeContext() {
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -84,7 +84,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testErrorForMachineClient() {
+	public void testErrorForMachineClient() {
 		load();
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("?trace=true"), Map.class);
 		assertErrorAttributes(entity.getBody(), "500", "Internal Server Error", null, "Expected!", "/");
@@ -92,17 +92,17 @@ class BasicErrorControllerIntegrationTests {
 	}
 
 	@Test
-	void testErrorForMachineClientTraceParamTrue() {
+	public void testErrorForMachineClientTraceParamTrue() {
 		errorForMachineClientOnTraceParam("?trace=true", true);
 	}
 
 	@Test
-	void testErrorForMachineClientTraceParamFalse() {
+	public void testErrorForMachineClientTraceParamFalse() {
 		errorForMachineClientOnTraceParam("?trace=false", false);
 	}
 
 	@Test
-	void testErrorForMachineClientTraceParamAbsent() {
+	public void testErrorForMachineClientTraceParamAbsent() {
 		errorForMachineClientOnTraceParam("", false);
 	}
 
@@ -117,7 +117,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testErrorForMachineClientNoStacktrace() {
+	public void testErrorForMachineClientNoStacktrace() {
 		load("--server.error.include-stacktrace=never");
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("?trace=true"), Map.class);
 		assertErrorAttributes(entity.getBody(), "500", "Internal Server Error", null, "Expected!", "/");
@@ -126,7 +126,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testErrorForMachineClientAlwaysStacktrace() {
+	public void testErrorForMachineClientAlwaysStacktrace() {
 		load("--server.error.include-stacktrace=always");
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("?trace=false"), Map.class);
 		assertErrorAttributes(entity.getBody(), "500", "Internal Server Error", null, "Expected!", "/");
@@ -135,7 +135,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testErrorForAnnotatedException() {
+	public void testErrorForAnnotatedException() {
 		load("--server.error.include-exception=true");
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("/annotated"), Map.class);
 		assertErrorAttributes(entity.getBody(), "400", "Bad Request", TestConfiguration.Errors.ExpectedException.class,
@@ -144,7 +144,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testErrorForAnnotatedNoReasonException() {
+	public void testErrorForAnnotatedNoReasonException() {
 		load("--server.error.include-exception=true");
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("/annotatedNoReason"), Map.class);
 		assertErrorAttributes(entity.getBody(), "406", "Not Acceptable",
@@ -153,7 +153,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testBindingExceptionForMachineClient() {
+	public void testBindingExceptionForMachineClient() {
 		load("--server.error.include-exception=true");
 		RequestEntity request = RequestEntity.get(URI.create(createUrl("/bind"))).accept(MediaType.APPLICATION_JSON)
 				.build();
@@ -167,7 +167,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testRequestBodyValidationForMachineClient() {
+	public void testRequestBodyValidationForMachineClient() {
 		load("--server.error.include-exception=true");
 		RequestEntity request = RequestEntity.post(URI.create(createUrl("/bodyValidation")))
 				.accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).body("{}");
@@ -181,7 +181,7 @@ class BasicErrorControllerIntegrationTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	void testNoExceptionByDefaultForMachineClient() {
+	public void testNoExceptionByDefaultForMachineClient() {
 		load();
 		RequestEntity request = RequestEntity.get(URI.create(createUrl("/bind"))).accept(MediaType.APPLICATION_JSON)
 				.build();
@@ -191,24 +191,13 @@ class BasicErrorControllerIntegrationTests {
 	}
 
 	@Test
-	void testConventionTemplateMapping() {
+	public void testConventionTemplateMapping() {
 		load();
 		RequestEntity<?> request = RequestEntity.get(URI.create(createUrl("/noStorage"))).accept(MediaType.TEXT_HTML)
 				.build();
 		ResponseEntity<String> entity = new TestRestTemplate().exchange(request, String.class);
 		String resp = entity.getBody();
 		assertThat(resp).contains("We are out of storage");
-	}
-
-	@Test
-	void testIncompatibleMediaType() {
-		load();
-		RequestEntity<?> request = RequestEntity.get(URI.create(createUrl("/incompatibleType")))
-				.accept(MediaType.TEXT_PLAIN).build();
-		ResponseEntity<String> entity = new TestRestTemplate().exchange(request, String.class);
-		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-		assertThat(entity.getHeaders().getContentType()).isNull();
-		assertThat(entity.getBody()).isNull();
 	}
 
 	private void assertErrorAttributes(Map<?, ?> content, String status, String error, Class<?> exception,
@@ -249,18 +238,18 @@ class BasicErrorControllerIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@MinimalWebConfiguration
 	@ImportAutoConfiguration(FreeMarkerAutoConfiguration.class)
 	public static class TestConfiguration {
 
 		// For manual testing
-		static void main(String[] args) {
+		public static void main(String[] args) {
 			SpringApplication.run(TestConfiguration.class, args);
 		}
 
 		@Bean
-		View error() {
+		public View error() {
 			return new AbstractView() {
 				@Override
 				protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
@@ -271,63 +260,58 @@ class BasicErrorControllerIntegrationTests {
 		}
 
 		@RestController
-		public static class Errors {
+		protected static class Errors {
 
 			public String getFoo() {
 				return "foo";
 			}
 
 			@RequestMapping("/")
-			String home() {
+			public String home() {
 				throw new IllegalStateException("Expected!");
 			}
 
 			@RequestMapping("/annotated")
-			String annotated() {
+			public String annotated() {
 				throw new ExpectedException();
 			}
 
 			@RequestMapping("/annotatedNoReason")
-			String annotatedNoReason() {
+			public String annotatedNoReason() {
 				throw new NoReasonExpectedException("Expected message");
 			}
 
 			@RequestMapping("/bind")
-			String bind() throws Exception {
+			public String bind() throws Exception {
 				BindException error = new BindException(this, "test");
 				error.rejectValue("foo", "bar.error");
 				throw error;
 			}
 
 			@PostMapping(path = "/bodyValidation", produces = "application/json")
-			String bodyValidation(@Valid @RequestBody DummyBody body) {
+			public String bodyValidation(@Valid @RequestBody DummyBody body) {
 				return body.content;
 			}
 
 			@RequestMapping(path = "/noStorage")
-			String noStorage() {
+			public String noStorage() {
 				throw new InsufficientStorageException();
-			}
-
-			@RequestMapping(path = "/incompatibleType", produces = "text/plain")
-			String incompatibleType() {
-				throw new ExpectedException();
 			}
 
 			@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Expected!")
 			@SuppressWarnings("serial")
-			static class ExpectedException extends RuntimeException {
+			private static class ExpectedException extends RuntimeException {
 
 			}
 
 			@ResponseStatus(HttpStatus.INSUFFICIENT_STORAGE)
-			static class InsufficientStorageException extends RuntimeException {
+			private static class InsufficientStorageException extends RuntimeException {
 
 			}
 
 			@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
 			@SuppressWarnings("serial")
-			static class NoReasonExpectedException extends RuntimeException {
+			private static class NoReasonExpectedException extends RuntimeException {
 
 				NoReasonExpectedException(String message) {
 					super(message);
@@ -340,11 +324,11 @@ class BasicErrorControllerIntegrationTests {
 				@NotNull
 				private String content;
 
-				String getContent() {
+				public String getContent() {
 					return this.content;
 				}
 
-				void setContent(String content) {
+				public void setContent(String content) {
 					this.content = content;
 				}
 

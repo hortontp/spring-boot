@@ -33,7 +33,7 @@ import org.springframework.web.reactive.result.view.freemarker.FreeMarkerViewRes
  * @author Brian Clozel
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @AutoConfigureAfter(WebFluxAutoConfiguration.class)
 class FreeMarkerReactiveWebConfiguration extends AbstractFreeMarkerConfiguration {
@@ -44,21 +44,21 @@ class FreeMarkerReactiveWebConfiguration extends AbstractFreeMarkerConfiguration
 
 	@Bean
 	@ConditionalOnMissingBean(FreeMarkerConfig.class)
-	FreeMarkerConfigurer freeMarkerConfigurer() {
+	public FreeMarkerConfigurer freeMarkerConfigurer() {
 		FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
 		applyProperties(configurer);
 		return configurer;
 	}
 
 	@Bean
-	freemarker.template.Configuration freeMarkerConfiguration(FreeMarkerConfig configurer) {
+	public freemarker.template.Configuration freeMarkerConfiguration(FreeMarkerConfig configurer) {
 		return configurer.getConfiguration();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(name = "freeMarkerViewResolver")
 	@ConditionalOnProperty(name = "spring.freemarker.enabled", matchIfMissing = true)
-	FreeMarkerViewResolver freeMarkerViewResolver() {
+	public FreeMarkerViewResolver freeMarkerViewResolver() {
 		FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
 		resolver.setPrefix(getProperties().getPrefix());
 		resolver.setSuffix(getProperties().getSuffix());

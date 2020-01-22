@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.OperationType;
@@ -45,16 +45,16 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class DiscoveredJmxOperationTests {
+public class DiscoveredJmxOperationTests {
 
 	@Test
-	void getNameShouldReturnMethodName() {
+	public void getNameShouldReturnMethodName() {
 		DiscoveredJmxOperation operation = getOperation("getEnum");
 		assertThat(operation.getName()).isEqualTo("getEnum");
 	}
 
 	@Test
-	void getOutputTypeShouldReturnJmxType() {
+	public void getOutputTypeShouldReturnJmxType() {
 		assertThat(getOperation("getEnum").getOutputType()).isEqualTo(String.class);
 		assertThat(getOperation("getDate").getOutputType()).isEqualTo(String.class);
 		assertThat(getOperation("getInstant").getOutputType()).isEqualTo(String.class);
@@ -64,25 +64,25 @@ class DiscoveredJmxOperationTests {
 	}
 
 	@Test
-	void getDescriptionWhenHasManagedOperationDescriptionShouldUseValueFromAnnotation() {
+	public void getDescriptionWhenHasManagedOperationDescriptionShouldUseValueFromAnnotation() {
 		DiscoveredJmxOperation operation = getOperation("withManagedOperationDescription");
 		assertThat(operation.getDescription()).isEqualTo("fromannotation");
 	}
 
 	@Test
-	void getDescriptionWhenHasNoManagedOperationShouldGenerateDescription() {
+	public void getDescriptionWhenHasNoManagedOperationShouldGenerateDescription() {
 		DiscoveredJmxOperation operation = getOperation("getEnum");
 		assertThat(operation.getDescription()).isEqualTo("Invoke getEnum for endpoint test");
 	}
 
 	@Test
-	void getParametersWhenHasNoParametersShouldReturnEmptyList() {
+	public void getParametersWhenHasNoParametersShouldReturnEmptyList() {
 		DiscoveredJmxOperation operation = getOperation("getEnum");
 		assertThat(operation.getParameters()).isEmpty();
 	}
 
 	@Test
-	void getParametersShouldReturnJmxTypes() {
+	public void getParametersShouldReturnJmxTypes() {
 		DiscoveredJmxOperation operation = getOperation("params");
 		List<JmxOperationParameter> parameters = operation.getParameters();
 		assertThat(parameters.get(0).getType()).isEqualTo(String.class);
@@ -93,7 +93,7 @@ class DiscoveredJmxOperationTests {
 	}
 
 	@Test
-	void getParametersWhenHasManagedOperationParameterShouldUseValuesFromAnnotation() {
+	public void getParametersWhenHasManagedOperationParameterShouldUseValuesFromAnnotation() {
 		DiscoveredJmxOperation operation = getOperation("withManagedOperationParameters");
 		List<JmxOperationParameter> parameters = operation.getParameters();
 		assertThat(parameters.get(0).getName()).isEqualTo("a1");
@@ -103,7 +103,7 @@ class DiscoveredJmxOperationTests {
 	}
 
 	@Test
-	void getParametersWhenHasNoManagedOperationParameterShouldDeducedValuesName() {
+	public void getParametersWhenHasNoManagedOperationParameterShouldDeducedValuesName() {
 		DiscoveredJmxOperation operation = getOperation("params");
 		List<JmxOperationParameter> parameters = operation.getParameters();
 		assertThat(parameters.get(0).getName()).isEqualTo("enumParam");
@@ -124,7 +124,9 @@ class DiscoveredJmxOperationTests {
 		annotationAttributes.put("produces", "application/xml");
 		DiscoveredOperationMethod operationMethod = new DiscoveredOperationMethod(method, OperationType.READ,
 				annotationAttributes);
-		return new DiscoveredJmxOperation(EndpointId.of("test"), operationMethod, mock(OperationInvoker.class));
+		DiscoveredJmxOperation operation = new DiscoveredJmxOperation(EndpointId.of("test"), operationMethod,
+				mock(OperationInvoker.class));
+		return operation;
 	}
 
 	private Method findMethod(String methodName) {

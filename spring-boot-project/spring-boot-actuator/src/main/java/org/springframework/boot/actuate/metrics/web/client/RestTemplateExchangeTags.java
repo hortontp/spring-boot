@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import io.micrometer.core.instrument.Tag;
 
-import org.springframework.boot.actuate.metrics.http.Outcome;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StringUtils;
@@ -34,8 +33,6 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Andy Wilkinson
  * @author Jon Schneider
- * @author Nishant Raut
- * @author Brian Clozel
  * @since 2.0.0
  */
 public final class RestTemplateExchangeTags {
@@ -116,25 +113,6 @@ public final class RestTemplateExchangeTags {
 			host = "none";
 		}
 		return Tag.of("clientName", host);
-	}
-
-	/**
-	 * Creates an {@code outcome} {@code Tag} derived from the
-	 * {@link ClientHttpResponse#getRawStatusCode() status} of the given {@code response}.
-	 * @param response the response
-	 * @return the outcome tag
-	 * @since 2.2.0
-	 */
-	public static Tag outcome(ClientHttpResponse response) {
-		try {
-			if (response != null) {
-				return Outcome.forStatus(response.getRawStatusCode()).asTag();
-			}
-		}
-		catch (IOException ex) {
-			// Continue
-		}
-		return Outcome.UNKNOWN.asTag();
 	}
 
 }

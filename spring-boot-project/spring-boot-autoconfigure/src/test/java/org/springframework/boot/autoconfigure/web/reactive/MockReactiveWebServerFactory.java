@@ -45,7 +45,7 @@ public class MockReactiveWebServerFactory extends AbstractReactiveWebServerFacto
 		return this.webServer;
 	}
 
-	static class MockReactiveWebServer implements WebServer {
+	public static class MockReactiveWebServer implements WebServer {
 
 		private final int port;
 
@@ -53,21 +53,21 @@ public class MockReactiveWebServerFactory extends AbstractReactiveWebServerFacto
 
 		private Map<String, HttpHandler> httpHandlerMap;
 
-		MockReactiveWebServer(HttpHandler httpHandler, int port) {
+		public MockReactiveWebServer(HttpHandler httpHandler, int port) {
 			this.httpHandler = httpHandler;
 			this.port = port;
 		}
 
-		MockReactiveWebServer(Map<String, HttpHandler> httpHandlerMap, int port) {
+		public MockReactiveWebServer(Map<String, HttpHandler> httpHandlerMap, int port) {
 			this.httpHandlerMap = httpHandlerMap;
 			this.port = port;
 		}
 
-		HttpHandler getHttpHandler() {
+		public HttpHandler getHttpHandler() {
 			return this.httpHandler;
 		}
 
-		Map<String, HttpHandler> getHttpHandlerMap() {
+		public Map<String, HttpHandler> getHttpHandlerMap() {
 			return this.httpHandlerMap;
 		}
 

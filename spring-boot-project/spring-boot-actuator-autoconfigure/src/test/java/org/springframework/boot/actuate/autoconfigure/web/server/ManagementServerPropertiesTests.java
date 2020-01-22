@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.web.server;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,17 +26,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ManagementServerPropertiesTests {
+public class ManagementServerPropertiesTests {
 
 	@Test
-	void defaultManagementServerProperties() {
+	public void defaultManagementServerProperties() {
 		ManagementServerProperties properties = new ManagementServerProperties();
 		assertThat(properties.getPort()).isNull();
 		assertThat(properties.getServlet().getContextPath()).isEqualTo("");
 	}
 
 	@Test
-	void definedManagementServerProperties() {
+	public void definedManagementServerProperties() {
 		ManagementServerProperties properties = new ManagementServerProperties();
 		properties.setPort(123);
 		properties.getServlet().setContextPath("/foo");
@@ -45,14 +45,14 @@ class ManagementServerPropertiesTests {
 	}
 
 	@Test
-	void trailingSlashOfContextPathIsRemoved() {
+	public void trailingSlashOfContextPathIsRemoved() {
 		ManagementServerProperties properties = new ManagementServerProperties();
 		properties.getServlet().setContextPath("/foo/");
 		assertThat(properties.getServlet().getContextPath()).isEqualTo("/foo");
 	}
 
 	@Test
-	void slashOfContextPathIsDefaultValue() {
+	public void slashOfContextPathIsDefaultValue() {
 		ManagementServerProperties properties = new ManagementServerProperties();
 		properties.getServlet().setContextPath("/");
 		assertThat(properties.getServlet().getContextPath()).isEqualTo("");

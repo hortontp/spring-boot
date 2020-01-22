@@ -23,7 +23,7 @@ import ch.qos.logback.classic.LoggerContext;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.slf4j.impl.StaticLoggerBinder;
 
 import org.springframework.beans.BeansException;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Jon Schneider
  */
-class MeterRegistryConfigurerIntegrationTests {
+public class MeterRegistryConfigurerIntegrationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.with(MetricsRun.limitedTo(AtlasMetricsExportAutoConfiguration.class,
@@ -54,7 +54,7 @@ class MeterRegistryConfigurerIntegrationTests {
 			.withConfiguration(AutoConfigurations.of(JvmMetricsAutoConfiguration.class));
 
 	@Test
-	void binderMetricsAreSearchableFromTheComposite() {
+	public void binderMetricsAreSearchableFromTheComposite() {
 		this.contextRunner.run((context) -> {
 			CompositeMeterRegistry composite = context.getBean(CompositeMeterRegistry.class);
 			composite.get("jvm.memory.used").gauge();
@@ -64,7 +64,7 @@ class MeterRegistryConfigurerIntegrationTests {
 	}
 
 	@Test
-	void customizersAreAppliedBeforeBindersAreCreated() {
+	public void customizersAreAppliedBeforeBindersAreCreated() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(MetricsAutoConfiguration.class,
 						SimpleMetricsExportAutoConfiguration.class))
@@ -74,12 +74,13 @@ class MeterRegistryConfigurerIntegrationTests {
 	}
 
 	@Test
-	void counterIsIncrementedOncePerEventWithoutCompositeMeterRegistry() {
+	public void counterIsIncrementedOncePerEventWithoutCompositeMeterRegistry() {
 		new ApplicationContextRunner().with(MetricsRun.limitedTo(JmxMetricsExportAutoConfiguration.class))
 				.withConfiguration(AutoConfigurations.of(LogbackMetricsAutoConfiguration.class)).run((context) -> {
 					Logger logger = ((LoggerContext) StaticLoggerBinder.getSingleton().getLoggerFactory())
 							.getLogger("test-logger");
 					logger.error("Error.");
+
 					Map<String, MeterRegistry> registriesByName = context.getBeansOfType(MeterRegistry.class);
 					assertThat(registriesByName).hasSize(1);
 					MeterRegistry registry = registriesByName.values().iterator().next();
@@ -88,7 +89,7 @@ class MeterRegistryConfigurerIntegrationTests {
 	}
 
 	@Test
-	void counterIsIncrementedOncePerEventWithCompositeMeterRegistry() {
+	public void counterIsIncrementedOncePerEventWithCompositeMeterRegistry() {
 		new ApplicationContextRunner()
 				.with(MetricsRun.limitedTo(JmxMetricsExportAutoConfiguration.class,
 						PrometheusMetricsExportAutoConfiguration.class))
@@ -105,7 +106,7 @@ class MeterRegistryConfigurerIntegrationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestConfiguration {
 
 		@Bean

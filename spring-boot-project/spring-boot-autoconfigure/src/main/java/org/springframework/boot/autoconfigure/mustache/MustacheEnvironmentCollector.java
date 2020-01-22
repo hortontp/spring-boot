@@ -57,7 +57,7 @@ public class MustacheEnvironmentCollector extends DefaultCollector implements En
 	private class PropertyVariableFetcher implements VariableFetcher {
 
 		@Override
-		public Object get(Object ctx, String name) {
+		public Object get(Object ctx, String name) throws Exception {
 			return MustacheEnvironmentCollector.this.environment.getProperty(name);
 		}
 

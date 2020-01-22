@@ -36,13 +36,13 @@ import org.springframework.context.annotation.Primary;
  *
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @Conditional(MultipleNonPrimaryMeterRegistriesCondition.class)
 class CompositeMeterRegistryConfiguration {
 
 	@Bean
 	@Primary
-	CompositeMeterRegistry compositeMeterRegistry(Clock clock, List<MeterRegistry> registries) {
+	public CompositeMeterRegistry compositeMeterRegistry(Clock clock, List<MeterRegistry> registries) {
 		return new CompositeMeterRegistry(clock, registries);
 	}
 

@@ -21,15 +21,15 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.BeansException;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.env.EnvironmentEndpointAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.info.InfoEndpointAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration;
@@ -47,7 +47,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
@@ -63,28 +62,28 @@ import static org.mockito.Mockito.mock;
  *
  * @author Madhura Bhave
  */
-class ReactiveManagementWebSecurityAutoConfigurationTests {
+public class ReactiveManagementWebSecurityAutoConfigurationTests {
 
 	private ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(HealthContributorAutoConfiguration.class,
-					HealthEndpointAutoConfiguration.class, InfoEndpointAutoConfiguration.class,
-					EnvironmentEndpointAutoConfiguration.class, EndpointAutoConfiguration.class,
-					WebEndpointAutoConfiguration.class, ReactiveSecurityAutoConfiguration.class,
-					ReactiveUserDetailsServiceAutoConfiguration.class,
-					ReactiveManagementWebSecurityAutoConfiguration.class));
+			.withConfiguration(
+					AutoConfigurations.of(HealthIndicatorAutoConfiguration.class, HealthEndpointAutoConfiguration.class,
+							InfoEndpointAutoConfiguration.class, EnvironmentEndpointAutoConfiguration.class,
+							EndpointAutoConfiguration.class, WebEndpointAutoConfiguration.class,
+							ReactiveSecurityAutoConfiguration.class, ReactiveUserDetailsServiceAutoConfiguration.class,
+							ReactiveManagementWebSecurityAutoConfiguration.class));
 
 	@Test
-	void permitAllForHealth() {
+	public void permitAllForHealth() {
 		this.contextRunner.run((context) -> assertThat(getAuthenticateHeader(context, "/actuator/health")).isNull());
 	}
 
 	@Test
-	void permitAllForInfo() {
+	public void permitAllForInfo() {
 		this.contextRunner.run((context) -> assertThat(getAuthenticateHeader(context, "/actuator/info")).isNull());
 	}
 
 	@Test
-	void securesEverythingElse() {
+	public void securesEverythingElse() {
 		this.contextRunner.run((context) -> {
 			assertThat(getAuthenticateHeader(context, "/actuator").get(0)).contains("Basic realm=");
 			assertThat(getAuthenticateHeader(context, "/foo").toString()).contains("Basic realm=");
@@ -92,7 +91,7 @@ class ReactiveManagementWebSecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void usesMatchersBasedOffConfiguredActuatorBasePath() {
+	public void usesMatchersBasedOffConfiguredActuatorBasePath() {
 		this.contextRunner.withPropertyValues("management.endpoints.web.base-path=/").run((context) -> {
 			assertThat(getAuthenticateHeader(context, "/health")).isNull();
 			assertThat(getAuthenticateHeader(context, "/foo").get(0)).contains("Basic realm=");
@@ -100,7 +99,7 @@ class ReactiveManagementWebSecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void backsOffIfCustomSecurityIsAdded() {
+	public void backsOffIfCustomSecurityIsAdded() {
 		this.contextRunner.withUserConfiguration(CustomSecurityConfiguration.class).run((context) -> {
 			assertThat(getLocationHeader(context, "/actuator/health").toString()).contains("/login");
 			assertThat(getLocationHeader(context, "/foo")).isNull();
@@ -108,15 +107,15 @@ class ReactiveManagementWebSecurityAutoConfigurationTests {
 	}
 
 	@Test
-	void backOffIfReactiveOAuth2ResourceServerAutoConfigurationPresent() {
+	public void backOffIfReactiveOAuth2ResourceServerAutoConfigurationPresent() {
 		this.contextRunner.withConfiguration(AutoConfigurations.of(ReactiveOAuth2ResourceServerAutoConfiguration.class))
-				.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://authserver")
+				.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://authserver")
 				.run((context) -> assertThat(context)
 						.doesNotHaveBean(ReactiveManagementWebSecurityAutoConfiguration.class));
 	}
 
 	@Test
-	void backsOffWhenWebFilterChainProxyBeanPresent() {
+	public void backsOffWhenWebFilterChainProxyBeanPresent() {
 		this.contextRunner.withUserConfiguration(WebFilterChainProxyConfiguration.class).run((context) -> {
 			assertThat(getLocationHeader(context, "/actuator/health").toString()).contains("/login");
 			assertThat(getLocationHeader(context, "/foo").toString()).contains("/login");
@@ -147,7 +146,7 @@ class ReactiveManagementWebSecurityAutoConfigurationTests {
 		return adapter;
 	}
 
-	static class TestHttpWebHandlerAdapter extends HttpWebHandlerAdapter {
+	private static class TestHttpWebHandlerAdapter extends HttpWebHandlerAdapter {
 
 		TestHttpWebHandlerAdapter(WebHandler delegate) {
 			super(delegate);
@@ -160,48 +159,43 @@ class ReactiveManagementWebSecurityAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomSecurityConfiguration {
 
 		@Bean
-		SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
-			http.authorizeExchange((exchanges) -> {
-				exchanges.pathMatchers("/foo").permitAll();
-				exchanges.anyExchange().authenticated();
-			});
-			http.formLogin(Customizer.withDefaults());
-			return http.build();
+		public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+			return http.authorizeExchange().pathMatchers("/foo").permitAll().anyExchange().authenticated().and()
+					.formLogin().and().build();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WebFilterChainProxyConfiguration {
 
 		@Bean
-		ReactiveAuthenticationManager authenticationManager() {
+		public ReactiveAuthenticationManager authenticationManager() {
 			return mock(ReactiveAuthenticationManager.class);
 		}
 
 		@Bean
-		WebFilterChainProxy webFilterChainProxy(ServerHttpSecurity http) throws Exception {
+		public WebFilterChainProxy webFilterChainProxy(ServerHttpSecurity http) {
 			return new WebFilterChainProxy(getFilterChains(http));
 		}
 
 		@Bean
-		TestServerHttpSecurity http(ReactiveAuthenticationManager authenticationManager) {
+		public TestServerHttpSecurity http(ReactiveAuthenticationManager authenticationManager) {
 			TestServerHttpSecurity httpSecurity = new TestServerHttpSecurity();
 			httpSecurity.authenticationManager(authenticationManager);
 			return httpSecurity;
 		}
 
-		private List<SecurityWebFilterChain> getFilterChains(ServerHttpSecurity http) throws Exception {
-			http.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated());
-			http.formLogin(Customizer.withDefaults());
-			return Collections.singletonList(http.build());
+		private List<SecurityWebFilterChain> getFilterChains(ServerHttpSecurity http) {
+			return Collections.singletonList(
+					http.authorizeExchange().anyExchange().authenticated().and().formLogin().and().build());
 		}
 
-		static class TestServerHttpSecurity extends ServerHttpSecurity implements ApplicationContextAware {
+		private static class TestServerHttpSecurity extends ServerHttpSecurity implements ApplicationContextAware {
 
 			@Override
 			public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

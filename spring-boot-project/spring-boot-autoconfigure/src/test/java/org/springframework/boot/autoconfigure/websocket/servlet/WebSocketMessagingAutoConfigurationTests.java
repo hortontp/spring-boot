@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.tomcat.websocket.WsWebSocketContainer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -69,47 +69,47 @@ import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link WebSocketMessagingAutoConfiguration}.
  *
  * @author Andy Wilkinson
  */
-class WebSocketMessagingAutoConfigurationTests {
+public class WebSocketMessagingAutoConfigurationTests {
 
 	private AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext();
 
 	private SockJsClient sockJsClient;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		List<Transport> transports = Arrays.asList(
 				new WebSocketTransport(new StandardWebSocketClient(new WsWebSocketContainer())),
 				new RestTemplateXhrTransport(new RestTemplate()));
 		this.sockJsClient = new SockJsClient(transports);
 	}
 
-	@AfterEach
-	void tearDown() {
+	@After
+	public void tearDown() {
 		this.context.close();
 		this.sockJsClient.stop();
 	}
 
 	@Test
-	void basicMessagingWithJsonResponse() throws Throwable {
+	public void basicMessagingWithJsonResponse() throws Throwable {
 		Object result = performStompSubscription("/app/json");
 		assertThat(new String((byte[]) result)).isEqualTo(String.format("{%n  \"foo\" : 5,%n  \"bar\" : \"baz\"%n}"));
 	}
 
 	@Test
-	void basicMessagingWithStringResponse() throws Throwable {
+	public void basicMessagingWithStringResponse() throws Throwable {
 		Object result = performStompSubscription("/app/string");
 		assertThat(new String((byte[]) result)).isEqualTo("string data");
 	}
 
 	@Test
-	void customizedConverterTypesMatchDefaultConverterTypes() {
+	public void customizedConverterTypesMatchDefaultConverterTypes() {
 		List<MessageConverter> customizedConverters = getCustomizedConverters();
 		List<MessageConverter> defaultConverters = getDefaultConverters();
 		assertThat(customizedConverters.size()).isEqualTo(defaultConverters.size());
@@ -130,10 +130,8 @@ class WebSocketMessagingAutoConfigurationTests {
 
 	@SuppressWarnings("unchecked")
 	private List<MessageConverter> getDefaultConverters() {
-		DelegatingWebSocketMessageBrokerConfiguration configuration = new DelegatingWebSocketMessageBrokerConfiguration();
-		// We shouldn't usually call this method directly since it's on a non-proxy config
-		CompositeMessageConverter compositeDefaultConverter = ReflectionTestUtils.invokeMethod(configuration,
-				"brokerMessageConverter");
+		CompositeMessageConverter compositeDefaultConverter = new DelegatingWebSocketMessageBrokerConfiguration()
+				.brokerMessageConverter();
 		return (List<MessageConverter>) ReflectionTestUtils.getField(compositeDefaultConverter, "converters");
 	}
 
@@ -199,7 +197,7 @@ class WebSocketMessagingAutoConfigurationTests {
 		return result.get();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebSocket
 	@EnableConfigurationProperties
 	@EnableWebSocketMessageBroker
@@ -218,17 +216,17 @@ class WebSocketMessagingAutoConfigurationTests {
 		}
 
 		@Bean
-		MessagingController messagingController() {
+		public MessagingController messagingController() {
 			return new MessagingController();
 		}
 
 		@Bean
-		TomcatServletWebServerFactory tomcat() {
+		public TomcatServletWebServerFactory tomcat() {
 			return new TomcatServletWebServerFactory(0);
 		}
 
 		@Bean
-		TomcatWebSocketServletWebServerCustomizer tomcatCustomizer() {
+		public TomcatWebSocketServletWebServerCustomizer tomcatCustomizer() {
 			return new TomcatWebSocketServletWebServerCustomizer();
 		}
 
@@ -249,7 +247,7 @@ class WebSocketMessagingAutoConfigurationTests {
 
 	}
 
-	public static class Data {
+	static class Data {
 
 		private int foo;
 

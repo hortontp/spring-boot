@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.cache.CachesEndpoint;
 import org.springframework.boot.actuate.cache.CachesEndpointWebExtension;
@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Stephane Nicoll
  */
-class CachesEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class CachesEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	private static final List<FieldDescriptor> levelFields = Arrays.asList(
 			fieldWithPath("name").description("Cache name."),
@@ -57,45 +57,45 @@ class CachesEndpointDocumentationTests extends MockMvcEndpointDocumentationTests
 
 	private static final List<ParameterDescriptor> requestParameters = Collections
 			.singletonList(parameterWithName("cacheManager").description(
-					"Name of the cacheManager to qualify the cache. May be omitted if the cache name is unique.")
+					"Name of the cacheManager to qualify the cache. May be " + "omitted if the cache name is unique.")
 					.optional());
 
 	@Test
-	void allCaches() throws Exception {
+	public void allCaches() throws Exception {
 		this.mockMvc.perform(get("/actuator/caches")).andExpect(status().isOk())
 				.andDo(MockMvcRestDocumentation.document("caches/all",
 						responseFields(fieldWithPath("cacheManagers").description("Cache managers keyed by id."),
 								fieldWithPath("cacheManagers.*.caches")
-										.description("Caches in the application context keyed by name."))
+										.description("Caches in the application context keyed by " + "name."))
 												.andWithPrefix("cacheManagers.*.caches.*.", fieldWithPath("target")
 														.description("Fully qualified name of the native cache."))));
 	}
 
 	@Test
-	void namedCache() throws Exception {
+	public void namedCache() throws Exception {
 		this.mockMvc.perform(get("/actuator/caches/cities")).andExpect(status().isOk()).andDo(MockMvcRestDocumentation
 				.document("caches/named", requestParameters(requestParameters), responseFields(levelFields)));
 	}
 
 	@Test
-	void evictAllCaches() throws Exception {
+	public void evictAllCaches() throws Exception {
 		this.mockMvc.perform(delete("/actuator/caches")).andExpect(status().isNoContent())
 				.andDo(MockMvcRestDocumentation.document("caches/evict-all"));
 	}
 
 	@Test
-	void evictNamedCache() throws Exception {
+	public void evictNamedCache() throws Exception {
 		this.mockMvc.perform(delete("/actuator/caches/countries?cacheManager=anotherCacheManager"))
 				.andExpect(status().isNoContent())
 				.andDo(MockMvcRestDocumentation.document("caches/evict-named", requestParameters(requestParameters)));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		CachesEndpoint endpoint() {
+		public CachesEndpoint endpoint() {
 			Map<String, CacheManager> cacheManagers = new HashMap<>();
 			cacheManagers.put("cacheManager", new ConcurrentMapCacheManager("countries", "cities"));
 			cacheManagers.put("anotherCacheManager", new ConcurrentMapCacheManager("countries"));
@@ -103,8 +103,8 @@ class CachesEndpointDocumentationTests extends MockMvcEndpointDocumentationTests
 		}
 
 		@Bean
-		CachesEndpointWebExtension endpointWebExtension(CachesEndpoint endpoint) {
-			return new CachesEndpointWebExtension(endpoint);
+		public CachesEndpointWebExtension endpointWebExtension() {
+			return new CachesEndpointWebExtension(endpoint());
 		}
 
 	}

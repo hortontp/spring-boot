@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.cloudfoundry;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.cloudfoundry.CloudFoundryAuthorizationException.Reason;
 import org.springframework.http.HttpStatus;
@@ -28,51 +28,51 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Madhura Bhave
  */
-class CloudFoundryAuthorizationExceptionTests {
+public class CloudFoundryAuthorizationExceptionTests {
 
 	@Test
-	void statusCodeForInvalidTokenReasonShouldBe401() {
+	public void statusCodeForInvalidTokenReasonShouldBe401() {
 		assertThat(createException(Reason.INVALID_TOKEN).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForInvalidIssuerReasonShouldBe401() {
+	public void statusCodeForInvalidIssuerReasonShouldBe401() {
 		assertThat(createException(Reason.INVALID_ISSUER).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForInvalidAudienceReasonShouldBe401() {
+	public void statusCodeForInvalidAudienceReasonShouldBe401() {
 		assertThat(createException(Reason.INVALID_AUDIENCE).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForInvalidSignatureReasonShouldBe401() {
+	public void statusCodeForInvalidSignatureReasonShouldBe401() {
 		assertThat(createException(Reason.INVALID_SIGNATURE).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForMissingAuthorizationReasonShouldBe401() {
+	public void statusCodeForMissingAuthorizationReasonShouldBe401() {
 		assertThat(createException(Reason.MISSING_AUTHORIZATION).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForUnsupportedSignatureAlgorithmReasonShouldBe401() {
+	public void statusCodeForUnsupportedSignatureAlgorithmReasonShouldBe401() {
 		assertThat(createException(Reason.UNSUPPORTED_TOKEN_SIGNING_ALGORITHM).getStatusCode())
 				.isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForTokenExpiredReasonShouldBe401() {
+	public void statusCodeForTokenExpiredReasonShouldBe401() {
 		assertThat(createException(Reason.TOKEN_EXPIRED).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
-	void statusCodeForAccessDeniedReasonShouldBe403() {
+	public void statusCodeForAccessDeniedReasonShouldBe403() {
 		assertThat(createException(Reason.ACCESS_DENIED).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
-	void statusCodeForServiceUnavailableReasonShouldBe503() {
+	public void statusCodeForServiceUnavailableReasonShouldBe503() {
 		assertThat(createException(Reason.SERVICE_UNAVAILABLE).getStatusCode())
 				.isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
 	}

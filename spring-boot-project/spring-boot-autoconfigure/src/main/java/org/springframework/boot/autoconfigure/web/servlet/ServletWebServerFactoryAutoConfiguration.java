@@ -16,7 +16,6 @@
 
 package org.springframework.boot.autoconfigure.web.servlet;
 
-import javax.servlet.DispatcherType;
 import javax.servlet.ServletRequest;
 
 import org.springframework.beans.BeansException;
@@ -28,14 +27,12 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.server.ErrorPageRegistrarBeanPostProcessor;
 import org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -43,7 +40,6 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.filter.ForwardedHeaderFilter;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for servlet web servers.
@@ -55,7 +51,7 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  * @author Stephane Nicoll
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnClass(ServletRequest.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
@@ -76,17 +72,6 @@ public class ServletWebServerFactoryAutoConfiguration {
 	public TomcatServletWebServerFactoryCustomizer tomcatServletWebServerFactoryCustomizer(
 			ServerProperties serverProperties) {
 		return new TomcatServletWebServerFactoryCustomizer(serverProperties);
-	}
-
-	@Bean
-	@ConditionalOnMissingFilterBean(ForwardedHeaderFilter.class)
-	@ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
-	public FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
-		ForwardedHeaderFilter filter = new ForwardedHeaderFilter();
-		FilterRegistrationBean<ForwardedHeaderFilter> registration = new FilterRegistrationBean<>(filter);
-		registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR);
-		registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
-		return registration;
 	}
 
 	/**

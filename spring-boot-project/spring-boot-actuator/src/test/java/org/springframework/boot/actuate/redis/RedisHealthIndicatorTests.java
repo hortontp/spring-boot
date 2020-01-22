@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
@@ -44,10 +44,10 @@ import static org.mockito.Mockito.verify;
  * @author Richard Santana
  * @author Stephane Nicoll
  */
-class RedisHealthIndicatorTests {
+public class RedisHealthIndicatorTests {
 
 	@Test
-	void redisIsUp() {
+	public void redisIsUp() {
 		Properties info = new Properties();
 		info.put("redis_version", "2.8.9");
 		RedisConnection redisConnection = mock(RedisConnection.class);
@@ -59,7 +59,7 @@ class RedisHealthIndicatorTests {
 	}
 
 	@Test
-	void redisIsDown() {
+	public void redisIsDown() {
 		RedisConnection redisConnection = mock(RedisConnection.class);
 		given(redisConnection.info()).willThrow(new RedisConnectionFailureException("Connection failed"));
 		RedisHealthIndicator healthIndicator = createHealthIndicator(redisConnection);
@@ -75,7 +75,7 @@ class RedisHealthIndicatorTests {
 	}
 
 	@Test
-	void redisClusterIsUp() {
+	public void redisClusterIsUp() {
 		Properties clusterProperties = new Properties();
 		clusterProperties.setProperty("cluster_size", "4");
 		clusterProperties.setProperty("cluster_slots_ok", "4");

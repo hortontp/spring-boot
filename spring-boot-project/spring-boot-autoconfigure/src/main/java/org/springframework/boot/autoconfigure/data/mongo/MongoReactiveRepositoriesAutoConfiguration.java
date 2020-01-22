@@ -42,19 +42,18 @@ import org.springframework.data.mongodb.repository.support.ReactiveMongoReposito
  * and there is no other configured {@link ReactiveMongoRepository}.
  * <p>
  * Once in effect, the auto-configuration is the equivalent of enabling Mongo repositories
- * using the {@link EnableReactiveMongoRepositories @EnableReactiveMongoRepositories}
- * annotation.
+ * using the {@link EnableReactiveMongoRepositories} annotation.
  *
  * @author Mark Paluch
  * @since 2.0.0
  * @see EnableReactiveMongoRepositories
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ MongoClient.class, ReactiveMongoRepository.class })
 @ConditionalOnMissingBean({ ReactiveMongoRepositoryFactoryBean.class,
 		ReactiveMongoRepositoryConfigurationExtension.class })
 @ConditionalOnRepositoryType(store = "mongodb", type = RepositoryType.REACTIVE)
-@Import(MongoReactiveRepositoriesRegistrar.class)
+@Import(MongoReactiveRepositoriesAutoConfigureRegistrar.class)
 @AutoConfigureAfter(MongoReactiveDataAutoConfiguration.class)
 public class MongoReactiveRepositoriesAutoConfiguration {
 

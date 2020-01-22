@@ -17,7 +17,7 @@
 package org.springframework.boot.autoconfigure.jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -33,19 +33,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class HikariDriverConfigurationFailureAnalyzerTests {
+public class HikariDriverConfigurationFailureAnalyzerTests {
 
 	@Test
-	void failureAnalysisIsPerformed() {
+	public void failureAnalysisIsPerformed() {
 		FailureAnalysis failureAnalysis = performAnalysis(TestConfiguration.class);
 		assertThat(failureAnalysis).isNotNull();
 		assertThat(failureAnalysis.getDescription()).isEqualTo(
-				"Configuration of the Hikari connection pool failed: 'dataSourceClassName' is not supported.");
+				"Configuration of the Hikari connection pool failed: " + "'dataSourceClassName' is not supported.");
 		assertThat(failureAnalysis.getAction()).contains("Spring Boot auto-configures only a driver");
 	}
 
 	@Test
-	void unrelatedIllegalStateExceptionIsSkipped() {
+	public void unrelatedIllegalStateExceptionIsSkipped() {
 		FailureAnalysis failureAnalysis = new HikariDriverConfigurationFailureAnalyzer()
 				.analyze(new RuntimeException("foo", new IllegalStateException("bar")));
 		assertThat(failureAnalysis).isNull();
@@ -73,7 +73,7 @@ class HikariDriverConfigurationFailureAnalyzerTests {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ImportAutoConfiguration(DataSourceAutoConfiguration.class)
 	static class TestConfiguration {
 

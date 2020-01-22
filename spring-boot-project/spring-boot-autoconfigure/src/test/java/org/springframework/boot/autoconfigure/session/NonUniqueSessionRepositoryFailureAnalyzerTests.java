@@ -18,14 +18,14 @@ package org.springframework.boot.autoconfigure.session;
 
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.diagnostics.FailureAnalysis;
 import org.springframework.boot.diagnostics.FailureAnalyzer;
 import org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
-import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
+import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,17 +34,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class NonUniqueSessionRepositoryFailureAnalyzerTests {
+public class NonUniqueSessionRepositoryFailureAnalyzerTests {
 
 	private final FailureAnalyzer analyzer = new NonUniqueSessionRepositoryFailureAnalyzer();
 
 	@Test
-	void failureAnalysisWithMultipleCandidates() {
+	public void failureAnalysisWithMultipleCandidates() {
 		FailureAnalysis analysis = analyzeFailure(
-				createFailure(JdbcIndexedSessionRepository.class, HazelcastIndexedSessionRepository.class));
+				createFailure(JdbcOperationsSessionRepository.class, HazelcastSessionRepository.class));
 		assertThat(analysis).isNotNull();
-		assertThat(analysis.getDescription()).contains(JdbcIndexedSessionRepository.class.getName(),
-				HazelcastIndexedSessionRepository.class.getName());
+		assertThat(analysis.getDescription()).contains(JdbcOperationsSessionRepository.class.getName(),
+				HazelcastSessionRepository.class.getName());
 		assertThat(analysis.getAction()).contains("spring.session.store-type");
 	}
 

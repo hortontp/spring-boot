@@ -21,7 +21,7 @@ import java.sql.DatabaseMetaData;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.orm.jpa.vendor.Database;
 
@@ -35,65 +35,65 @@ import static org.mockito.Mockito.mock;
  * @author Eddú Meléndez
  * @author Phillip Webb
  */
-class DatabaseLookupTests {
+public class DatabaseLookupTests {
 
 	@Test
-	void getDatabaseWhenDataSourceIsNullShouldReturnDefault() {
+	public void getDatabaseWhenDataSourceIsNullShouldReturnDefault() {
 		assertThat(DatabaseLookup.getDatabase(null)).isEqualTo(Database.DEFAULT);
 	}
 
 	@Test
-	void getDatabaseWhenDataSourceIsUnknownShouldReturnDefault() throws Exception {
+	public void getDatabaseWhenDataSourceIsUnknownShouldReturnDefault() throws Exception {
 		testGetDatabase("jdbc:idontexist:", Database.DEFAULT);
 	}
 
 	@Test
-	void getDatabaseWhenDerbyShouldReturnDerby() throws Exception {
+	public void getDatabaseWhenDerbyShouldReturnDerby() throws Exception {
 		testGetDatabase("jdbc:derby:", Database.DERBY);
 	}
 
 	@Test
-	void getDatabaseWhenH2ShouldReturnH2() throws Exception {
+	public void getDatabaseWhenH2ShouldReturnH2() throws Exception {
 		testGetDatabase("jdbc:h2:", Database.H2);
 	}
 
 	@Test
-	void getDatabaseWhenHsqldbShouldReturnHsqldb() throws Exception {
+	public void getDatabaseWhenHsqldbShouldReturnHsqldb() throws Exception {
 		testGetDatabase("jdbc:hsqldb:", Database.HSQL);
 	}
 
 	@Test
-	void getDatabaseWhenMysqlShouldReturnMysql() throws Exception {
+	public void getDatabaseWhenMysqlShouldReturnMysql() throws Exception {
 		testGetDatabase("jdbc:mysql:", Database.MYSQL);
 	}
 
 	@Test
-	void getDatabaseWhenOracleShouldReturnOracle() throws Exception {
+	public void getDatabaseWhenOracleShouldReturnOracle() throws Exception {
 		testGetDatabase("jdbc:oracle:", Database.ORACLE);
 	}
 
 	@Test
-	void getDatabaseWhenPostgresShouldReturnPostgres() throws Exception {
+	public void getDatabaseWhenPostgresShouldReturnPostgres() throws Exception {
 		testGetDatabase("jdbc:postgresql:", Database.POSTGRESQL);
 	}
 
 	@Test
-	void getDatabaseWhenSqlserverShouldReturnSqlserver() throws Exception {
+	public void getDatabaseWhenSqlserverShouldReturnSqlserver() throws Exception {
 		testGetDatabase("jdbc:sqlserver:", Database.SQL_SERVER);
 	}
 
 	@Test
-	void getDatabaseWhenDb2ShouldReturnDb2() throws Exception {
+	public void getDatabaseWhenDb2ShouldReturnDb2() throws Exception {
 		testGetDatabase("jdbc:db2:", Database.DB2);
 	}
 
 	@Test
-	void getDatabaseWhenInformixShouldReturnInformix() throws Exception {
+	public void getDatabaseWhenInformixShouldReturnInformix() throws Exception {
 		testGetDatabase("jdbc:informix-sqli:", Database.INFORMIX);
 	}
 
 	@Test
-	void getDatabaseWhenSapShouldReturnHana() throws Exception {
+	public void getDatabaseWhenSapShouldReturnHana() throws Exception {
 		testGetDatabase("jdbc:sap:", Database.HANA);
 	}
 

@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.metrics.export.kairos;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesConfigAdapterTests;
 
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class KairosPropertiesConfigAdapterTests
+public class KairosPropertiesConfigAdapterTests
 		extends StepRegistryPropertiesConfigAdapterTests<KairosProperties, KairosPropertiesConfigAdapter> {
 
 	@Override
@@ -41,7 +41,7 @@ class KairosPropertiesConfigAdapterTests
 	}
 
 	@Test
-	void whenPropertiesUriIsSetAdapterUriReturnsIt() {
+	public void whenPropertiesUrisIsSetAdapterUriReturnsIt() {
 		KairosProperties properties = createProperties();
 		properties.setUri("https://kairos.example.com:8080/api/v1/datapoints");
 		assertThat(createConfigAdapter(properties).uri())
@@ -49,14 +49,14 @@ class KairosPropertiesConfigAdapterTests
 	}
 
 	@Test
-	void whenPropertiesUserNameIsSetAdapterUserNameReturnsIt() {
+	public void whenPropertiesUserNameIsSetAdapterUserNameReturnsIt() {
 		KairosProperties properties = createProperties();
 		properties.setUserName("alice");
 		assertThat(createConfigAdapter(properties).userName()).isEqualTo("alice");
 	}
 
 	@Test
-	void whenPropertiesPasswordIsSetAdapterPasswordReturnsIt() {
+	public void whenPropertiesPasswordIsSetAdapterPasswordReturnsIt() {
 		KairosProperties properties = createProperties();
 		properties.setPassword("secret");
 		assertThat(createConfigAdapter(properties).password()).isEqualTo("secret");

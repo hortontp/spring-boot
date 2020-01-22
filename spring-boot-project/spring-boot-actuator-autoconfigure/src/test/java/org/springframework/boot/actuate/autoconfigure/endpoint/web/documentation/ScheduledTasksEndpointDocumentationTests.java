@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.context.annotation.Bean;
@@ -48,31 +48,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-class ScheduledTasksEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class ScheduledTasksEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	@Test
-	void scheduledTasks() throws Exception {
-		this.mockMvc.perform(get("/actuator/scheduledtasks")).andExpect(status().isOk())
-				.andDo(document("scheduled-tasks",
-						preprocessResponse(replacePattern(
-								Pattern.compile("org.*\\.ScheduledTasksEndpointDocumentationTests\\$TestConfiguration"),
-								"com.example.Processor")),
-						responseFields(fieldWithPath("cron").description("Cron tasks, if any."),
-								targetFieldWithPrefix("cron.[]."),
-								fieldWithPath("cron.[].expression").description("Cron expression."),
-								fieldWithPath("fixedDelay").description("Fixed delay tasks, if any."),
-								targetFieldWithPrefix("fixedDelay.[]."), initialDelayWithPrefix("fixedDelay.[]."),
-								fieldWithPath("fixedDelay.[].interval")
-										.description("Interval, in milliseconds, between the end of the last"
-												+ " execution and the start of the next."),
-								fieldWithPath("fixedRate").description("Fixed rate tasks, if any."),
-								targetFieldWithPrefix("fixedRate.[]."),
-								fieldWithPath("fixedRate.[].interval")
-										.description("Interval, in milliseconds, between the start of each execution."),
-								initialDelayWithPrefix("fixedRate.[]."),
-								fieldWithPath("custom").description("Tasks with custom triggers, if any."),
-								targetFieldWithPrefix("custom.[]."),
-								fieldWithPath("custom.[].trigger").description("Trigger for the task."))))
+	public void scheduledTasks() throws Exception {
+		this.mockMvc.perform(get("/actuator/scheduledtasks")).andExpect(status().isOk()).andDo(document(
+				"scheduled-tasks",
+				preprocessResponse(replacePattern(
+						Pattern.compile("org.*\\.ScheduledTasksEndpointDocumentationTests\\$" + "TestConfiguration"),
+						"com.example.Processor")),
+				responseFields(fieldWithPath("cron").description("Cron tasks, if any."),
+						targetFieldWithPrefix("cron.[]."),
+						fieldWithPath("cron.[].expression").description("Cron expression."),
+						fieldWithPath("fixedDelay").description("Fixed delay tasks, if any."),
+						targetFieldWithPrefix("fixedDelay.[]."), initialDelayWithPrefix("fixedDelay.[]."),
+						fieldWithPath("fixedDelay.[].interval")
+								.description("Interval, in milliseconds, between the end of the last"
+										+ " execution and the start of the next."),
+						fieldWithPath("fixedRate").description("Fixed rate tasks, if any."),
+						targetFieldWithPrefix("fixedRate.[]."),
+						fieldWithPath("fixedRate.[].interval")
+								.description("Interval, in milliseconds, between the start of each execution."),
+						initialDelayWithPrefix("fixedRate.[]."),
+						fieldWithPath("custom").description("Tasks with custom triggers, if any."),
+						targetFieldWithPrefix("custom.[]."),
+						fieldWithPath("custom.[].trigger").description("Trigger for the task."))))
 				.andDo(MockMvcResultHandlers.print());
 	}
 
@@ -84,33 +84,33 @@ class ScheduledTasksEndpointDocumentationTests extends MockMvcEndpointDocumentat
 		return fieldWithPath(prefix + "initialDelay").description("Delay, in milliseconds, before first execution.");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableScheduling
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		ScheduledTasksEndpoint endpoint(Collection<ScheduledTaskHolder> holders) {
+		public ScheduledTasksEndpoint endpoint(Collection<ScheduledTaskHolder> holders) {
 			return new ScheduledTasksEndpoint(holders);
 		}
 
 		@Scheduled(cron = "0 0 0/3 1/1 * ?")
-		void processOrders() {
+		public void processOrders() {
 
 		}
 
 		@Scheduled(fixedDelay = 5000, initialDelay = 5000)
-		void purge() {
+		public void purge() {
 
 		}
 
 		@Scheduled(fixedRate = 3000, initialDelay = 10000)
-		void retrieveIssues() {
+		public void retrieveIssues() {
 
 		}
 
 		@Bean
-		SchedulingConfigurer schedulingConfigurer() {
+		public SchedulingConfigurer schedulingConfigurer() {
 			return (registrar) -> registrar.addTriggerTask(new CustomTriggeredRunnable(), new CustomTrigger());
 		}
 

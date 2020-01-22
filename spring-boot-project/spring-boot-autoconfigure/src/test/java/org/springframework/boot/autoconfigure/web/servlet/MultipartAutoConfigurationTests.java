@@ -20,8 +20,8 @@ import java.net.URI;
 
 import javax.servlet.MultipartConfigElement;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -61,19 +61,19 @@ import static org.mockito.Mockito.mock;
  * @author Ivan Sopov
  * @author Toshiaki Maki
  */
-class MultipartAutoConfigurationTests {
+public class MultipartAutoConfigurationTests {
 
 	private AnnotationConfigServletWebServerApplicationContext context;
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void webServerWithNothing() throws Exception {
+	public void webServerWithNothing() throws Exception {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithNothing.class,
 				BaseConfiguration.class);
 		DispatcherServlet servlet = this.context.getBean(DispatcherServlet.class);
@@ -84,7 +84,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithNoMultipartJettyConfiguration() {
+	public void webServerWithNoMultipartJettyConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithNoMultipartJetty.class,
 				BaseConfiguration.class);
 		DispatcherServlet servlet = this.context.getBean(DispatcherServlet.class);
@@ -95,7 +95,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithNoMultipartUndertowConfiguration() {
+	public void webServerWithNoMultipartUndertowConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithNoMultipartUndertow.class,
 				BaseConfiguration.class);
 		DispatcherServlet servlet = this.context.getBean(DispatcherServlet.class);
@@ -106,7 +106,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithNoMultipartTomcatConfiguration() {
+	public void webServerWithNoMultipartTomcatConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithNoMultipartTomcat.class,
 				BaseConfiguration.class);
 		DispatcherServlet servlet = this.context.getBean(DispatcherServlet.class);
@@ -117,7 +117,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithAutomatedMultipartJettyConfiguration() {
+	public void webServerWithAutomatedMultipartJettyConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithEverythingJetty.class,
 				BaseConfiguration.class);
 		this.context.getBean(MultipartConfigElement.class);
@@ -127,7 +127,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithAutomatedMultipartTomcatConfiguration() {
+	public void webServerWithAutomatedMultipartTomcatConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithEverythingTomcat.class,
 				BaseConfiguration.class);
 		new RestTemplate().getForObject("http://localhost:" + this.context.getWebServer().getPort() + "/",
@@ -139,7 +139,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithAutomatedMultipartUndertowConfiguration() {
+	public void webServerWithAutomatedMultipartUndertowConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(WebServerWithEverythingUndertow.class,
 				BaseConfiguration.class);
 		this.context.getBean(MultipartConfigElement.class);
@@ -149,7 +149,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithNonAbsoluteMultipartLocationUndertowConfiguration() {
+	public void webServerWithNonAbsoluteMultipartLocationUndertowConfiguration() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(
 				WebServerWithNonAbsolutePathUndertow.class, BaseConfiguration.class);
 		this.context.getBean(MultipartConfigElement.class);
@@ -159,12 +159,12 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithMultipartConfigDisabled() {
+	public void webServerWithMultipartConfigDisabled() {
 		testWebServerWithCustomMultipartConfigEnabledSetting("false", 0);
 	}
 
 	@Test
-	void webServerWithMultipartConfigEnabled() {
+	public void webServerWithMultipartConfigEnabled() {
 		testWebServerWithCustomMultipartConfigEnabledSetting("true", 1);
 	}
 
@@ -180,7 +180,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void webServerWithCustomMultipartResolver() {
+	public void webServerWithCustomMultipartResolver() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(
 				WebServerWithCustomMultipartResolver.class, BaseConfiguration.class);
 		MultipartResolver multipartResolver = this.context.getBean(MultipartResolver.class);
@@ -189,7 +189,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void containerWithCommonsMultipartResolver() {
+	public void containerWithCommonsMultipartResolver() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext(
 				ContainerWithCommonsMultipartResolver.class, BaseConfiguration.class);
 		MultipartResolver multipartResolver = this.context.getBean(MultipartResolver.class);
@@ -198,7 +198,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void configureResolveLazily() {
+	public void configureResolveLazily() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext();
 		TestPropertyValues.of("spring.servlet.multipart.resolve-lazily=true").applyTo(this.context);
 		this.context.register(WebServerWithNothing.class, BaseConfiguration.class);
@@ -209,7 +209,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void configureMultipartProperties() {
+	public void configureMultipartProperties() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext();
 		TestPropertyValues
 				.of("spring.servlet.multipart.max-file-size=2048KB", "spring.servlet.multipart.max-request-size=15MB")
@@ -222,7 +222,7 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Test
-	void configureMultipartPropertiesWithRawLongValues() {
+	public void configureMultipartPropertiesWithRawLongValues() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext();
 		TestPropertyValues
 				.of("spring.servlet.multipart.max-file-size=512", "spring.servlet.multipart.max-request-size=2048")
@@ -248,13 +248,13 @@ class MultipartAutoConfigurationTests {
 		assertThat(restTemplate.getForObject(url, String.class)).isEqualTo("Hello");
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithNothing {
+	@Configuration
+	public static class WebServerWithNothing {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithNoMultipartJetty {
+	@Configuration
+	public static class WebServerWithNoMultipartJetty {
 
 		@Bean
 		JettyServletWebServerFactory webServerFactory() {
@@ -268,8 +268,8 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithNoMultipartUndertow {
+	@Configuration
+	public static class WebServerWithNoMultipartUndertow {
 
 		@Bean
 		UndertowServletWebServerFactory webServerFactory() {
@@ -283,14 +283,14 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import({ ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
 			MultipartAutoConfiguration.class })
 	@EnableConfigurationProperties(MultipartProperties.class)
-	static class BaseConfiguration {
+	protected static class BaseConfiguration {
 
 		@Bean
-		ServerProperties serverProperties() {
+		public ServerProperties serverProperties() {
 			ServerProperties properties = new ServerProperties();
 			properties.setPort(0);
 			return properties;
@@ -298,8 +298,8 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithNoMultipartTomcat {
+	@Configuration
+	public static class WebServerWithNoMultipartTomcat {
 
 		@Bean
 		TomcatServletWebServerFactory webServerFactory() {
@@ -313,8 +313,8 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithEverythingJetty {
+	@Configuration
+	public static class WebServerWithEverythingJetty {
 
 		@Bean
 		MultipartConfigElement multipartConfigElement() {
@@ -333,9 +333,9 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebMvc
-	static class WebServerWithEverythingTomcat {
+	public static class WebServerWithEverythingTomcat {
 
 		@Bean
 		MultipartConfigElement multipartConfigElement() {
@@ -354,9 +354,9 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebMvc
-	static class WebServerWithEverythingUndertow {
+	public static class WebServerWithEverythingUndertow {
 
 		@Bean
 		MultipartConfigElement multipartConfigElement() {
@@ -375,9 +375,9 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableWebMvc
-	static class WebServerWithNonAbsolutePathUndertow {
+	public static class WebServerWithNonAbsolutePathUndertow {
 
 		@Bean
 		MultipartConfigElement multipartConfigElement() {
@@ -396,8 +396,8 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class WebServerWithCustomMultipartResolver {
+	@Configuration
+	public static class WebServerWithCustomMultipartResolver {
 
 		@Bean
 		MultipartResolver multipartResolver() {
@@ -406,8 +406,8 @@ class MultipartAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class ContainerWithCommonsMultipartResolver {
+	@Configuration
+	public static class ContainerWithCommonsMultipartResolver {
 
 		@Bean
 		CommonsMultipartResolver multipartResolver() {
@@ -417,11 +417,11 @@ class MultipartAutoConfigurationTests {
 	}
 
 	@Controller
-	static class WebController {
+	public static class WebController {
 
 		@RequestMapping("/")
 		@ResponseBody
-		String index() {
+		public String index() {
 			return "Hello";
 		}
 

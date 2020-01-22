@@ -78,11 +78,11 @@ class ProjectGenerationRequest {
 	 * @return the service URL
 	 * @see #DEFAULT_SERVICE_URL
 	 */
-	String getServiceUrl() {
+	public String getServiceUrl() {
 		return this.serviceUrl;
 	}
 
-	void setServiceUrl(String serviceUrl) {
+	public void setServiceUrl(String serviceUrl) {
 		this.serviceUrl = serviceUrl;
 	}
 
@@ -90,11 +90,11 @@ class ProjectGenerationRequest {
 	 * The location of the generated project.
 	 * @return the location of the generated project
 	 */
-	String getOutput() {
+	public String getOutput() {
 		return this.output;
 	}
 
-	void setOutput(String output) {
+	public void setOutput(String output) {
 		if (output != null && output.endsWith("/")) {
 			this.output = output.substring(0, output.length() - 1);
 			this.extract = true;
@@ -110,11 +110,11 @@ class ProjectGenerationRequest {
 	 * automatically.
 	 * @return {@code true} if the archive should be extracted, otherwise {@code false}
 	 */
-	boolean isExtract() {
+	public boolean isExtract() {
 		return this.extract;
 	}
 
-	void setExtract(boolean extract) {
+	public void setExtract(boolean extract) {
 		this.extract = extract;
 	}
 
@@ -122,11 +122,11 @@ class ProjectGenerationRequest {
 	 * The groupId to use or {@code null} if it should not be customized.
 	 * @return the groupId or {@code null}
 	 */
-	String getGroupId() {
+	public String getGroupId() {
 		return this.groupId;
 	}
 
-	void setGroupId(String groupId) {
+	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
 
@@ -134,11 +134,11 @@ class ProjectGenerationRequest {
 	 * The artifactId to use or {@code null} if it should not be customized.
 	 * @return the artifactId or {@code null}
 	 */
-	String getArtifactId() {
+	public String getArtifactId() {
 		return this.artifactId;
 	}
 
-	void setArtifactId(String artifactId) {
+	public void setArtifactId(String artifactId) {
 		this.artifactId = artifactId;
 	}
 
@@ -146,11 +146,11 @@ class ProjectGenerationRequest {
 	 * The artifact version to use or {@code null} if it should not be customized.
 	 * @return the artifact version or {@code null}
 	 */
-	String getVersion() {
+	public String getVersion() {
 		return this.version;
 	}
 
-	void setVersion(String version) {
+	public void setVersion(String version) {
 		this.version = version;
 	}
 
@@ -158,11 +158,11 @@ class ProjectGenerationRequest {
 	 * The name to use or {@code null} if it should not be customized.
 	 * @return the name or {@code null}
 	 */
-	String getName() {
+	public String getName() {
 		return this.name;
 	}
 
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -170,11 +170,11 @@ class ProjectGenerationRequest {
 	 * The description to use or {@code null} if it should not be customized.
 	 * @return the description or {@code null}
 	 */
-	String getDescription() {
+	public String getDescription() {
 		return this.description;
 	}
 
-	void setDescription(String description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
@@ -182,11 +182,11 @@ class ProjectGenerationRequest {
 	 * Return the package name or {@code null} if it should not be customized.
 	 * @return the package name or {@code null}
 	 */
-	String getPackageName() {
+	public String getPackageName() {
 		return this.packageName;
 	}
 
-	void setPackageName(String packageName) {
+	public void setPackageName(String packageName) {
 		this.packageName = packageName;
 	}
 
@@ -195,11 +195,11 @@ class ProjectGenerationRequest {
 	 * service supports. If not set, the default is retrieved from the service metadata.
 	 * @return the project type
 	 */
-	String getType() {
+	public String getType() {
 		return this.type;
 	}
 
-	void setType(String type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
@@ -207,11 +207,11 @@ class ProjectGenerationRequest {
 	 * The packaging type or {@code null} if it should not be customized.
 	 * @return the packaging type or {@code null}
 	 */
-	String getPackaging() {
+	public String getPackaging() {
 		return this.packaging;
 	}
 
-	void setPackaging(String packaging) {
+	public void setPackaging(String packaging) {
 		this.packaging = packaging;
 	}
 
@@ -220,11 +220,11 @@ class ProjectGenerationRequest {
 	 * {@link #getFormat() format} to identify the type to use.
 	 * @return the build type
 	 */
-	String getBuild() {
+	public String getBuild() {
 		return this.build;
 	}
 
-	void setBuild(String build) {
+	public void setBuild(String build) {
 		this.build = build;
 	}
 
@@ -233,11 +233,11 @@ class ProjectGenerationRequest {
 	 * {@link #getBuild() build} to identify the type to use.
 	 * @return the project format
 	 */
-	String getFormat() {
+	public String getFormat() {
 		return this.format;
 	}
 
-	void setFormat(String format) {
+	public void setFormat(String format) {
 		this.format = format;
 	}
 
@@ -245,11 +245,11 @@ class ProjectGenerationRequest {
 	 * Whether or not the type should be detected based on the build and format value.
 	 * @return {@code true} if type detection will be performed, otherwise {@code false}
 	 */
-	boolean isDetectType() {
+	public boolean isDetectType() {
 		return this.detectType;
 	}
 
-	void setDetectType(boolean detectType) {
+	public void setDetectType(boolean detectType) {
 		this.detectType = detectType;
 	}
 
@@ -257,11 +257,11 @@ class ProjectGenerationRequest {
 	 * The Java version to use or {@code null} if it should not be customized.
 	 * @return the Java version or {@code null}
 	 */
-	String getJavaVersion() {
+	public String getJavaVersion() {
 		return this.javaVersion;
 	}
 
-	void setJavaVersion(String javaVersion) {
+	public void setJavaVersion(String javaVersion) {
 		this.javaVersion = javaVersion;
 	}
 
@@ -269,11 +269,11 @@ class ProjectGenerationRequest {
 	 * The programming language to use or {@code null} if it should not be customized.
 	 * @return the programming language or {@code null}
 	 */
-	String getLanguage() {
+	public String getLanguage() {
 		return this.language;
 	}
 
-	void setLanguage(String language) {
+	public void setLanguage(String language) {
 		this.language = language;
 	}
 
@@ -281,11 +281,11 @@ class ProjectGenerationRequest {
 	 * The Spring Boot version to use or {@code null} if it should not be customized.
 	 * @return the Spring Boot version or {@code null}
 	 */
-	String getBootVersion() {
+	public String getBootVersion() {
 		return this.bootVersion;
 	}
 
-	void setBootVersion(String bootVersion) {
+	public void setBootVersion(String bootVersion) {
 		this.bootVersion = bootVersion;
 	}
 
@@ -293,7 +293,7 @@ class ProjectGenerationRequest {
 	 * The identifiers of the dependencies to include in the project.
 	 * @return the dependency identifiers
 	 */
-	List<String> getDependencies() {
+	public List<String> getDependencies() {
 		return this.dependencies;
 	}
 

@@ -51,7 +51,8 @@ class ReactiveOAuth2ClientConfigurations {
 	static class ReactiveClientRegistrationRepositoryConfiguration {
 
 		@Bean
-		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties properties) {
+		public InMemoryReactiveClientRegistrationRepository clientRegistrationRepository(
+				OAuth2ClientProperties properties) {
 			List<ClientRegistration> registrations = new ArrayList<>(
 					OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(properties).values());
 			return new InMemoryReactiveClientRegistrationRepository(registrations);
@@ -65,14 +66,14 @@ class ReactiveOAuth2ClientConfigurations {
 
 		@Bean
 		@ConditionalOnMissingBean
-		ReactiveOAuth2AuthorizedClientService authorizedClientService(
+		public ReactiveOAuth2AuthorizedClientService authorizedClientService(
 				ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			return new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistrationRepository);
 		}
 
 		@Bean
 		@ConditionalOnMissingBean
-		ServerOAuth2AuthorizedClientRepository authorizedClientRepository(
+		public ServerOAuth2AuthorizedClientRepository authorizedClientRepository(
 				ReactiveOAuth2AuthorizedClientService authorizedClientService) {
 			return new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
 		}
@@ -83,10 +84,9 @@ class ReactiveOAuth2ClientConfigurations {
 
 			@Bean
 			@ConditionalOnMissingBean
-			SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+			public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 				http.authorizeExchange().anyExchange().authenticated();
 				http.oauth2Login();
-				http.oauth2Client();
 				return http.build();
 			}
 

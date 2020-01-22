@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.metrics.export.elastic;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.elastic.ElasticConfig;
 import io.micrometer.elastic.ElasticMeterRegistry;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -34,24 +34,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class ElasticMetricsExportAutoConfigurationTests {
+public class ElasticMetricsExportAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ElasticMetricsExportAutoConfiguration.class));
 
 	@Test
-	void backsOffWithoutAClock() {
+	public void backsOffWithoutAClock() {
 		this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(ElasticMeterRegistry.class));
 	}
 
 	@Test
-	void autoConfiguresConfigAndMeterRegistry() {
+	public void autoConfiguresConfigAndMeterRegistry() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class).run((context) -> assertThat(context)
 				.hasSingleBean(ElasticMeterRegistry.class).hasSingleBean(ElasticConfig.class));
 	}
 
 	@Test
-	void autoConfigurationCanBeDisabled() {
+	public void autoConfigurationCanBeDisabled() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class)
 				.withPropertyValues("management.metrics.export.elastic.enabled=false")
 				.run((context) -> assertThat(context).doesNotHaveBean(ElasticMeterRegistry.class)
@@ -59,13 +59,13 @@ class ElasticMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void allowsCustomConfigToBeUsed() {
+	public void allowsCustomConfigToBeUsed() {
 		this.contextRunner.withUserConfiguration(CustomConfigConfiguration.class).run((context) -> assertThat(context)
 				.hasSingleBean(ElasticMeterRegistry.class).hasSingleBean(ElasticConfig.class).hasBean("customConfig"));
 	}
 
 	@Test
-	void allowsCustomRegistryToBeUsed() {
+	public void allowsCustomRegistryToBeUsed() {
 		this.contextRunner.withUserConfiguration(CustomRegistryConfiguration.class)
 
 				.run((context) -> assertThat(context).hasSingleBean(ElasticMeterRegistry.class)
@@ -73,7 +73,7 @@ class ElasticMetricsExportAutoConfigurationTests {
 	}
 
 	@Test
-	void stopsMeterRegistryWhenContextIsClosed() {
+	public void stopsMeterRegistryWhenContextIsClosed() {
 		this.contextRunner.withUserConfiguration(BaseConfiguration.class).run((context) -> {
 			ElasticMeterRegistry registry = context.getBean(ElasticMeterRegistry.class);
 			assertThat(registry.isClosed()).isFalse();
@@ -82,33 +82,33 @@ class ElasticMetricsExportAutoConfigurationTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BaseConfiguration {
 
 		@Bean
-		Clock clock() {
+		public Clock clock() {
 			return Clock.SYSTEM;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomConfigConfiguration {
 
 		@Bean
-		ElasticConfig customConfig() {
+		public ElasticConfig customConfig() {
 			return (key) -> null;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomRegistryConfiguration {
 
 		@Bean
-		ElasticMeterRegistry customRegistry(ElasticConfig config, Clock clock) {
+		public ElasticMeterRegistry customRegistry(ElasticConfig config, Clock clock) {
 			return new ElasticMeterRegistry(config, clock);
 		}
 

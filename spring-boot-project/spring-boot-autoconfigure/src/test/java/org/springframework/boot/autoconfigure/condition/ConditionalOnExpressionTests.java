@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.condition;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -32,35 +32,35 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link ConditionalOnExpression @ConditionalOnExpression}.
+ * Tests for {@link ConditionalOnExpression}.
  *
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class ConditionalOnExpressionTests {
+public class ConditionalOnExpressionTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void expressionIsTrue() {
+	public void expressionIsTrue() {
 		this.contextRunner.withUserConfiguration(BasicConfiguration.class)
 				.run((context) -> assertThat(context.getBean("foo")).isEqualTo("foo"));
 	}
 
 	@Test
-	void expressionEvaluatesToTrueRegistersBean() {
+	public void expressionEvaluatesToTrueRegistersBean() {
 		this.contextRunner.withUserConfiguration(MissingConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
 	}
 
 	@Test
-	void expressionEvaluatesToFalseDoesNotRegisterBean() {
+	public void expressionEvaluatesToFalseDoesNotRegisterBean() {
 		this.contextRunner.withUserConfiguration(NullConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
 	}
 
 	@Test
-	void expressionEvaluationWithNoBeanFactoryDoesNotMatch() {
+	public void expressionEvaluationWithNoBeanFactoryDoesNotMatch() {
 		OnExpressionCondition condition = new OnExpressionCondition();
 		MockEnvironment environment = new MockEnvironment();
 		ConditionContext conditionContext = mock(ConditionContext.class);
@@ -77,34 +77,34 @@ class ConditionalOnExpressionTests {
 		return metadata;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnExpression("false")
-	static class MissingConfiguration {
+	protected static class MissingConfiguration {
 
 		@Bean
-		String bar() {
+		public String bar() {
 			return "bar";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnExpression("true")
-	static class BasicConfiguration {
+	protected static class BasicConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnExpression("true ? null : false")
-	static class NullConfiguration {
+	protected static class NullConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 

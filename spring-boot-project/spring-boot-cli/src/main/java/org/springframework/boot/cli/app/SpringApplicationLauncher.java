@@ -60,8 +60,7 @@ public class SpringApplicationLauncher {
 		Map<String, Object> defaultProperties = new HashMap<>();
 		defaultProperties.put("spring.groovy.template.check-template-location", "false");
 		Class<?> applicationClass = this.classLoader.loadClass(getSpringApplicationClassName());
-		Constructor<?> constructor = applicationClass.getDeclaredConstructor(Class[].class);
-		constructor.setAccessible(true);
+		Constructor<?> constructor = applicationClass.getConstructor(Class[].class);
 		Object application = constructor.newInstance((Object) sources);
 		applicationClass.getMethod("setDefaultProperties", Map.class).invoke(application, defaultProperties);
 		Method method = applicationClass.getMethod("run", String[].class);

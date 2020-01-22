@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ import java.time.Duration;
 import io.micrometer.core.instrument.MockClock;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.actuate.metrics.AutoTimer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.reactive.HandlerMapping;
@@ -37,9 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link MetricsWebFilter}
  *
  * @author Brian Clozel
- * @author Madhura Bhave
  */
-class MetricsWebFilterTests {
+public class MetricsWebFilterTests {
 
 	private static final String REQUEST_METRICS_NAME = "http.server.requests";
 
@@ -47,16 +45,16 @@ class MetricsWebFilterTests {
 
 	private MetricsWebFilter webFilter;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockClock clock = new MockClock();
 		this.registry = new SimpleMeterRegistry(SimpleConfig.DEFAULT, clock);
-		this.webFilter = new MetricsWebFilter(this.registry, new DefaultWebFluxTagsProvider(true), REQUEST_METRICS_NAME,
-				AutoTimer.ENABLED);
+		this.webFilter = new MetricsWebFilter(this.registry, new DefaultWebFluxTagsProvider(), REQUEST_METRICS_NAME,
+				true);
 	}
 
 	@Test
-	void filterAddsTagsToRegistry() {
+	public void filterAddsTagsToRegistry() {
 		MockServerWebExchange exchange = createExchange("/projects/spring-boot", "/projects/{project}");
 		this.webFilter.filter(exchange, (serverWebExchange) -> exchange.getResponse().setComplete())
 				.block(Duration.ofSeconds(30));
@@ -65,7 +63,7 @@ class MetricsWebFilterTests {
 	}
 
 	@Test
-	void filterAddsTagsToRegistryForExceptions() {
+	public void filterAddsTagsToRegistryForExceptions() {
 		MockServerWebExchange exchange = createExchange("/projects/spring-boot", "/projects/{project}");
 		this.webFilter.filter(exchange, (serverWebExchange) -> Mono.error(new IllegalStateException("test error")))
 				.onErrorResume((t) -> {
@@ -78,7 +76,7 @@ class MetricsWebFilterTests {
 	}
 
 	@Test
-	void filterAddsNonEmptyTagsToRegistryForAnonymousExceptions() {
+	public void filterAddsNonEmptyTagsToRegistryForAnonymousExceptions() {
 		final Exception anonymous = new Exception("test error") {
 		};
 
@@ -93,7 +91,7 @@ class MetricsWebFilterTests {
 	}
 
 	@Test
-	void filterAddsTagsToRegistryForExceptionsAndCommittedResponse() {
+	public void filterAddsTagsToRegistryForExceptionsAndCommittedResponse() {
 		MockServerWebExchange exchange = createExchange("/projects/spring-boot", "/projects/{project}");
 		this.webFilter.filter(exchange, (serverWebExchange) -> {
 			exchange.getResponse().setStatusCodeValue(500);
@@ -101,19 +99,6 @@ class MetricsWebFilterTests {
 		}).onErrorResume((t) -> Mono.empty()).block(Duration.ofSeconds(30));
 		assertMetricsContainsTag("uri", "/projects/{project}");
 		assertMetricsContainsTag("status", "500");
-	}
-
-	@Test
-	void trailingSlashShouldNotRecordDuplicateMetrics() {
-		MockServerWebExchange exchange1 = createExchange("/projects/spring-boot", "/projects/{project}");
-		MockServerWebExchange exchange2 = createExchange("/projects/spring-boot", "/projects/{project}/");
-		this.webFilter.filter(exchange1, (serverWebExchange) -> exchange1.getResponse().setComplete())
-				.block(Duration.ofSeconds(30));
-		this.webFilter.filter(exchange2, (serverWebExchange) -> exchange2.getResponse().setComplete())
-				.block(Duration.ofSeconds(30));
-		assertThat(this.registry.get(REQUEST_METRICS_NAME).tag("uri", "/projects/{project}").timer().count())
-				.isEqualTo(2);
-		assertThat(this.registry.get(REQUEST_METRICS_NAME).tag("status", "200").timer().count()).isEqualTo(2);
 	}
 
 	private MockServerWebExchange createExchange(String path, String pathPattern) {

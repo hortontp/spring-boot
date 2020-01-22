@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.h2;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -25,26 +25,26 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Madhura Bhave
  */
-class H2ConsolePropertiesTests {
+public class H2ConsolePropertiesTests {
 
 	private H2ConsoleProperties properties;
 
 	@Test
-	void pathMustNotBeEmpty() {
+	public void pathMustNotBeEmpty() {
 		this.properties = new H2ConsoleProperties();
 		assertThatIllegalArgumentException().isThrownBy(() -> this.properties.setPath(""))
 				.withMessageContaining("Path must have length greater than 1");
 	}
 
 	@Test
-	void pathMustHaveLengthGreaterThanOne() {
+	public void pathMustHaveLengthGreaterThanOne() {
 		this.properties = new H2ConsoleProperties();
 		assertThatIllegalArgumentException().isThrownBy(() -> this.properties.setPath("/"))
 				.withMessageContaining("Path must have length greater than 1");
 	}
 
 	@Test
-	void customPathMustBeginWithASlash() {
+	public void customPathMustBeginWithASlash() {
 		this.properties = new H2ConsoleProperties();
 		assertThatIllegalArgumentException().isThrownBy(() -> this.properties.setPath("custom"))
 				.withMessageContaining("Path must start with '/'");

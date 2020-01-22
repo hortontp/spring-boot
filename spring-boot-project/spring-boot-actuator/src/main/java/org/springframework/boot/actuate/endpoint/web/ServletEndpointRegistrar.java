@@ -71,7 +71,6 @@ public class ServletEndpointRegistrar implements ServletContextInitializer {
 		Dynamic registration = servletContext.addServlet(name, endpointServlet.getServlet());
 		registration.addMapping(urlMapping);
 		registration.setInitParameters(endpointServlet.getInitParameters());
-		registration.setLoadOnStartup(endpointServlet.getLoadOnStartup());
 		logger.info("Registered '" + path + "' to " + name);
 	}
 

@@ -17,7 +17,6 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.humio;
 
 import io.micrometer.humio.HumioConfig;
-import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesTests;
 
@@ -28,11 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class HumioPropertiesTests extends StepRegistryPropertiesTests {
+public class HumioPropertiesTests extends StepRegistryPropertiesTests {
 
-	@Test
-	@SuppressWarnings("deprecation")
-	void defaultValuesAreConsistent() {
+	@Override
+	public void defaultValuesAreConsistent() {
 		HumioProperties properties = new HumioProperties();
 		HumioConfig config = (key) -> null;
 		assertStepRegistryDefaultValues(properties, config);

@@ -171,9 +171,9 @@ class DiscoveredJmxOperation extends AbstractDiscoveredOperation implements JmxO
 		public String toString() {
 			StringBuilder result = new StringBuilder(this.name);
 			if (this.description != null) {
-				result.append(" (").append(this.description).append(")");
+				result.append(" (" + this.description + ")");
 			}
-			result.append(":").append(this.type);
+			result.append(":" + this.type);
 			return result.toString();
 		}
 
@@ -184,7 +184,7 @@ class DiscoveredJmxOperation extends AbstractDiscoveredOperation implements JmxO
 	 */
 	private static class JmxType {
 
-		static Class<?> get(Class<?> source) {
+		public static Class<?> get(Class<?> source) {
 			if (source.isEnum()) {
 				return String.class;
 			}

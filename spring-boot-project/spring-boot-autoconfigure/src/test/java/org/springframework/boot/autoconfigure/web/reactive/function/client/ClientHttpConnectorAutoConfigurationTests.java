@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package org.springframework.boot.autoconfigure.web.reactive.function.client;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
@@ -40,25 +39,13 @@ import static org.mockito.Mockito.verify;
  *
  * @author Brian Clozel
  */
-class ClientHttpConnectorAutoConfigurationTests {
+public class ClientHttpConnectorAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.class));
 
 	@Test
-	void shouldCreateResourcesLazily() {
-		this.contextRunner.run((context) -> {
-			BeanDefinition customizerDefinition = context.getBeanFactory()
-					.getBeanDefinition("clientConnectorCustomizer");
-			assertThat(customizerDefinition.isLazyInit()).isTrue();
-			BeanDefinition connectorDefinition = context.getBeanFactory()
-					.getBeanDefinition("reactorClientHttpConnector");
-			assertThat(connectorDefinition.isLazyInit()).isTrue();
-		});
-	}
-
-	@Test
-	void shouldCreateHttpClientBeans() {
+	public void shouldCreateHttpClientBeans() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(ReactorResourceFactory.class);
 			assertThat(context).hasSingleBean(ReactorClientHttpConnector.class);
@@ -70,7 +57,7 @@ class ClientHttpConnectorAutoConfigurationTests {
 	}
 
 	@Test
-	void shouldNotOverrideCustomClientConnector() {
+	public void shouldNotOverrideCustomClientConnector() {
 		this.contextRunner.withUserConfiguration(CustomClientHttpConnectorConfig.class).run((context) -> {
 			assertThat(context).hasSingleBean(ClientHttpConnector.class).hasBean("customConnector")
 					.doesNotHaveBean(ReactorResourceFactory.class);
@@ -82,27 +69,27 @@ class ClientHttpConnectorAutoConfigurationTests {
 	}
 
 	@Test
-	void shouldUseCustomReactorResourceFactory() {
+	public void shouldUseCustomReactorResourceFactory() {
 		this.contextRunner.withUserConfiguration(CustomReactorResourceConfig.class)
 				.run((context) -> assertThat(context).hasSingleBean(ReactorClientHttpConnector.class)
 						.hasSingleBean(ReactorResourceFactory.class).hasBean("customReactorResourceFactory"));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomClientHttpConnectorConfig {
 
 		@Bean
-		ClientHttpConnector customConnector() {
+		public ClientHttpConnector customConnector() {
 			return mock(ClientHttpConnector.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomReactorResourceConfig {
 
 		@Bean
-		ReactorResourceFactory customReactorResourceFactory() {
+		public ReactorResourceFactory customReactorResourceFactory() {
 			return new ReactorResourceFactory();
 		}
 

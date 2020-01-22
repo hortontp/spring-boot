@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.domain.scan.a.EmbeddableA;
 import org.springframework.boot.autoconfigure.domain.scan.a.EntityA;
@@ -40,16 +40,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Phillip Webb
  */
-class EntityScannerTests {
+public class EntityScannerTests {
 
 	@Test
-	void createWhenContextIsNullShouldThrowException() {
+	public void createWhenContextIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new EntityScanner(null))
 				.withMessageContaining("Context must not be null");
 	}
 
 	@Test
-	void scanShouldScanFromSinglePackage() throws Exception {
+	public void scanShouldScanFromSinglePackage() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ScanConfig.class);
 		EntityScanner scanner = new EntityScanner(context);
 		Set<Class<?>> scanned = scanner.scan(Entity.class);
@@ -58,7 +58,7 @@ class EntityScannerTests {
 	}
 
 	@Test
-	void scanShouldScanFromMultiplePackages() throws Exception {
+	public void scanShouldScanFromMultiplePackages() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ScanAConfig.class,
 				ScanBConfig.class);
 		EntityScanner scanner = new EntityScanner(context);
@@ -68,7 +68,7 @@ class EntityScannerTests {
 	}
 
 	@Test
-	void scanShouldFilterOnAnnotation() throws Exception {
+	public void scanShouldFilterOnAnnotation() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ScanConfig.class);
 		EntityScanner scanner = new EntityScanner(context);
 		assertThat(scanner.scan(Entity.class)).containsOnly(EntityA.class, EntityB.class, EntityC.class);
@@ -79,19 +79,19 @@ class EntityScannerTests {
 		context.close();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EntityScan("org.springframework.boot.autoconfigure.domain.scan")
 	static class ScanConfig {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EntityScan(basePackageClasses = EntityA.class)
 	static class ScanAConfig {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EntityScan(basePackageClasses = EntityB.class)
 	static class ScanBConfig {
 

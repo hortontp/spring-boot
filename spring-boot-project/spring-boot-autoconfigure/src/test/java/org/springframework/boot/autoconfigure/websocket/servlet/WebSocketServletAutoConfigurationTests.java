@@ -18,9 +18,9 @@ package org.springframework.boot.autoconfigure.websocket.servlet;
 
 import javax.websocket.server.ServerContainer;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -37,30 +37,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class WebSocketServletAutoConfigurationTests {
+public class WebSocketServletAutoConfigurationTests {
 
 	private AnnotationConfigServletWebServerApplicationContext context;
 
-	@BeforeEach
-	void createContext() {
+	@Before
+	public void createContext() {
 		this.context = new AnnotationConfigServletWebServerApplicationContext();
 	}
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	void tomcatServerContainerIsAvailableFromTheServletContext() {
+	public void tomcatServerContainerIsAvailableFromTheServletContext() {
 		serverContainerIsAvailableFromTheServletContext(TomcatConfiguration.class,
 				WebSocketServletAutoConfiguration.TomcatWebSocketConfiguration.class);
 	}
 
 	@Test
-	void jettyServerContainerIsAvailableFromTheServletContext() {
+	public void jettyServerContainerIsAvailableFromTheServletContext() {
 		serverContainerIsAvailableFromTheServletContext(JettyConfiguration.class,
 				WebSocketServletAutoConfiguration.JettyWebSocketConfiguration.class);
 	}
@@ -74,21 +74,21 @@ class WebSocketServletAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CommonConfiguration {
 
 		@Bean
-		WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
+		public WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
 			return new WebServerFactoryCustomizerBeanPostProcessor();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TomcatConfiguration extends CommonConfiguration {
 
 		@Bean
-		ServletWebServerFactory webServerFactory() {
+		public ServletWebServerFactory webServerFactory() {
 			TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 			factory.setPort(0);
 			return factory;
@@ -96,11 +96,11 @@ class WebSocketServletAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class JettyConfiguration extends CommonConfiguration {
 
 		@Bean
-		ServletWebServerFactory webServerFactory() {
+		public ServletWebServerFactory webServerFactory() {
 			JettyServletWebServerFactory JettyServletWebServerFactory = new JettyServletWebServerFactory();
 			JettyServletWebServerFactory.setPort(0);
 			return JettyServletWebServerFactory;

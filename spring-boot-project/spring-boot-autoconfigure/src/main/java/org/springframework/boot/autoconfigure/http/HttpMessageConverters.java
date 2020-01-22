@@ -44,8 +44,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
  * needed, otherwise default converters will be used.
  * <p>
  * NOTE: The default converters used are the same as standard Spring MVC (see
- * {@link WebMvcConfigurationSupport}) with some slight re-ordering to put XML converters
- * at the back of the list.
+ * {@link WebMvcConfigurationSupport#getMessageConverters} with some slight re-ordering to
+ * put XML converters at the back of the list.
  *
  * @author Dave Syer
  * @author Phillip Webb
@@ -62,7 +62,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 	static {
 		List<Class<?>> nonReplacingConverters = new ArrayList<>();
 		addClassIfExists(nonReplacingConverters,
-				"org.springframework.hateoas.server.mvc.TypeConstrainedMappingJackson2HttpMessageConverter");
+				"org.springframework.hateoas.mvc." + "TypeConstrainedMappingJackson2HttpMessageConverter");
 		NON_REPLACING_CONVERTERS = Collections.unmodifiableList(nonReplacingConverters);
 	}
 
@@ -73,7 +73,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 	 * converters.
 	 * @param additionalConverters additional converters to be added. Items are added just
 	 * before any default converter of the same type (or at the front of the list if no
-	 * default converter is found). The {@link #postProcessConverters(List)} method can be
+	 * default converter is found) The {@link #postProcessConverters(List)} method can be
 	 * used for further converter manipulation.
 	 */
 	public HttpMessageConverters(HttpMessageConverter<?>... additionalConverters) {
@@ -85,7 +85,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 	 * converters.
 	 * @param additionalConverters additional converters to be added. Items are added just
 	 * before any default converter of the same type (or at the front of the list if no
-	 * default converter is found). The {@link #postProcessConverters(List)} method can be
+	 * default converter is found) The {@link #postProcessConverters(List)} method can be
 	 * used for further converter manipulation.
 	 */
 	public HttpMessageConverters(Collection<HttpMessageConverter<?>> additionalConverters) {
@@ -97,7 +97,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 	 * @param addDefaultConverters if default converters should be added
 	 * @param converters converters to be added. Items are added just before any default
 	 * converter of the same type (or at the front of the list if no default converter is
-	 * found). The {@link #postProcessConverters(List)} method can be used for further
+	 * found) The {@link #postProcessConverters(List)} method can be used for further
 	 * converter manipulation.
 	 */
 	public HttpMessageConverters(boolean addDefaultConverters, Collection<HttpMessageConverter<?>> converters) {
@@ -177,7 +177,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 
 	private List<HttpMessageConverter<?>> getDefaultConverters() {
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		if (ClassUtils.isPresent("org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport",
+		if (ClassUtils.isPresent("org.springframework.web.servlet.config.annotation." + "WebMvcConfigurationSupport",
 				null)) {
 			converters.addAll(new WebMvcConfigurationSupport() {
 

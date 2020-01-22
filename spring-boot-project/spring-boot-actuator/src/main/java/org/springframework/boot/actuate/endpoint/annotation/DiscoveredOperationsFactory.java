@@ -34,8 +34,8 @@ import org.springframework.boot.actuate.endpoint.invoke.reflect.OperationMethod;
 import org.springframework.boot.actuate.endpoint.invoke.reflect.ReflectiveOperationInvoker;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.MethodIntrospector.MetadataLookup;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationAttributes;
 
 /**
  * Factory to create an {@link Operation} for annotated methods on an
@@ -68,7 +68,7 @@ abstract class DiscoveredOperationsFactory<O extends Operation> {
 		this.invokerAdvisors = invokerAdvisors;
 	}
 
-	Collection<O> createOperations(EndpointId id, Object target) {
+	public Collection<O> createOperations(EndpointId id, Object target) {
 		return MethodIntrospector
 				.selectMethods(target.getClass(), (MetadataLookup<O>) (method) -> createOperation(id, target, method))
 				.values();
@@ -82,12 +82,13 @@ abstract class DiscoveredOperationsFactory<O extends Operation> {
 
 	private O createOperation(EndpointId endpointId, Object target, Method method, OperationType operationType,
 			Class<? extends Annotation> annotationType) {
-		MergedAnnotation<?> annotation = MergedAnnotations.from(method).get(annotationType);
-		if (!annotation.isPresent()) {
+		AnnotationAttributes annotationAttributes = AnnotatedElementUtils.getMergedAnnotationAttributes(method,
+				annotationType);
+		if (annotationAttributes == null) {
 			return null;
 		}
 		DiscoveredOperationMethod operationMethod = new DiscoveredOperationMethod(method, operationType,
-				annotation.asAnnotationAttributes());
+				annotationAttributes);
 		OperationInvoker invoker = new ReflectiveOperationInvoker(target, operationMethod, this.parameterValueMapper);
 		invoker = applyAdvisors(endpointId, operationMethod, invoker);
 		return createOperation(endpointId, operationMethod, invoker);

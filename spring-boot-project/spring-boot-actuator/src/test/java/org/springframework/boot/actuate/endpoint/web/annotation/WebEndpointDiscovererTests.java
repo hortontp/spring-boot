@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Condition;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.annotation.DeleteOperation;
@@ -66,23 +66,23 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Stephane Nicoll
  * @author Phillip Webb
  */
-class WebEndpointDiscovererTests {
+public class WebEndpointDiscovererTests {
 
 	@Test
-	void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
+	public void getEndpointsWhenNoEndpointBeansShouldReturnEmptyCollection() {
 		load(EmptyConfiguration.class, (discoverer) -> assertThat(discoverer.getEndpoints()).isEmpty());
 	}
 
 	@Test
-	void getEndpointsWhenWebExtensionIsMissingEndpointShouldThrowException() {
+	public void getEndpointsWhenWebExtensionIsMissingEndpointShouldThrowException() {
 		load(TestWebEndpointExtensionConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining(
-								"Invalid extension 'endpointExtension': no endpoint found with id 'test'"));
+								"Invalid extension 'endpointExtension': no endpoint found with id '" + "test'"));
 	}
 
 	@Test
-	void getEndpointsWhenHasFilteredEndpointShouldOnlyDiscoverWebEndpoints() {
+	public void getEndpointsWhenHasFilteredEndpointShouldOnlyDiscoverWebEndpoints() {
 		load(MultipleEndpointsConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
@@ -90,7 +90,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasWebExtensionShouldOverrideStandardEndpoint() {
+	public void getEndpointsWhenHasWebExtensionShouldOverrideStandardEndpoint() {
 		load(OverriddenOperationWebEndpointExtensionConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
@@ -101,7 +101,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenExtensionAddsOperationShouldHaveBothOperations() {
+	public void getEndpointsWhenExtensionAddsOperationShouldHaveBothOperations() {
 		load(AdditionalOperationWebEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
@@ -113,7 +113,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenPredicateForWriteOperationThatReturnsVoidShouldHaveNoProducedMediaTypes() {
+	public void getEndpointsWhenPredicateForWriteOperationThatReturnsVoidShouldHaveNoProducedMediaTypes() {
 		load(VoidWriteOperationEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("voidwrite"));
@@ -124,7 +124,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenTwoExtensionsHaveTheSameEndpointTypeShouldThrowException() {
+	public void getEndpointsWhenTwoExtensionsHaveTheSameEndpointTypeShouldThrowException() {
 		load(ClashingWebEndpointConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("Found multiple extensions for the endpoint bean "
@@ -132,14 +132,14 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenTwoStandardEndpointsHaveTheSameIdShouldThrowException() {
+	public void getEndpointsWhenTwoStandardEndpointsHaveTheSameIdShouldThrowException() {
 		load(ClashingStandardEndpointConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("Found two endpoints with the id 'test': "));
 	}
 
 	@Test
-	void getEndpointsWhenWhenEndpointHasTwoOperationsWithTheSameNameShouldThrowException() {
+	public void getEndpointsWhenWhenEndpointHasTwoOperationsWithTheSameNameShouldThrowException() {
 		load(ClashingOperationsEndpointConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("Unable to map duplicate endpoint operations: "
@@ -148,7 +148,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenExtensionIsNotCompatibleWithTheEndpointTypeShouldThrowException() {
+	public void getEndpointsWhenExtensionIsNotCompatibleWithTheEndpointTypeShouldThrowException() {
 		load(InvalidWebExtensionConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("Endpoint bean 'nonWebEndpoint' cannot support the "
@@ -156,7 +156,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenWhenExtensionHasTwoOperationsWithTheSameNameShouldThrowException() {
+	public void getEndpointsWhenWhenExtensionHasTwoOperationsWithTheSameNameShouldThrowException() {
 		load(ClashingSelectorsWebEndpointExtensionConfiguration.class,
 				(discoverer) -> assertThatIllegalStateException().isThrownBy(discoverer::getEndpoints)
 						.withMessageContaining("Unable to map duplicate endpoint operations")
@@ -164,8 +164,8 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasCacheWithTtlShouldCacheReadOperationWithTtlValue() {
-		load((id) -> 500L, EndpointId::toString, TestEndpointConfiguration.class, (discoverer) -> {
+	public void getEndpointsWhenHasCacheWithTtlShouldCacheReadOperationWithTtlValue() {
+		load((id) -> 500L, (id) -> id.toString(), TestEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
 			ExposableWebEndpoint endpoint = endpoints.get(EndpointId.of("test"));
@@ -178,7 +178,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenOperationReturnsResourceShouldProduceApplicationOctetStream() {
+	public void getEndpointsWhenOperationReturnsResourceShouldProduceApplicationOctetStream() {
 		load(ResourceEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("resource"));
@@ -189,7 +189,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasCustomMediaTypeShouldProduceCustomMediaType() {
+	public void getEndpointsWhenHasCustomMediaTypeShouldProduceCustomMediaType() {
 		load(CustomMediaTypesEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("custommediatypes"));
@@ -203,7 +203,7 @@ class WebEndpointDiscovererTests {
 	}
 
 	@Test
-	void getEndpointsWhenHasCustomPathShouldReturnCustomPath() {
+	public void getEndpointsWhenHasCustomPathShouldReturnCustomPath() {
 		load((id) -> null, (id) -> "custom/" + id, AdditionalOperationWebEndpointConfiguration.class, (discoverer) -> {
 			Map<EndpointId, ExposableWebEndpoint> endpoints = mapEndpoints(discoverer.getEndpoints());
 			assertThat(endpoints).containsOnlyKeys(EndpointId.of("test"));
@@ -217,12 +217,13 @@ class WebEndpointDiscovererTests {
 	}
 
 	private void load(Class<?> configuration, Consumer<WebEndpointDiscoverer> consumer) {
-		this.load((id) -> null, EndpointId::toString, configuration, consumer);
+		this.load((id) -> null, (id) -> id.toString(), configuration, consumer);
 	}
 
 	private void load(Function<EndpointId, Long> timeToLive, PathMapper endpointPathMapper, Class<?> configuration,
 			Consumer<WebEndpointDiscoverer> consumer) {
-		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(configuration)) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(configuration);
+		try {
 			ConversionServiceParameterValueMapper parameterMapper = new ConversionServiceParameterValueMapper(
 					DefaultConversionService.getSharedInstance());
 			EndpointMediaTypes mediaTypes = new EndpointMediaTypes(Collections.singletonList("application/json"),
@@ -231,6 +232,9 @@ class WebEndpointDiscovererTests {
 					Collections.singletonList(endpointPathMapper),
 					Collections.singleton(new CachingOperationInvokerAdvisor(timeToLive)), Collections.emptyList());
 			consumer.accept(discoverer);
+		}
+		finally {
+			context.close();
 		}
 	}
 
@@ -262,180 +266,180 @@ class WebEndpointDiscovererTests {
 		return new RequestPredicateMatcher(path);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class EmptyConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MultipleEndpointsConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 		@Bean
-		NonWebEndpoint nonWebEndpoint() {
+		public NonWebEndpoint nonWebEndpoint() {
 			return new NonWebEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestWebEndpointExtensionConfiguration {
 
 		@Bean
-		TestWebEndpointExtension endpointExtension() {
+		public TestWebEndpointExtension endpointExtension() {
 			return new TestWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingOperationsEndpointConfiguration {
 
 		@Bean
-		ClashingOperationsEndpoint clashingOperationsEndpoint() {
+		public ClashingOperationsEndpoint clashingOperationsEndpoint() {
 			return new ClashingOperationsEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingOperationsWebEndpointExtensionConfiguration {
 
 		@Bean
-		ClashingOperationsWebEndpointExtension clashingOperationsExtension() {
+		public ClashingOperationsWebEndpointExtension clashingOperationsExtension() {
 			return new ClashingOperationsWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(TestEndpointConfiguration.class)
 	static class OverriddenOperationWebEndpointExtensionConfiguration {
 
 		@Bean
-		OverriddenOperationWebEndpointExtension overriddenOperationExtension() {
+		public OverriddenOperationWebEndpointExtension overriddenOperationExtension() {
 			return new OverriddenOperationWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(TestEndpointConfiguration.class)
 	static class AdditionalOperationWebEndpointConfiguration {
 
 		@Bean
-		AdditionalOperationWebEndpointExtension additionalOperationExtension() {
+		public AdditionalOperationWebEndpointExtension additionalOperationExtension() {
 			return new AdditionalOperationWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class TestEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingWebEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 		@Bean
-		TestWebEndpointExtension testExtensionOne() {
+		public TestWebEndpointExtension testExtensionOne() {
 			return new TestWebEndpointExtension();
 		}
 
 		@Bean
-		TestWebEndpointExtension testExtensionTwo() {
+		public TestWebEndpointExtension testExtensionTwo() {
 			return new TestWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingStandardEndpointConfiguration {
 
 		@Bean
-		TestEndpoint testEndpointTwo() {
+		public TestEndpoint testEndpointTwo() {
 			return new TestEndpoint();
 		}
 
 		@Bean
-		TestEndpoint testEndpointOne() {
+		public TestEndpoint testEndpointOne() {
 			return new TestEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ClashingSelectorsWebEndpointExtensionConfiguration {
 
 		@Bean
-		TestEndpoint testEndpoint() {
+		public TestEndpoint testEndpoint() {
 			return new TestEndpoint();
 		}
 
 		@Bean
-		ClashingSelectorsWebEndpointExtension clashingSelectorsExtension() {
+		public ClashingSelectorsWebEndpointExtension clashingSelectorsExtension() {
 			return new ClashingSelectorsWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class InvalidWebExtensionConfiguration {
 
 		@Bean
-		NonWebEndpoint nonWebEndpoint() {
+		public NonWebEndpoint nonWebEndpoint() {
 			return new NonWebEndpoint();
 		}
 
 		@Bean
-		NonWebWebEndpointExtension nonWebWebEndpointExtension() {
+		public NonWebWebEndpointExtension nonWebWebEndpointExtension() {
 			return new NonWebWebEndpointExtension();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class VoidWriteOperationEndpointConfiguration {
 
 		@Bean
-		VoidWriteOperationEndpoint voidWriteOperationEndpoint() {
+		public VoidWriteOperationEndpoint voidWriteOperationEndpoint() {
 			return new VoidWriteOperationEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class ResourceEndpointConfiguration {
 
 		@Bean
-		ResourceEndpoint resourceEndpoint() {
+		public ResourceEndpoint resourceEndpoint() {
 			return new ResourceEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseConfiguration.class)
 	static class CustomMediaTypesEndpointConfiguration {
 
 		@Bean
-		CustomMediaTypesEndpoint customMediaTypesEndpoint() {
+		public CustomMediaTypesEndpoint customMediaTypesEndpoint() {
 			return new CustomMediaTypesEndpoint();
 		}
 
@@ -445,21 +449,21 @@ class WebEndpointDiscovererTests {
 	static class TestWebEndpointExtension {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
 		@ReadOperation
-		Object getOne(@Selector String id) {
+		public Object getOne(@Selector String id) {
 			return null;
 		}
 
 		@WriteOperation
-		void update(String foo, String bar) {
+		public void update(String foo, String bar) {
 
 		}
 
-		void someOtherMethod() {
+		public void someOtherMethod() {
 
 		}
 
@@ -469,7 +473,7 @@ class WebEndpointDiscovererTests {
 	static class TestEndpoint {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
@@ -479,7 +483,7 @@ class WebEndpointDiscovererTests {
 	static class OverriddenOperationWebEndpointExtension {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
@@ -489,7 +493,7 @@ class WebEndpointDiscovererTests {
 	static class AdditionalOperationWebEndpointExtension {
 
 		@ReadOperation
-		Object getOne(@Selector String id) {
+		public Object getOne(@Selector String id) {
 			return null;
 		}
 
@@ -499,12 +503,12 @@ class WebEndpointDiscovererTests {
 	static class ClashingOperationsEndpoint {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
 		@ReadOperation
-		Object getAgain() {
+		public Object getAgain() {
 			return null;
 		}
 
@@ -514,12 +518,12 @@ class WebEndpointDiscovererTests {
 	static class ClashingOperationsWebEndpointExtension {
 
 		@ReadOperation
-		Object getAll() {
+		public Object getAll() {
 			return null;
 		}
 
 		@ReadOperation
-		Object getAgain() {
+		public Object getAgain() {
 			return null;
 		}
 
@@ -529,12 +533,12 @@ class WebEndpointDiscovererTests {
 	static class ClashingSelectorsWebEndpointExtension {
 
 		@ReadOperation
-		Object readOne(@Selector String oneA, @Selector String oneB) {
+		public Object readOne(@Selector String oneA, @Selector String oneB) {
 			return null;
 		}
 
 		@ReadOperation
-		Object readTwo(@Selector String twoA, @Selector String twoB) {
+		public Object readTwo(@Selector String twoA, @Selector String twoB) {
 			return null;
 		}
 
@@ -544,7 +548,7 @@ class WebEndpointDiscovererTests {
 	static class NonWebEndpoint {
 
 		@ReadOperation
-		Object getData() {
+		public Object getData() {
 			return null;
 		}
 
@@ -554,7 +558,7 @@ class WebEndpointDiscovererTests {
 	static class NonWebWebEndpointExtension {
 
 		@ReadOperation
-		Object getSomething(@Selector String name) {
+		public Object getSomething(@Selector String name) {
 			return null;
 		}
 
@@ -564,7 +568,7 @@ class WebEndpointDiscovererTests {
 	static class VoidWriteOperationEndpoint {
 
 		@WriteOperation
-		void write(String foo, String bar) {
+		public void write(String foo, String bar) {
 		}
 
 	}
@@ -573,7 +577,7 @@ class WebEndpointDiscovererTests {
 	static class ResourceEndpoint {
 
 		@ReadOperation
-		Resource read() {
+		public Resource read() {
 			return new ByteArrayResource(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 		}
 
@@ -583,17 +587,18 @@ class WebEndpointDiscovererTests {
 	static class CustomMediaTypesEndpoint {
 
 		@ReadOperation(produces = "text/plain")
-		String read() {
+		public String read() {
 			return "read";
 		}
 
 		@WriteOperation(produces = { "a/b", "c/d" })
-		String write() {
+		public String write() {
 			return "write";
+
 		}
 
 		@DeleteOperation(produces = "text/plain")
-		String delete() {
+		public String delete() {
 			return "delete";
 		}
 
@@ -613,12 +618,12 @@ class WebEndpointDiscovererTests {
 			this.path = path;
 		}
 
-		RequestPredicateMatcher produces(String... mediaTypes) {
+		public RequestPredicateMatcher produces(String... mediaTypes) {
 			this.produces = Arrays.asList(mediaTypes);
 			return this;
 		}
 
-		RequestPredicateMatcher consumes(String... mediaTypes) {
+		public RequestPredicateMatcher consumes(String... mediaTypes) {
 			this.consumes = Arrays.asList(mediaTypes);
 			return this;
 		}

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.env.EnvironmentEndpoint;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @TestPropertySource(
 		properties = "spring.config.location=classpath:/org/springframework/boot/actuate/autoconfigure/endpoint/web/documentation/")
-class EnvironmentEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class EnvironmentEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	private static final FieldDescriptor activeProfiles = fieldWithPath("activeProfiles")
 			.description("Names of the active profiles, if any.");
@@ -69,7 +69,7 @@ class EnvironmentEndpointDocumentationTests extends MockMvcEndpointDocumentation
 			.description("Name of the property source.");
 
 	@Test
-	void env() throws Exception {
+	public void env() throws Exception {
 		this.mockMvc.perform(get("/actuator/env")).andExpect(status().isOk())
 				.andDo(document("env/all", preprocessResponse(replacePattern(
 						Pattern.compile("org/springframework/boot/actuate/autoconfigure/endpoint/web/documentation/"),
@@ -84,7 +84,7 @@ class EnvironmentEndpointDocumentationTests extends MockMvcEndpointDocumentation
 	}
 
 	@Test
-	void singlePropertyFromEnv() throws Exception {
+	public void singlePropertyFromEnv() throws Exception {
 		this.mockMvc.perform(get("/actuator/env/com.example.cache.max-size")).andExpect(status().isOk()).andDo(document(
 				"env/single",
 				preprocessResponse(replacePattern(
@@ -129,12 +129,12 @@ class EnvironmentEndpointDocumentationTests extends MockMvcEndpointDocumentation
 		return key.startsWith("java.") || key.equals("JAVA_HOME") || key.startsWith("com.example");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		EnvironmentEndpoint endpoint(ConfigurableEnvironment environment) {
+		public EnvironmentEndpoint endpoint(ConfigurableEnvironment environment) {
 			return new EnvironmentEndpoint(new AbstractEnvironment() {
 
 				@Override

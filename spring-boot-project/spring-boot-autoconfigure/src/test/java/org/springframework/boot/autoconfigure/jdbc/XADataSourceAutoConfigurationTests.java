@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import javax.sql.XADataSource;
 
 import org.hsqldb.jdbc.pool.JDBCXADataSource;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.jdbc.XADataSourceWrapper;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -37,10 +37,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class XADataSourceAutoConfigurationTests {
+public class XADataSourceAutoConfigurationTests {
 
 	@Test
-	void wrapExistingXaDataSource() {
+	public void wrapExistingXaDataSource() {
 		ApplicationContext context = createContext(WrapExisting.class);
 		context.getBean(DataSource.class);
 		XADataSource source = context.getBean(XADataSource.class);
@@ -49,7 +49,7 @@ class XADataSourceAutoConfigurationTests {
 	}
 
 	@Test
-	void createFromUrl() {
+	public void createFromUrl() {
 		ApplicationContext context = createContext(FromProperties.class, "spring.datasource.url:jdbc:hsqldb:mem:test",
 				"spring.datasource.username:un");
 		context.getBean(DataSource.class);
@@ -61,7 +61,7 @@ class XADataSourceAutoConfigurationTests {
 	}
 
 	@Test
-	void createFromClass() throws Exception {
+	public void createFromClass() throws Exception {
 		ApplicationContext context = createContext(FromProperties.class,
 				"spring.datasource.xa.data-source-class-name:org.hsqldb.jdbc.pool.JDBCXADataSource",
 				"spring.datasource.xa.properties.login-timeout:123");
@@ -80,32 +80,32 @@ class XADataSourceAutoConfigurationTests {
 		return context;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WrapExisting {
 
 		@Bean
-		MockXADataSourceWrapper wrapper() {
+		public MockXADataSourceWrapper wrapper() {
 			return new MockXADataSourceWrapper();
 		}
 
 		@Bean
-		XADataSource xaDataSource() {
+		public XADataSource xaDataSource() {
 			return mock(XADataSource.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class FromProperties {
 
 		@Bean
-		MockXADataSourceWrapper wrapper() {
+		public MockXADataSourceWrapper wrapper() {
 			return new MockXADataSourceWrapper();
 		}
 
 	}
 
-	static class MockXADataSourceWrapper implements XADataSourceWrapper {
+	private static class MockXADataSourceWrapper implements XADataSourceWrapper {
 
 		private XADataSource dataSource;
 
@@ -115,7 +115,7 @@ class XADataSourceAutoConfigurationTests {
 			return mock(DataSource.class);
 		}
 
-		XADataSource getXaDataSource() {
+		public XADataSource getXaDataSource() {
 			return this.dataSource;
 		}
 

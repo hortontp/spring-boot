@@ -16,19 +16,17 @@
 
 package org.springframework.boot.autoconfigure.jms.artemis;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -44,62 +42,66 @@ import org.springframework.context.annotation.Configuration;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(EmbeddedActiveMQ.class)
+@Configuration
+@ConditionalOnClass(EmbeddedJMS.class)
 @ConditionalOnProperty(prefix = "spring.artemis.embedded", name = "enabled", havingValue = "true",
 		matchIfMissing = true)
 class ArtemisEmbeddedServerConfiguration {
 
 	private final ArtemisProperties properties;
 
-	ArtemisEmbeddedServerConfiguration(ArtemisProperties properties) {
+	private final ObjectProvider<ArtemisConfigurationCustomizer> configurationCustomizers;
+
+	private final List<JMSQueueConfiguration> queuesConfiguration;
+
+	private final List<TopicConfiguration> topicsConfiguration;
+
+	ArtemisEmbeddedServerConfiguration(ArtemisProperties properties,
+			ObjectProvider<ArtemisConfigurationCustomizer> configurationCustomizers,
+			ObjectProvider<JMSQueueConfiguration> queuesConfiguration,
+			ObjectProvider<TopicConfiguration> topicsConfiguration) {
 		this.properties = properties;
+		this.configurationCustomizers = configurationCustomizers;
+		this.queuesConfiguration = queuesConfiguration.orderedStream().collect(Collectors.toList());
+		this.topicsConfiguration = topicsConfiguration.orderedStream().collect(Collectors.toList());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	org.apache.activemq.artemis.core.config.Configuration artemisConfiguration() {
+	public org.apache.activemq.artemis.core.config.Configuration artemisConfiguration() {
 		return new ArtemisEmbeddedConfigurationFactory(this.properties).createConfiguration();
 	}
 
 	@Bean(initMethod = "start", destroyMethod = "stop")
 	@ConditionalOnMissingBean
-	EmbeddedActiveMQ embeddedActiveMq(org.apache.activemq.artemis.core.config.Configuration configuration,
-			JMSConfiguration jmsConfiguration, ObjectProvider<ArtemisConfigurationCustomizer> configurationCustomizers)
-			throws Exception {
-		for (JMSQueueConfiguration queueConfiguration : jmsConfiguration.getQueueConfigurations()) {
-			String queueName = queueConfiguration.getName();
-			configuration.addAddressConfiguration(
-					new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST)
-							.addQueueConfiguration(new CoreQueueConfiguration().setAddress(queueName).setName(queueName)
-									.setFilterString(queueConfiguration.getSelector())
-									.setDurable(queueConfiguration.isDurable()).setRoutingType(RoutingType.ANYCAST)));
-		}
-		for (TopicConfiguration topicConfiguration : jmsConfiguration.getTopicConfigurations()) {
-			configuration.addAddressConfiguration(new CoreAddressConfiguration().setName(topicConfiguration.getName())
-					.addRoutingType(RoutingType.MULTICAST));
-		}
-		configurationCustomizers.orderedStream().forEach((customizer) -> customizer.customize(configuration));
-		EmbeddedActiveMQ embeddedActiveMq = new EmbeddedActiveMQ();
-		embeddedActiveMq.setConfiguration(configuration);
-		return embeddedActiveMq;
+	public EmbeddedJMS artemisServer(org.apache.activemq.artemis.core.config.Configuration configuration,
+			JMSConfiguration jmsConfiguration) {
+		EmbeddedJMS server = new EmbeddedJMS();
+		customize(configuration);
+		server.setConfiguration(configuration);
+		server.setJmsConfiguration(jmsConfiguration);
+		server.setRegistry(new ArtemisNoOpBindingRegistry());
+		return server;
+	}
+
+	private void customize(org.apache.activemq.artemis.core.config.Configuration configuration) {
+		this.configurationCustomizers.orderedStream().forEach((customizer) -> customizer.customize(configuration));
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	JMSConfiguration artemisJmsConfiguration(ObjectProvider<JMSQueueConfiguration> queuesConfiguration,
-			ObjectProvider<TopicConfiguration> topicsConfiguration) {
+	public JMSConfiguration artemisJmsConfiguration() {
 		JMSConfiguration configuration = new JMSConfigurationImpl();
-		addAll(configuration.getQueueConfigurations(), queuesConfiguration);
-		addAll(configuration.getTopicConfigurations(), topicsConfiguration);
+		addAll(configuration.getQueueConfigurations(), this.queuesConfiguration);
+		addAll(configuration.getTopicConfigurations(), this.topicsConfiguration);
 		addQueues(configuration, this.properties.getEmbedded().getQueues());
 		addTopics(configuration, this.properties.getEmbedded().getTopics());
 		return configuration;
 	}
 
-	private <T> void addAll(List<T> list, ObjectProvider<T> items) {
+	private <T> void addAll(List<T> list, Collection<? extends T> items) {
 		if (items != null) {
-			list.addAll(items.orderedStream().collect(Collectors.toList()));
+			list.addAll(items);
 		}
 	}
 

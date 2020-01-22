@@ -41,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * @author Michael Simons
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ Caffeine.class, CaffeineCacheManager.class })
 @ConditionalOnMissingBean(BookmarkManager.class)
 @ConditionalOnBean({ BeanFactoryBookmarkOperationAdvisor.class, BookmarkInterceptor.class })
@@ -52,13 +52,13 @@ class Neo4jBookmarkManagementConfiguration {
 	@Bean(BOOKMARK_MANAGER_BEAN_NAME)
 	@ConditionalOnWebApplication
 	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
-	BookmarkManager requestScopedBookmarkManager() {
+	public BookmarkManager requestScopedBookmarkManager() {
 		return new CaffeineBookmarkManager();
 	}
 
 	@Bean(BOOKMARK_MANAGER_BEAN_NAME)
 	@ConditionalOnNotWebApplication
-	BookmarkManager singletonScopedBookmarkManager() {
+	public BookmarkManager singletonScopedBookmarkManager() {
 		return new CaffeineBookmarkManager();
 	}
 

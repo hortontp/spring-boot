@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.cache.CachesEndpoint.CacheEntry;
 import org.springframework.boot.actuate.cache.CachesEndpoint.CacheManagerDescriptor;
@@ -43,10 +43,10 @@ import static org.mockito.Mockito.verify;
  *
  * @author Stephane Nicoll
  */
-class CachesEndpointTests {
+public class CachesEndpointTests {
 
 	@Test
-	void allCachesWithSingleCacheManager() {
+	public void allCachesWithSingleCacheManager() {
 		CachesEndpoint endpoint = new CachesEndpoint(
 				Collections.singletonMap("test", new ConcurrentMapCacheManager("a", "b")));
 		Map<String, CacheManagerDescriptor> allDescriptors = endpoint.caches().getCacheManagers();
@@ -58,7 +58,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void allCachesWithSeveralCacheManagers() {
+	public void allCachesWithSeveralCacheManagers() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		cacheManagers.put("test", new ConcurrentMapCacheManager("a", "b"));
 		cacheManagers.put("another", new ConcurrentMapCacheManager("a", "c"));
@@ -70,7 +70,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void namedCacheWithSingleCacheManager() {
+	public void namedCacheWithSingleCacheManager() {
 		CachesEndpoint endpoint = new CachesEndpoint(
 				Collections.singletonMap("test", new ConcurrentMapCacheManager("b", "a")));
 		CacheEntry entry = endpoint.cache("a", null);
@@ -81,7 +81,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void namedCacheWithSeveralCacheManagers() {
+	public void namedCacheWithSeveralCacheManagers() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		cacheManagers.put("test", new ConcurrentMapCacheManager("b", "dupe-cache"));
 		cacheManagers.put("another", new ConcurrentMapCacheManager("c", "dupe-cache"));
@@ -91,7 +91,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void namedCacheWithUnknownCache() {
+	public void namedCacheWithUnknownCache() {
 		CachesEndpoint endpoint = new CachesEndpoint(
 				Collections.singletonMap("test", new ConcurrentMapCacheManager("b", "a")));
 		CacheEntry entry = endpoint.cache("unknown", null);
@@ -99,7 +99,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void namedCacheWithWrongCacheManager() {
+	public void namedCacheWithWrongCacheManager() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		cacheManagers.put("test", new ConcurrentMapCacheManager("b", "a"));
 		cacheManagers.put("another", new ConcurrentMapCacheManager("c", "a"));
@@ -109,7 +109,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void namedCacheWithSeveralCacheManagersWithCacheManagerFilter() {
+	public void namedCacheWithSeveralCacheManagersWithCacheManagerFilter() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		cacheManagers.put("test", new ConcurrentMapCacheManager("b", "a"));
 		cacheManagers.put("another", new ConcurrentMapCacheManager("c", "a"));
@@ -121,7 +121,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearAllCaches() {
+	public void clearAllCaches() {
 		Cache a = mockCache("a");
 		Cache b = mockCache("b");
 		CachesEndpoint endpoint = new CachesEndpoint(Collections.singletonMap("test", cacheManager(a, b)));
@@ -131,7 +131,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearCache() {
+	public void clearCache() {
 		Cache a = mockCache("a");
 		Cache b = mockCache("b");
 		CachesEndpoint endpoint = new CachesEndpoint(Collections.singletonMap("test", cacheManager(a, b)));
@@ -141,7 +141,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearCacheWithSeveralCacheManagers() {
+	public void clearCacheWithSeveralCacheManagers() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		cacheManagers.put("test", cacheManager(mockCache("dupe-cache"), mockCache("b")));
 		cacheManagers.put("another", cacheManager(mockCache("dupe-cache")));
@@ -152,7 +152,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearCacheWithSeveralCacheManagersWithCacheManagerFilter() {
+	public void clearCacheWithSeveralCacheManagersWithCacheManagerFilter() {
 		Map<String, CacheManager> cacheManagers = new LinkedHashMap<>();
 		Cache a = mockCache("a");
 		Cache b = mockCache("b");
@@ -167,7 +167,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearCacheWithUnknownCache() {
+	public void clearCacheWithUnknownCache() {
 		Cache a = mockCache("a");
 		CachesEndpoint endpoint = new CachesEndpoint(Collections.singletonMap("test", cacheManager(a)));
 		assertThat(endpoint.clearCache("unknown", null)).isFalse();
@@ -175,7 +175,7 @@ class CachesEndpointTests {
 	}
 
 	@Test
-	void clearCacheWithUnknownCacheManager() {
+	public void clearCacheWithUnknownCacheManager() {
 		Cache a = mockCache("a");
 		CachesEndpoint endpoint = new CachesEndpoint(Collections.singletonMap("test", cacheManager(a)));
 		assertThat(endpoint.clearCache("a", "unknown")).isFalse();

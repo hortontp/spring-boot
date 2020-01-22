@@ -18,7 +18,8 @@ package org.springframework.boot.autoconfigure.batch;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -32,7 +33,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.test.City;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.jdbc.DataSourceInitializationMode;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.boot.testsupport.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ClassPathExclusions;
+import org.springframework.boot.testsupport.runner.classpath.ModifiedClassPathRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -43,14 +45,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("hibernate-jpa-*.jar")
-class BatchAutoConfigurationWithoutJpaTests {
+public class BatchAutoConfigurationWithoutJpaTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(BatchAutoConfiguration.class, TransactionAutoConfiguration.class));
 
 	@Test
-	void jdbcWithDefaultSettings() {
+	public void jdbcWithDefaultSettings() {
 		this.contextRunner.withUserConfiguration(DefaultConfiguration.class, EmbeddedDataSourceConfiguration.class)
 				.withPropertyValues("spring.datasource.generate-unique-name=true").run((context) -> {
 					assertThat(context).hasSingleBean(JobLauncher.class);
@@ -70,7 +73,7 @@ class BatchAutoConfigurationWithoutJpaTests {
 	}
 
 	@Test
-	void jdbcWithCustomPrefix() {
+	public void jdbcWithCustomPrefix() {
 		this.contextRunner.withUserConfiguration(DefaultConfiguration.class, EmbeddedDataSourceConfiguration.class)
 				.withPropertyValues("spring.datasource.generate-unique-name=true",
 						"spring.batch.schema:classpath:batch/custom-schema-hsql.sql",
@@ -86,7 +89,7 @@ class BatchAutoConfigurationWithoutJpaTests {
 
 	@EnableBatchProcessing
 	@TestAutoConfigurationPackage(City.class)
-	static class DefaultConfiguration {
+	protected static class DefaultConfiguration {
 
 	}
 

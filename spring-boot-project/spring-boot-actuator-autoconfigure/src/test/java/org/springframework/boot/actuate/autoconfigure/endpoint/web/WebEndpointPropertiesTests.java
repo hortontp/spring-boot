@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.endpoint.web;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -26,16 +26,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Madhura Bhave
  */
-class WebEndpointPropertiesTests {
+public class WebEndpointPropertiesTests {
 
 	@Test
-	void defaultBasePathShouldBeApplication() {
+	public void defaultBasePathShouldBeApplication() {
 		WebEndpointProperties properties = new WebEndpointProperties();
 		assertThat(properties.getBasePath()).isEqualTo("/actuator");
 	}
 
 	@Test
-	void basePathShouldBeCleaned() {
+	public void basePathShouldBeCleaned() {
 		WebEndpointProperties properties = new WebEndpointProperties();
 		properties.setBasePath("/");
 		assertThat(properties.getBasePath()).isEqualTo("");
@@ -44,14 +44,14 @@ class WebEndpointPropertiesTests {
 	}
 
 	@Test
-	void basePathMustStartWithSlash() {
+	public void basePathMustStartWithSlash() {
 		WebEndpointProperties properties = new WebEndpointProperties();
 		assertThatIllegalArgumentException().isThrownBy(() -> properties.setBasePath("admin"))
 				.withMessageContaining("Base path must start with '/' or be empty");
 	}
 
 	@Test
-	void basePathCanBeEmpty() {
+	public void basePathCanBeEmpty() {
 		WebEndpointProperties properties = new WebEndpointProperties();
 		properties.setBasePath("");
 		assertThat(properties.getBasePath()).isEqualTo("");

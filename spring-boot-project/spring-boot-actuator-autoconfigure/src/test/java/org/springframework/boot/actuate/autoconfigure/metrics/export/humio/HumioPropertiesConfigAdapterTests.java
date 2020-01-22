@@ -18,7 +18,7 @@ package org.springframework.boot.actuate.autoconfigure.metrics.export.humio;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,25 +27,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class HumioPropertiesConfigAdapterTests {
+public class HumioPropertiesConfigAdapterTests {
 
 	@Test
-	void whenApiTokenIsSetAdapterApiTokenReturnsIt() {
+	public void whenApiTokenIsSetAdapterApiTokenReturnsIt() {
 		HumioProperties properties = new HumioProperties();
 		properties.setApiToken("ABC123");
 		assertThat(new HumioPropertiesConfigAdapter(properties).apiToken()).isEqualTo("ABC123");
 	}
 
 	@Test
-	@Deprecated
-	void whenPropertiesRepositoryIsSetAdapterRepositoryReturnsIt() {
+	public void whenPropertiesRepositoryIsSetAdapterRepositoryReturnsIt() {
 		HumioProperties properties = new HumioProperties();
 		properties.setRepository("test");
 		assertThat(new HumioPropertiesConfigAdapter(properties).repository()).isEqualTo("test");
 	}
 
 	@Test
-	void whenPropertiesTagsIsSetAdapterTagsReturnsIt() {
+	public void whenPropertiesTagsIsSetAdapterTagsReturnsIt() {
 		HumioProperties properties = new HumioProperties();
 		properties.setTags(Collections.singletonMap("name", "test"));
 		assertThat(new HumioPropertiesConfigAdapter(properties).tags())
@@ -53,7 +52,7 @@ class HumioPropertiesConfigAdapterTests {
 	}
 
 	@Test
-	void whenPropertiesUriIsSetAdapterUriReturnsIt() {
+	public void whenPropertiesUriIsSetAdapterUriReturnsIt() {
 		HumioProperties properties = new HumioProperties();
 		properties.setUri("https://humio.example.com");
 		assertThat(new HumioPropertiesConfigAdapter(properties).uri()).isEqualTo("https://humio.example.com");

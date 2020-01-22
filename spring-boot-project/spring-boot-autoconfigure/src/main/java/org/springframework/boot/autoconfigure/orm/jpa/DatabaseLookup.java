@@ -65,7 +65,7 @@ final class DatabaseLookup {
 	 * @param dataSource the source {@link DataSource}
 	 * @return the most suitable {@link Database}
 	 */
-	static Database getDatabase(DataSource dataSource) {
+	public static Database getDatabase(DataSource dataSource) {
 		if (dataSource == null) {
 			return Database.DEFAULT;
 		}

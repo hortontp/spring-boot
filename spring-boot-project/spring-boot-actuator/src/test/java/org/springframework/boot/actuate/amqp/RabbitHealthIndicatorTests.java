@@ -20,8 +20,8 @@ import java.util.Collections;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class RabbitHealthIndicatorTests {
+public class RabbitHealthIndicatorTests {
 
 	@Mock
 	private RabbitTemplate rabbitTemplate;
@@ -49,8 +49,8 @@ class RabbitHealthIndicatorTests {
 	@Mock
 	private Channel channel;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		given(this.rabbitTemplate.execute(any())).willAnswer((invocation) -> {
 			ChannelCallback<?> callback = invocation.getArgument(0);
@@ -59,13 +59,13 @@ class RabbitHealthIndicatorTests {
 	}
 
 	@Test
-	void createWhenRabbitTemplateIsNullShouldThrowException() {
+	public void createWhenRabbitTemplateIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new RabbitHealthIndicator(null))
 				.withMessageContaining("RabbitTemplate must not be null");
 	}
 
 	@Test
-	void healthWhenConnectionSucceedsShouldReturnUpWithVersion() {
+	public void healthWhenConnectionSucceedsShouldReturnUpWithVersion() {
 		Connection connection = mock(Connection.class);
 		given(this.channel.getConnection()).willReturn(connection);
 		given(connection.getServerProperties()).willReturn(Collections.singletonMap("version", "123"));
@@ -75,7 +75,7 @@ class RabbitHealthIndicatorTests {
 	}
 
 	@Test
-	void healthWhenConnectionFailsShouldReturnDown() {
+	public void healthWhenConnectionFailsShouldReturnDown() {
 		given(this.channel.getConnection()).willThrow(new RuntimeException());
 		Health health = new RabbitHealthIndicator(this.rabbitTemplate).health();
 		assertThat(health.getStatus()).isEqualTo(Status.DOWN);

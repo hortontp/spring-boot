@@ -38,14 +38,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * {@link EnableAutoConfiguration Auto-configuration} for Spring Data's web support.
  * <p>
  * When in effect, the auto-configuration is the equivalent of enabling Spring Data's web
- * support through the {@link EnableSpringDataWebSupport @EnableSpringDataWebSupport}
- * annotation.
+ * support through the {@link EnableSpringDataWebSupport} annotation.
  *
  * @author Andy Wilkinson
  * @author Vedran Pavic
  * @since 1.2.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableSpringDataWebSupport
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnClass({ PageableHandlerMethodArgumentResolver.class, WebMvcConfigurer.class })

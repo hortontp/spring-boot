@@ -24,12 +24,9 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.AfterRollbackProcessor;
-import org.springframework.kafka.listener.BatchErrorHandler;
-import org.springframework.kafka.listener.ConsumerAwareRebalanceListener;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.ErrorHandler;
-import org.springframework.kafka.listener.RecordInterceptor;
-import org.springframework.kafka.support.converter.MessageConverter;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.kafka.transaction.KafkaAwareTransactionManager;
 
 /**
@@ -43,21 +40,15 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 
 	private KafkaProperties properties;
 
-	private MessageConverter messageConverter;
+	private RecordMessageConverter messageConverter;
 
 	private KafkaTemplate<Object, Object> replyTemplate;
 
 	private KafkaAwareTransactionManager<Object, Object> transactionManager;
 
-	private ConsumerAwareRebalanceListener rebalanceListener;
-
 	private ErrorHandler errorHandler;
 
-	private BatchErrorHandler batchErrorHandler;
-
 	private AfterRollbackProcessor<Object, Object> afterRollbackProcessor;
-
-	private RecordInterceptor<Object, Object> recordInterceptor;
 
 	/**
 	 * Set the {@link KafkaProperties} to use.
@@ -68,10 +59,10 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 	}
 
 	/**
-	 * Set the {@link MessageConverter} to use.
+	 * Set the {@link RecordMessageConverter} to use.
 	 * @param messageConverter the message converter
 	 */
-	void setMessageConverter(MessageConverter messageConverter) {
+	void setMessageConverter(RecordMessageConverter messageConverter) {
 		this.messageConverter = messageConverter;
 	}
 
@@ -92,15 +83,6 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 	}
 
 	/**
-	 * Set the {@link ConsumerAwareRebalanceListener} to use.
-	 * @param rebalanceListener the rebalance listener.
-	 * @since 2.2
-	 */
-	void setRebalanceListener(ConsumerAwareRebalanceListener rebalanceListener) {
-		this.rebalanceListener = rebalanceListener;
-	}
-
-	/**
 	 * Set the {@link ErrorHandler} to use.
 	 * @param errorHandler the error handler
 	 */
@@ -109,27 +91,11 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 	}
 
 	/**
-	 * Set the {@link BatchErrorHandler} to use.
-	 * @param batchErrorHandler the error handler
-	 */
-	void setBatchErrorHandler(BatchErrorHandler batchErrorHandler) {
-		this.batchErrorHandler = batchErrorHandler;
-	}
-
-	/**
 	 * Set the {@link AfterRollbackProcessor} to use.
 	 * @param afterRollbackProcessor the after rollback processor
 	 */
 	void setAfterRollbackProcessor(AfterRollbackProcessor<Object, Object> afterRollbackProcessor) {
 		this.afterRollbackProcessor = afterRollbackProcessor;
-	}
-
-	/**
-	 * Set the {@link RecordInterceptor} to use.
-	 * @param recordInterceptor the record interceptor.
-	 */
-	void setRecordInterceptor(RecordInterceptor<Object, Object> recordInterceptor) {
-		this.recordInterceptor = recordInterceptor;
 	}
 
 	/**
@@ -152,15 +118,9 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 		map.from(properties::getConcurrency).to(factory::setConcurrency);
 		map.from(this.messageConverter).to(factory::setMessageConverter);
 		map.from(this.replyTemplate).to(factory::setReplyTemplate);
-		if (properties.getType().equals(Listener.Type.BATCH)) {
-			factory.setBatchListener(true);
-			factory.setBatchErrorHandler(this.batchErrorHandler);
-		}
-		else {
-			factory.setErrorHandler(this.errorHandler);
-		}
+		map.from(properties::getType).whenEqualTo(Listener.Type.BATCH).toCall(() -> factory.setBatchListener(true));
+		map.from(this.errorHandler).to(factory::setErrorHandler);
 		map.from(this.afterRollbackProcessor).to(factory::setAfterRollbackProcessor);
-		map.from(this.recordInterceptor).to(factory::setRecordInterceptor);
 	}
 
 	private void configureContainer(ContainerProperties container) {
@@ -176,9 +136,7 @@ public class ConcurrentKafkaListenerContainerFactoryConfigurer {
 		map.from(properties::getMonitorInterval).as(Duration::getSeconds).as(Number::intValue)
 				.to(container::setMonitorInterval);
 		map.from(properties::getLogContainerConfig).to(container::setLogContainerConfig);
-		map.from(properties::isMissingTopicsFatal).to(container::setMissingTopicsFatal);
 		map.from(this.transactionManager).to(container::setTransactionManager);
-		map.from(this.rebalanceListener).to(container::setConsumerRebalanceListener);
 	}
 
 }

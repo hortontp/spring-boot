@@ -23,9 +23,9 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.jndi.JndiPropertiesHidingClassLoader;
 import org.springframework.boot.autoconfigure.jndi.TestableInitialContextFactory;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  */
-class JndiDataSourceAutoConfigurationTests {
+public class JndiDataSourceAutoConfigurationTests {
 
 	private ClassLoader threadContextClassLoader;
 
@@ -52,20 +52,20 @@ class JndiDataSourceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@BeforeEach
-	void setupJndi() {
+	@Before
+	public void setupJndi() {
 		this.initialContextFactory = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
 		System.setProperty(Context.INITIAL_CONTEXT_FACTORY, TestableInitialContextFactory.class.getName());
 	}
 
-	@BeforeEach
-	void setupThreadContextClassLoader() {
+	@Before
+	public void setupThreadContextClassLoader() {
 		this.threadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(new JndiPropertiesHidingClassLoader(getClass().getClassLoader()));
 	}
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		TestableInitialContextFactory.clearAll();
 		if (this.initialContextFactory != null) {
 			System.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.initialContextFactory);
@@ -80,7 +80,7 @@ class JndiDataSourceAutoConfigurationTests {
 	}
 
 	@Test
-	void dataSourceIsAvailableFromJndi() throws IllegalStateException, NamingException {
+	public void dataSourceIsAvailableFromJndi() throws IllegalStateException, NamingException {
 		DataSource dataSource = new BasicDataSource();
 		configureJndi("foo", dataSource);
 
@@ -94,7 +94,7 @@ class JndiDataSourceAutoConfigurationTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void mbeanDataSourceIsExcludedFromExport() throws IllegalStateException, NamingException {
+	public void mbeanDataSourceIsExcludedFromExport() throws IllegalStateException, NamingException {
 		DataSource dataSource = new BasicDataSource();
 		configureJndi("foo", dataSource);
 
@@ -111,7 +111,7 @@ class JndiDataSourceAutoConfigurationTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void mbeanDataSourceIsExcludedFromExportByAllExporters() throws IllegalStateException, NamingException {
+	public void mbeanDataSourceIsExcludedFromExportByAllExporters() throws IllegalStateException, NamingException {
 		DataSource dataSource = new BasicDataSource();
 		configureJndi("foo", dataSource);
 		this.context = new AnnotationConfigApplicationContext();
@@ -128,7 +128,7 @@ class JndiDataSourceAutoConfigurationTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void standardDataSourceIsNotExcludedFromExport() throws IllegalStateException, NamingException {
+	public void standardDataSourceIsNotExcludedFromExport() throws IllegalStateException, NamingException {
 		DataSource dataSource = mock(DataSource.class);
 		configureJndi("foo", dataSource);
 
@@ -147,7 +147,7 @@ class JndiDataSourceAutoConfigurationTests {
 		TestableInitialContextFactory.bind(name, dataSource);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class MBeanExporterConfiguration {
 
 		@Bean
@@ -157,7 +157,7 @@ class JndiDataSourceAutoConfigurationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class AnotherMBeanExporterConfiguration {
 
 		@Bean

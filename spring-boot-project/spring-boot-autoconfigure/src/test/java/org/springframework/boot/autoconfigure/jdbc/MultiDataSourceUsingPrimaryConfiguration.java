@@ -28,17 +28,17 @@ import org.springframework.context.annotation.Primary;
  * @author Phillip Webb
  * @author Kazuki Shimizu
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 class MultiDataSourceUsingPrimaryConfiguration {
 
 	@Bean
 	@Primary
-	DataSource test1DataSource() {
+	public DataSource test1DataSource() {
 		return new TestDataSource("test1");
 	}
 
 	@Bean
-	DataSource test2DataSource() {
+	public DataSource test2DataSource() {
 		return new TestDataSource("test2");
 	}
 

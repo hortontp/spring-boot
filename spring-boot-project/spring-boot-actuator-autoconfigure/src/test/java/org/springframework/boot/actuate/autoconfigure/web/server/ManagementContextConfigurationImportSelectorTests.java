@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.ManagementContextType;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.StandardAnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,26 +35,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class ManagementContextConfigurationImportSelectorTests {
+public class ManagementContextConfigurationImportSelectorTests {
 
 	@Test
-	void selectImportsShouldOrderResult() {
+	public void selectImportsShouldOrderResult() {
 		String[] imports = new TestManagementContextConfigurationsImportSelector(C.class, A.class, D.class, B.class)
-				.selectImports(AnnotationMetadata.introspect(EnableChildContext.class));
+				.selectImports(new StandardAnnotationMetadata(EnableChildContext.class));
 		assertThat(imports).containsExactly(A.class.getName(), B.class.getName(), C.class.getName(), D.class.getName());
 	}
 
 	@Test
-	void selectImportsFiltersChildOnlyConfigurationWhenUsingSameContext() {
+	public void selectImportsFiltersChildOnlyConfigurationWhenUsingSameContext() {
 		String[] imports = new TestManagementContextConfigurationsImportSelector(ChildOnly.class, SameOnly.class,
-				A.class).selectImports(AnnotationMetadata.introspect(EnableSameContext.class));
+				A.class).selectImports(new StandardAnnotationMetadata(EnableSameContext.class));
 		assertThat(imports).containsExactlyInAnyOrder(SameOnly.class.getName(), A.class.getName());
 	}
 
 	@Test
-	void selectImportsFiltersSameOnlyConfigurationWhenUsingChildContext() {
+	public void selectImportsFiltersSameOnlyConfigurationWhenUsingChildContext() {
 		String[] imports = new TestManagementContextConfigurationsImportSelector(ChildOnly.class, SameOnly.class,
-				A.class).selectImports(AnnotationMetadata.introspect(EnableChildContext.class));
+				A.class).selectImports(new StandardAnnotationMetadata(EnableChildContext.class));
 		assertThat(imports).containsExactlyInAnyOrder(ChildOnly.class.getName(), A.class.getName());
 	}
 
@@ -75,17 +75,17 @@ class ManagementContextConfigurationImportSelectorTests {
 	}
 
 	@Order(1)
-	static class A {
+	private static class A {
 
 	}
 
 	@Order(2)
-	static class B {
+	private static class B {
 
 	}
 
 	@Order(3)
-	static class C {
+	private static class C {
 
 	}
 

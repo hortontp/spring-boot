@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@
 
 package org.springframework.boot.actuate.endpoint;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Rule;
+import org.junit.Test;
 
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
-import org.springframework.mock.env.MockEnvironment;
+import org.springframework.boot.test.rule.OutputCapture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -31,52 +29,48 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Phillip Webb
  */
-@ExtendWith(OutputCaptureExtension.class)
-class EndpointIdTests {
+public class EndpointIdTests {
+
+	@Rule
+	public OutputCapture output = new OutputCapture();
 
 	@Test
-	void ofWhenNullThrowsException() {
+	public void ofWhenNullThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of(null))
 				.withMessage("Value must not be empty");
 	}
 
 	@Test
-	void ofWhenEmptyThrowsException() {
+	public void ofWhenEmptyThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("")).withMessage("Value must not be empty");
 	}
 
 	@Test
-	void ofWhenContainsSlashThrowsException() {
+	public void ofWhenContainsSlashThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("foo/bar"))
 				.withMessage("Value must only contain valid chars");
 	}
 
 	@Test
-	void ofWhenContainsBackslashThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("foo\\bar"))
-				.withMessage("Value must only contain valid chars");
-	}
-
-	@Test
-	void ofWhenHasBadCharThrowsException() {
+	public void ofWhenHasBadCharThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("foo!bar"))
 				.withMessage("Value must only contain valid chars");
 	}
 
 	@Test
-	void ofWhenStartsWithNumberThrowsException() {
+	public void ofWhenStartsWithNumberThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("1foo"))
 				.withMessage("Value must not start with a number");
 	}
 
 	@Test
-	void ofWhenStartsWithUppercaseLetterThrowsException() {
+	public void ofWhenStartsWithUppercaseLetterThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> EndpointId.of("Foo"))
 				.withMessage("Value must not start with an uppercase letter");
 	}
 
 	@Test
-	void ofWhenContainsDotIsValid() {
+	public void ofWhenContainsDotIsValid() {
 		// Ideally we wouldn't support this but there are existing endpoints using the
 		// pattern. See gh-14773
 		EndpointId endpointId = EndpointId.of("foo.bar");
@@ -84,7 +78,7 @@ class EndpointIdTests {
 	}
 
 	@Test
-	void ofWhenContainsDashIsValid() {
+	public void ofWhenContainsDashIsValid() {
 		// Ideally we wouldn't support this but there are existing endpoints using the
 		// pattern. See gh-14773
 		EndpointId endpointId = EndpointId.of("foo-bar");
@@ -92,25 +86,15 @@ class EndpointIdTests {
 	}
 
 	@Test
-	void ofWhenContainsDeprecatedCharsLogsWarning(CapturedOutput output) {
+	public void ofWhenContainsDeprecatedCharsLogsWarning() {
 		EndpointId.resetLoggedWarnings();
 		EndpointId.of("foo-bar");
-		assertThat(output)
+		assertThat(this.output.toString())
 				.contains("Endpoint ID 'foo-bar' contains invalid characters, please migrate to a valid format");
 	}
 
 	@Test
-	void ofWhenMigratingLegacyNameRemovesDots(CapturedOutput output) {
-		EndpointId.resetLoggedWarnings();
-		MockEnvironment environment = new MockEnvironment();
-		environment.setProperty("management.endpoints.migrate-legacy-ids", "true");
-		EndpointId endpointId = EndpointId.of(environment, "foo.bar");
-		assertThat(endpointId.toString()).isEqualTo("foobar");
-		assertThat(output).doesNotContain("contains invalid characters");
-	}
-
-	@Test
-	void equalsAndHashCode() {
+	public void equalsAndHashCode() {
 		EndpointId one = EndpointId.of("foobar1");
 		EndpointId two = EndpointId.of("fooBar1");
 		EndpointId three = EndpointId.of("foo-bar1");
@@ -123,17 +107,17 @@ class EndpointIdTests {
 	}
 
 	@Test
-	void toLowerCaseStringReturnsLowercase() {
+	public void toLowerCaseStringReturnsLowercase() {
 		assertThat(EndpointId.of("fooBar").toLowerCaseString()).isEqualTo("foobar");
 	}
 
 	@Test
-	void toStringReturnsString() {
+	public void toStringReturnsString() {
 		assertThat(EndpointId.of("fooBar").toString()).isEqualTo("fooBar");
 	}
 
 	@Test
-	void fromPropertyValueStripsDashes() {
+	public void fromPropertyValueStripsDashes() {
 		EndpointId fromPropertyValue = EndpointId.fromPropertyValue("foo-bar");
 		assertThat(fromPropertyValue).isEqualTo(EndpointId.of("fooBar"));
 	}

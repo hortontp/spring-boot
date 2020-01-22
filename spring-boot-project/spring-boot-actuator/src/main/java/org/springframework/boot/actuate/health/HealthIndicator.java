@@ -17,30 +17,18 @@
 package org.springframework.boot.actuate.health;
 
 /**
- * Strategy interface used to contribute {@link Health} to the results returned from the
- * {@link HealthEndpoint}.
+ * Strategy interface used to provide an indication of application health.
  *
  * @author Dave Syer
- * @author Phillip Webb
  * @since 1.0.0
+ * @see ApplicationHealthIndicator
  */
 @FunctionalInterface
-public interface HealthIndicator extends HealthContributor {
+public interface HealthIndicator {
 
 	/**
 	 * Return an indication of health.
-	 * @param includeDetails if details should be included or removed
-	 * @return the health
-	 * @since 2.2.0
-	 */
-	default Health getHealth(boolean includeDetails) {
-		Health health = health();
-		return includeDetails ? health : health.withoutDetails();
-	}
-
-	/**
-	 * Return an indication of health.
-	 * @return the health
+	 * @return the health for
 	 */
 	Health health();
 

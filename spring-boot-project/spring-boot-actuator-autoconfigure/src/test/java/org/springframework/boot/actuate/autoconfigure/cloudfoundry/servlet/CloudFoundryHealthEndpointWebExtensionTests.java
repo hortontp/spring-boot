@@ -16,19 +16,14 @@
 
 package org.springframework.boot.actuate.autoconfigure.cloudfoundry.servlet;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
-import org.springframework.boot.actuate.endpoint.http.ApiVersion;
-import org.springframework.boot.actuate.health.CompositeHealth;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthComponent;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -46,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Madhura Bhave
  */
-class CloudFoundryHealthEndpointWebExtensionTests {
+public class CloudFoundryHealthEndpointWebExtensionTests {
 
 	private WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withPropertyValues("VCAP_APPLICATION={}")
@@ -55,28 +50,16 @@ class CloudFoundryHealthEndpointWebExtensionTests {
 					HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 					RestTemplateAutoConfiguration.class, ManagementContextAutoConfiguration.class,
 					ServletManagementContextAutoConfiguration.class, EndpointAutoConfiguration.class,
-					WebEndpointAutoConfiguration.class, HealthContributorAutoConfiguration.class,
-					HealthEndpointAutoConfiguration.class, CloudFoundryActuatorAutoConfiguration.class))
-			.withUserConfiguration(TestHealthIndicator.class);
+					WebEndpointAutoConfiguration.class, HealthIndicatorAutoConfiguration.class,
+					HealthEndpointAutoConfiguration.class, CloudFoundryActuatorAutoConfiguration.class));
 
 	@Test
-	void healthComponentsAlwaysPresent() {
+	public void healthDetailsAlwaysPresent() {
 		this.contextRunner.run((context) -> {
 			CloudFoundryHealthEndpointWebExtension extension = context
 					.getBean(CloudFoundryHealthEndpointWebExtension.class);
-			HealthComponent body = extension.health(ApiVersion.V3).getBody();
-			HealthComponent health = ((CompositeHealth) body).getComponents().entrySet().iterator().next().getValue();
-			assertThat(((Health) health).getDetails()).containsEntry("spring", "boot");
+			assertThat(extension.getHealth().getBody().getDetails()).isNotEmpty();
 		});
-	}
-
-	private static class TestHealthIndicator implements HealthIndicator {
-
-		@Override
-		public Health health() {
-			return Health.up().withDetail("spring", "boot").build();
-		}
-
 	}
 
 }

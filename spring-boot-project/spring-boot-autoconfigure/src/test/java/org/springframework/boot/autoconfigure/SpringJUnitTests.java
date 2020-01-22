@@ -16,7 +16,8 @@
 
 package org.springframework.boot.autoconfigure;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,15 +27,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
  */
+@RunWith(SpringRunner.class)
 @DirtiesContext
 @SpringBootTest
-class SpringJUnitTests {
+public class SpringJUnitTests {
 
 	@Autowired
 	private ApplicationContext context;
@@ -43,18 +46,18 @@ class SpringJUnitTests {
 	private String foo = "bar";
 
 	@Test
-	void testContextCreated() {
+	public void testContextCreated() {
 		assertThat(this.context).isNotNull();
 	}
 
 	@Test
-	void testContextInitialized() {
+	public void testContextInitialized() {
 		assertThat(this.foo).isEqualTo("bucket");
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import({ PropertyPlaceholderAutoConfiguration.class })
-	static class TestConfiguration {
+	public static class TestConfiguration {
 
 	}
 

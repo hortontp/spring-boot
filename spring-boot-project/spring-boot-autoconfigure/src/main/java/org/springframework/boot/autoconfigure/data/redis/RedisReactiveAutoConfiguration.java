@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
@@ -40,7 +39,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
  * @author Stephane Nicoll
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ ReactiveRedisConnectionFactory.class, ReactiveRedisTemplate.class, Flux.class })
 @AutoConfigureAfter(RedisAutoConfiguration.class)
 public class RedisReactiveAutoConfiguration {
@@ -56,14 +55,6 @@ public class RedisReactiveAutoConfiguration {
 				.newSerializationContext().key(jdkSerializer).value(jdkSerializer).hashKey(jdkSerializer)
 				.hashValue(jdkSerializer).build();
 		return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, serializationContext);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(name = "reactiveStringRedisTemplate")
-	@ConditionalOnBean(ReactiveRedisConnectionFactory.class)
-	public ReactiveStringRedisTemplate reactiveStringRedisTemplate(
-			ReactiveRedisConnectionFactory reactiveRedisConnectionFactory) {
-		return new ReactiveStringRedisTemplate(reactiveRedisConnectionFactory);
 	}
 
 }

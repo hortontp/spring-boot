@@ -19,15 +19,14 @@ package org.springframework.boot.actuate.endpoint.invoker.cache;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import org.springframework.boot.actuate.endpoint.EndpointId;
 import org.springframework.boot.actuate.endpoint.OperationType;
 import org.springframework.boot.actuate.endpoint.SecurityContext;
-import org.springframework.boot.actuate.endpoint.http.ApiVersion;
 import org.springframework.boot.actuate.endpoint.invoke.OperationInvoker;
 import org.springframework.boot.actuate.endpoint.invoke.OperationParameters;
 import org.springframework.boot.actuate.endpoint.invoke.reflect.OperationMethod;
@@ -45,7 +44,7 @@ import static org.mockito.Mockito.verify;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class CachingOperationInvokerAdvisorTests {
+public class CachingOperationInvokerAdvisorTests {
 
 	@Mock
 	private OperationInvoker invoker;
@@ -55,14 +54,14 @@ class CachingOperationInvokerAdvisorTests {
 
 	private CachingOperationInvokerAdvisor advisor;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.advisor = new CachingOperationInvokerAdvisor(this.timeToLive);
 	}
 
 	@Test
-	void applyWhenOperationIsNotReadShouldNotAddAdvise() {
+	public void applyWhenOperationIsNotReadShouldNotAddAdvise() {
 		OperationParameters parameters = getParameters("get");
 		OperationInvoker advised = this.advisor.apply(EndpointId.of("foo"), OperationType.WRITE, parameters,
 				this.invoker);
@@ -70,7 +69,7 @@ class CachingOperationInvokerAdvisorTests {
 	}
 
 	@Test
-	void applyWhenHasAtLeaseOneMandatoryParameterShouldNotAddAdvise() {
+	public void applyWhenHasAtLeaseOneMandatoryParameterShouldNotAddAdvise() {
 		OperationParameters parameters = getParameters("getWithParameters", String.class, String.class);
 		OperationInvoker advised = this.advisor.apply(EndpointId.of("foo"), OperationType.READ, parameters,
 				this.invoker);
@@ -78,7 +77,7 @@ class CachingOperationInvokerAdvisorTests {
 	}
 
 	@Test
-	void applyWhenTimeToLiveReturnsNullShouldNotAddAdvise() {
+	public void applyWhenTimeToLiveReturnsNullShouldNotAddAdvise() {
 		OperationParameters parameters = getParameters("get");
 		given(this.timeToLive.apply(any())).willReturn(null);
 		OperationInvoker advised = this.advisor.apply(EndpointId.of("foo"), OperationType.READ, parameters,
@@ -88,7 +87,7 @@ class CachingOperationInvokerAdvisorTests {
 	}
 
 	@Test
-	void applyWhenTimeToLiveIsZeroShouldNotAddAdvise() {
+	public void applyWhenTimeToLiveIsZeroShouldNotAddAdvise() {
 		OperationParameters parameters = getParameters("get");
 		given(this.timeToLive.apply(any())).willReturn(0L);
 		OperationInvoker advised = this.advisor.apply(EndpointId.of("foo"), OperationType.READ, parameters,
@@ -98,29 +97,22 @@ class CachingOperationInvokerAdvisorTests {
 	}
 
 	@Test
-	void applyShouldAddCacheAdvise() {
+	public void applyShouldAddCacheAdvise() {
 		OperationParameters parameters = getParameters("get");
 		given(this.timeToLive.apply(any())).willReturn(100L);
 		assertAdviseIsApplied(parameters);
 	}
 
 	@Test
-	void applyWithAllOptionalParametersShouldAddAdvise() {
+	public void applyWithAllOptionalParametersShouldAddAdvise() {
 		OperationParameters parameters = getParameters("getWithAllOptionalParameters", String.class, String.class);
 		given(this.timeToLive.apply(any())).willReturn(100L);
 		assertAdviseIsApplied(parameters);
 	}
 
 	@Test
-	void applyWithSecurityContextShouldAddAdvise() {
+	public void applyWithSecurityContextShouldAddAdvise() {
 		OperationParameters parameters = getParameters("getWithSecurityContext", SecurityContext.class, String.class);
-		given(this.timeToLive.apply(any())).willReturn(100L);
-		assertAdviseIsApplied(parameters);
-	}
-
-	@Test
-	void applyWithApiVersionShouldAddAdvise() {
-		OperationParameters parameters = getParameters("getWithApiVersion", ApiVersion.class, String.class);
 		given(this.timeToLive.apply(any())).willReturn(100L);
 		assertAdviseIsApplied(parameters);
 	}
@@ -142,25 +134,21 @@ class CachingOperationInvokerAdvisorTests {
 		return new OperationMethod(method, OperationType.READ);
 	}
 
-	static class TestOperations {
+	public static class TestOperations {
 
-		String get() {
+		public String get() {
 			return "";
 		}
 
-		String getWithParameters(@Nullable String foo, String bar) {
+		public String getWithParameters(@Nullable String foo, String bar) {
 			return "";
 		}
 
-		String getWithAllOptionalParameters(@Nullable String foo, @Nullable String bar) {
+		public String getWithAllOptionalParameters(@Nullable String foo, @Nullable String bar) {
 			return "";
 		}
 
-		String getWithSecurityContext(SecurityContext securityContext, @Nullable String bar) {
-			return "";
-		}
-
-		String getWithApiVersion(ApiVersion apiVersion, @Nullable String bar) {
+		public String getWithSecurityContext(SecurityContext securityContext, @Nullable String bar) {
 			return "";
 		}
 

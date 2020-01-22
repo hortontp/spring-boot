@@ -49,8 +49,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.SystemPropertyUtils;
 
 /**
- * {@link Endpoint @Endpoint} to expose {@link ConfigurableEnvironment environment}
- * information.
+ * {@link Endpoint} to expose {@link ConfigurableEnvironment environment} information.
  *
  * @author Dave Syer
  * @author Phillip Webb

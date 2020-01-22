@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure.web.reactive.function.client;
 import java.net.URI;
 import java.time.Duration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -47,13 +47,13 @@ import static org.mockito.Mockito.verify;
  *
  * @author Brian Clozel
  */
-class WebClientAutoConfigurationTests {
+public class WebClientAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner().withConfiguration(
 			AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.class, WebClientAutoConfiguration.class));
 
 	@Test
-	void shouldCreateBuilder() {
+	public void shouldCreateBuilder() {
 		this.contextRunner.run((context) -> {
 			WebClient.Builder builder = context.getBean(WebClient.Builder.class);
 			WebClient webClient = builder.build();
@@ -62,7 +62,7 @@ class WebClientAutoConfigurationTests {
 	}
 
 	@Test
-	void shouldCustomizeClientCodecs() {
+	public void shouldCustomizeClientCodecs() {
 		this.contextRunner.withUserConfiguration(CodecConfiguration.class).run((context) -> {
 			WebClient.Builder builder = context.getBean(WebClient.Builder.class);
 			CodecCustomizer codecCustomizer = context.getBean(CodecCustomizer.class);
@@ -74,7 +74,7 @@ class WebClientAutoConfigurationTests {
 	}
 
 	@Test
-	void webClientShouldApplyCustomizers() {
+	public void webClientShouldApplyCustomizers() {
 		this.contextRunner.withUserConfiguration(WebClientCustomizerConfig.class).run((context) -> {
 			WebClient.Builder builder = context.getBean(WebClient.Builder.class);
 			WebClientCustomizer customizer = context.getBean("webClientCustomizer", WebClientCustomizer.class);
@@ -84,7 +84,7 @@ class WebClientAutoConfigurationTests {
 	}
 
 	@Test
-	void shouldGetPrototypeScopedBean() {
+	public void shouldGetPrototypeScopedBean() {
 		this.contextRunner.withUserConfiguration(WebClientCustomizerConfig.class).run((context) -> {
 			ClientHttpResponse response = mock(ClientHttpResponse.class);
 			ClientHttpConnector firstConnector = mock(ClientHttpConnector.class);
@@ -102,12 +102,12 @@ class WebClientAutoConfigurationTests {
 			verify(secondConnector).connect(eq(HttpMethod.GET), eq(URI.create("https://second.example.org/foo")),
 					any());
 			WebClientCustomizer customizer = context.getBean("webClientCustomizer", WebClientCustomizer.class);
-			verify(customizer, times(2)).customize(any(WebClient.Builder.class));
+			verify(customizer, times(1)).customize(any(WebClient.Builder.class));
 		});
 	}
 
 	@Test
-	void shouldNotCreateClientBuilderIfAlreadyPresent() {
+	public void shouldNotCreateClientBuilderIfAlreadyPresent() {
 		this.contextRunner.withUserConfiguration(WebClientCustomizerConfig.class, CustomWebClientBuilderConfig.class)
 				.run((context) -> {
 					WebClient.Builder builder = context.getBean(WebClient.Builder.class);
@@ -115,31 +115,31 @@ class WebClientAutoConfigurationTests {
 				});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CodecConfiguration {
 
 		@Bean
-		CodecCustomizer myCodecCustomizer() {
+		public CodecCustomizer myCodecCustomizer() {
 			return mock(CodecCustomizer.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class WebClientCustomizerConfig {
 
 		@Bean
-		WebClientCustomizer webClientCustomizer() {
+		public WebClientCustomizer webClientCustomizer() {
 			return mock(WebClientCustomizer.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class CustomWebClientBuilderConfig {
 
 		@Bean
-		MyWebClientBuilder myWebClientBuilder() {
+		public MyWebClientBuilder myWebClientBuilder() {
 			return mock(MyWebClientBuilder.class);
 		}
 

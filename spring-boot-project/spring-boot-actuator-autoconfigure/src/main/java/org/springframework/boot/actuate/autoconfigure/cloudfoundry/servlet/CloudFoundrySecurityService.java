@@ -65,7 +65,7 @@ class CloudFoundrySecurityService {
 	 * @return the access level that should be granted
 	 * @throws CloudFoundryAuthorizationException if the token is not authorized
 	 */
-	AccessLevel getAccessLevel(String token, String applicationId) throws CloudFoundryAuthorizationException {
+	public AccessLevel getAccessLevel(String token, String applicationId) throws CloudFoundryAuthorizationException {
 		try {
 			URI uri = getPermissionsUri(applicationId);
 			RequestEntity<?> request = RequestEntity.get(uri).header("Authorization", "bearer " + token).build();
@@ -99,7 +99,7 @@ class CloudFoundrySecurityService {
 	 * Return all token keys known by the UAA.
 	 * @return a list of token keys
 	 */
-	Map<String, String> fetchTokenKeys() {
+	public Map<String, String> fetchTokenKeys() {
 		try {
 			return extractTokenKeys(this.restTemplate.getForObject(getUaaUrl() + "/token_keys", Map.class));
 		}
@@ -121,7 +121,7 @@ class CloudFoundrySecurityService {
 	 * Return the URL of the UAA.
 	 * @return the UAA url
 	 */
-	String getUaaUrl() {
+	public String getUaaUrl() {
 		if (this.uaaUrl == null) {
 			try {
 				Map<?, ?> response = this.restTemplate.getForObject(this.cloudControllerUrl + "/info", Map.class);

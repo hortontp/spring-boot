@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.cloudfoundry;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,28 +25,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Madhura Bhave
  */
-class AccessLevelTests {
+public class AccessLevelTests {
 
 	@Test
-	void accessToHealthEndpointShouldNotBeRestricted() {
+	public void accessToHealthEndpointShouldNotBeRestricted() {
 		assertThat(AccessLevel.RESTRICTED.isAccessAllowed("health")).isTrue();
 		assertThat(AccessLevel.FULL.isAccessAllowed("health")).isTrue();
 	}
 
 	@Test
-	void accessToInfoEndpointShouldNotBeRestricted() {
+	public void accessToInfoEndpointShouldNotBeRestricted() {
 		assertThat(AccessLevel.RESTRICTED.isAccessAllowed("info")).isTrue();
 		assertThat(AccessLevel.FULL.isAccessAllowed("info")).isTrue();
 	}
 
 	@Test
-	void accessToDiscoveryEndpointShouldNotBeRestricted() {
+	public void accessToDiscoveryEndpointShouldNotBeRestricted() {
 		assertThat(AccessLevel.RESTRICTED.isAccessAllowed("")).isTrue();
 		assertThat(AccessLevel.FULL.isAccessAllowed("")).isTrue();
 	}
 
 	@Test
-	void accessToAnyOtherEndpointShouldBeRestricted() {
+	public void accessToAnyOtherEndpointShouldBeRestricted() {
 		assertThat(AccessLevel.RESTRICTED.isAccessAllowed("env")).isFalse();
 		assertThat(AccessLevel.FULL.isAccessAllowed("")).isTrue();
 	}

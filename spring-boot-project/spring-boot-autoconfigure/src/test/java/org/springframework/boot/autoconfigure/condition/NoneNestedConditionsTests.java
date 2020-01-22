@@ -16,7 +16,7 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -32,31 +32,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link NoneNestedConditions}.
  */
-class NoneNestedConditionsTests {
+public class NoneNestedConditionsTests {
 
 	@Test
-	void neither() {
+	public void neither() {
 		AnnotationConfigApplicationContext context = load(Config.class);
 		assertThat(context.containsBean("myBean")).isTrue();
 		context.close();
 	}
 
 	@Test
-	void propertyA() {
+	public void propertyA() {
 		AnnotationConfigApplicationContext context = load(Config.class, "a:a");
 		assertThat(context.containsBean("myBean")).isFalse();
 		context.close();
 	}
 
 	@Test
-	void propertyB() {
+	public void propertyB() {
 		AnnotationConfigApplicationContext context = load(Config.class, "b:b");
 		assertThat(context.containsBean("myBean")).isFalse();
 		context.close();
 	}
 
 	@Test
-	void both() {
+	public void both() {
 		AnnotationConfigApplicationContext context = load(Config.class, "a:a", "b:b");
 		assertThat(context.containsBean("myBean")).isFalse();
 		context.close();
@@ -70,12 +70,12 @@ class NoneNestedConditionsTests {
 		return context;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Conditional(NeitherPropertyANorPropertyBCondition.class)
-	static class Config {
+	public static class Config {
 
 		@Bean
-		String myBean() {
+		public String myBean() {
 			return "myBean";
 		}
 

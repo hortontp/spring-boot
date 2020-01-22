@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint.ApplicationConfigurationProperties;
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint.ConfigurationPropertiesBeanDescriptor;
@@ -44,10 +44,10 @@ import static org.assertj.core.api.Assertions.entry;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-class ConfigurationPropertiesReportEndpointSerializationTests {
+public class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
-	void testNaming() {
+	public void testNaming() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(FooConfig.class)
 				.withPropertyValues("foo.name:foo");
 		contextRunner.run((context) -> {
@@ -67,7 +67,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void testNestedNaming() {
+	public void testNestedNaming() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(FooConfig.class)
 				.withPropertyValues("foo.bar.name:foo");
 		contextRunner.run((context) -> {
@@ -86,7 +86,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void testSelfReferentialProperty() {
+	public void testSelfReferentialProperty() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(SelfReferentialConfig.class).withPropertyValues("foo.name:foo");
 		contextRunner.run((context) -> {
@@ -107,7 +107,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 	}
 
 	@Test
-	void testCycle() {
+	public void testCycle() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(CycleConfig.class);
 		contextRunner.run((context) -> {
@@ -126,7 +126,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void testMap() {
+	public void testMap() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(MapConfig.class)
 				.withPropertyValues("foo.map.name:foo");
 		contextRunner.run((context) -> {
@@ -145,7 +145,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 	}
 
 	@Test
-	void testEmptyMapIsNotAdded() {
+	public void testEmptyMapIsNotAdded() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(MapConfig.class);
 		contextRunner.run((context) -> {
 			ConfigurationPropertiesReportEndpoint endpoint = context
@@ -164,7 +164,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void testList() {
+	public void testList() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner().withUserConfiguration(ListConfig.class)
 				.withPropertyValues("foo.list[0]:foo");
 		contextRunner.run((context) -> {
@@ -183,7 +183,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 	}
 
 	@Test
-	void testInetAddress() {
+	public void testInetAddress() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(AddressedConfig.class).withPropertyValues("foo.address:192.168.1.10");
 		contextRunner.run((context) -> {
@@ -203,7 +203,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void testInitializedMapAndList() {
+	public void testInitializedMapAndList() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(InitializedMapAndListPropertiesConfig.class)
 				.withPropertyValues("foo.map.entryOne:true", "foo.list[0]:abc");
@@ -224,7 +224,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 	}
 
 	@Test
-	void hikariDataSourceConfigurationPropertiesBeanCanBeSerialized() {
+	public void hikariDataSourceConfigurationPropertiesBeanCanBeSerialized() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(HikariDataSourceConfig.class);
 		contextRunner.run((context) -> {
@@ -238,108 +238,108 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
-	static class Base {
+	public static class Base {
 
 		@Bean
-		ConfigurationPropertiesReportEndpoint endpoint() {
+		public ConfigurationPropertiesReportEndpoint endpoint() {
 			return new ConfigurationPropertiesReportEndpoint();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class FooConfig {
+	public static class FooConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		Foo foo() {
+		public Foo foo() {
 			return new Foo();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class SelfReferentialConfig {
+	public static class SelfReferentialConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		SelfReferential foo() {
+		public SelfReferential foo() {
 			return new SelfReferential();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class MetadataCycleConfig {
+	public static class MetadataCycleConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "bar")
-		SelfReferential foo() {
+		public SelfReferential foo() {
 			return new SelfReferential();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class MapConfig {
+	public static class MapConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		MapHolder foo() {
+		public MapHolder foo() {
 			return new MapHolder();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class ListConfig {
+	public static class ListConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		ListHolder foo() {
+		public ListHolder foo() {
 			return new ListHolder();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class MetadataMapConfig {
+	public static class MetadataMapConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "spam")
-		MapHolder foo() {
+		public MapHolder foo() {
 			return new MapHolder();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class AddressedConfig {
+	public static class AddressedConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		Addressed foo() {
+		public Addressed foo() {
 			return new Addressed();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
-	static class InitializedMapAndListPropertiesConfig {
+	public static class InitializedMapAndListPropertiesConfig {
 
 		@Bean
 		@ConfigurationProperties(prefix = "foo")
-		InitializedMapAndListProperties foo() {
+		public InitializedMapAndListProperties foo() {
 			return new InitializedMapAndListProperties();
 		}
 
@@ -392,7 +392,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 		private Foo self;
 
-		SelfReferential() {
+		public SelfReferential() {
 			this.self = this;
 		}
 
@@ -464,7 +464,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	}
 
-	public static class Cycle {
+	static class Cycle {
 
 		private final Alpha alpha = new Alpha(this);
 
@@ -472,7 +472,7 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 			return this.alpha;
 		}
 
-		public static class Alpha {
+		static class Alpha {
 
 			private final Cycle cycle;
 
@@ -488,31 +488,31 @@ class ConfigurationPropertiesReportEndpointSerializationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(Base.class)
 	static class CycleConfig {
 
 		@Bean
 		// gh-11037
 		@ConfigurationProperties(prefix = "cycle")
-		Cycle cycle() {
+		public Cycle cycle() {
 			return new Cycle();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableConfigurationProperties
 	static class HikariDataSourceConfig {
 
 		@Bean
-		ConfigurationPropertiesReportEndpoint endpoint() {
+		public ConfigurationPropertiesReportEndpoint endpoint() {
 			return new ConfigurationPropertiesReportEndpoint();
 		}
 
 		@Bean
 		@ConfigurationProperties(prefix = "test.datasource")
-		HikariDataSource hikariDataSource() {
+		public HikariDataSource hikariDataSource() {
 			return new HikariDataSource();
 		}
 

@@ -34,7 +34,7 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
  * <p>
  * Registers a {@link MongoTemplate} and {@link GridFsTemplate} beans if no other beans of
  * the same type are configured.
- * <p>
+ * <P>
  * Honors the {@literal spring.data.mongodb.database} property if set, otherwise connects
  * to the {@literal test} database.
  *
@@ -47,7 +47,7 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
  * @author Christoph Strobl
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ MongoClient.class, com.mongodb.client.MongoClient.class, MongoTemplate.class })
 @EnableConfigurationProperties(MongoProperties.class)
 @Import({ MongoDataConfiguration.class, MongoDbFactoryConfiguration.class, MongoDbFactoryDependentConfiguration.class })

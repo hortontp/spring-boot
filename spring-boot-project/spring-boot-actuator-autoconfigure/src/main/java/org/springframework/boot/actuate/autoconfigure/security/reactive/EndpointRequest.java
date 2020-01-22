@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.web.PathMappedEndpoints;
 import org.springframework.boot.security.reactive.ApplicationContextServerWebExchangeMatcher;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -135,11 +134,11 @@ public final class EndpointRequest {
 		}
 
 		private EndpointServerWebExchangeMatcher(Class<?>[] endpoints, boolean includeLinks) {
-			this(Arrays.asList(endpoints), Collections.emptyList(), includeLinks);
+			this(Arrays.asList((Object[]) endpoints), Collections.emptyList(), includeLinks);
 		}
 
 		private EndpointServerWebExchangeMatcher(String[] endpoints, boolean includeLinks) {
-			this(Arrays.asList(endpoints), Collections.emptyList(), includeLinks);
+			this(Arrays.asList((Object[]) endpoints), Collections.emptyList(), includeLinks);
 		}
 
 		private EndpointServerWebExchangeMatcher(List<Object> includes, List<Object> excludes, boolean includeLinks) {
@@ -211,9 +210,9 @@ public final class EndpointRequest {
 		}
 
 		private EndpointId getEndpointId(Class<?> source) {
-			MergedAnnotation<Endpoint> annotation = MergedAnnotations.from(source).get(Endpoint.class);
-			Assert.state(annotation.isPresent(), () -> "Class " + source + " is not annotated with @Endpoint");
-			return EndpointId.of(annotation.getString("id"));
+			Endpoint annotation = AnnotatedElementUtils.getMergedAnnotation(source, Endpoint.class);
+			Assert.state(annotation != null, () -> "Class " + source + " is not annotated with @Endpoint");
+			return EndpointId.of(annotation.id());
 		}
 
 		private List<ServerWebExchangeMatcher> getDelegateMatchers(Set<String> paths) {

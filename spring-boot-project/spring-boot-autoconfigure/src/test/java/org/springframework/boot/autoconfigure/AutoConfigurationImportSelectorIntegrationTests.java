@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -33,31 +33,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class AutoConfigurationImportSelectorIntegrationTests {
+public class AutoConfigurationImportSelectorIntegrationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
 	@Test
-	void singleSelectorWithNoImports() {
+	public void singleSelectorWithNoImports() {
 		this.contextRunner.withUserConfiguration(NoConfig.class)
 				.run((context) -> assertThat(getImportedConfigBeans(context)).isEmpty());
 	}
 
 	@Test
-	void singleSelector() {
+	public void singleSelector() {
 		this.contextRunner.withUserConfiguration(SingleConfig.class)
 				.run((context) -> assertThat(getImportedConfigBeans(context)).containsExactly("ConfigC"));
 	}
 
 	@Test
-	void multipleSelectorsShouldMergeAndSortCorrectly() {
+	public void multipleSelectorsShouldMergeAndSortCorrectly() {
 		this.contextRunner.withUserConfiguration(Config.class, AnotherConfig.class)
 				.run((context) -> assertThat(getImportedConfigBeans(context)).containsExactly("ConfigA", "ConfigB",
 						"ConfigC", "ConfigD"));
 	}
 
 	@Test
-	void multipleSelectorsWithRedundantImportsShouldMergeAndSortCorrectly() {
+	public void multipleSelectorsWithRedundantImportsShouldMergeAndSortCorrectly() {
 		this.contextRunner.withUserConfiguration(SingleConfig.class, Config.class, AnotherConfig.class)
 				.run((context) -> assertThat(getImportedConfigBeans(context)).containsExactly("ConfigA", "ConfigB",
 						"ConfigC", "ConfigD"));
@@ -96,24 +96,24 @@ class AutoConfigurationImportSelectorIntegrationTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ConfigA {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@AutoConfigureAfter(ConfigA.class)
 	@AutoConfigureBefore(ConfigC.class)
 	static class ConfigB {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class ConfigC {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@AutoConfigureAfter(ConfigC.class)
 	static class ConfigD {
 

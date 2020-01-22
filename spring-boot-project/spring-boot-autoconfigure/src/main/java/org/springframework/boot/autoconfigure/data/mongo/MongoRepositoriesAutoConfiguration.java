@@ -43,7 +43,9 @@ import org.springframework.data.mongodb.repository.support.MongoRepositoryFactor
  * configured {@link org.springframework.data.mongodb.repository.MongoRepository}.
  * <p>
  * Once in effect, the auto-configuration is the equivalent of enabling Mongo repositories
- * using the {@link EnableMongoRepositories @EnableMongoRepositories} annotation.
+ * using the
+ * {@link org.springframework.data.mongodb.repository.config.EnableMongoRepositories}
+ * annotation.
  *
  * @author Dave Syer
  * @author Oliver Gierke
@@ -51,11 +53,11 @@ import org.springframework.data.mongodb.repository.support.MongoRepositoryFactor
  * @since 1.0.0
  * @see EnableMongoRepositories
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({ MongoClient.class, MongoRepository.class })
 @ConditionalOnMissingBean({ MongoRepositoryFactoryBean.class, MongoRepositoryConfigurationExtension.class })
 @ConditionalOnRepositoryType(store = "mongodb", type = RepositoryType.IMPERATIVE)
-@Import(MongoRepositoriesRegistrar.class)
+@Import(MongoRepositoriesAutoConfigureRegistrar.class)
 @AutoConfigureAfter(MongoDataAutoConfiguration.class)
 public class MongoRepositoriesAutoConfiguration {
 

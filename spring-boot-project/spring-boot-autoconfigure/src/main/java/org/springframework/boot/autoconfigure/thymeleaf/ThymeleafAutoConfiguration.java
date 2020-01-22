@@ -16,6 +16,7 @@
 
 package org.springframework.boot.autoconfigure.thymeleaf;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import javax.annotation.PostConstruct;
@@ -76,13 +77,13 @@ import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
  * @author Artsiom Yudovin
  * @since 1.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableConfigurationProperties(ThymeleafProperties.class)
 @ConditionalOnClass({ TemplateMode.class, SpringTemplateEngine.class })
 @AutoConfigureAfter({ WebMvcAutoConfiguration.class, WebFluxAutoConfiguration.class })
 public class ThymeleafAutoConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnMissingBean(name = "defaultTemplateResolver")
 	static class DefaultTemplateResolverConfiguration {
 
@@ -98,7 +99,7 @@ public class ThymeleafAutoConfiguration {
 		}
 
 		@PostConstruct
-		void checkTemplateLocationExists() {
+		public void checkTemplateLocationExists() {
 			boolean checkTemplateLocation = this.properties.isCheckTemplateLocation();
 			if (checkTemplateLocation) {
 				TemplateLocation location = new TemplateLocation(this.properties.getPrefix());
@@ -110,7 +111,7 @@ public class ThymeleafAutoConfiguration {
 		}
 
 		@Bean
-		SpringResourceTemplateResolver defaultTemplateResolver() {
+		public SpringResourceTemplateResolver defaultTemplateResolver() {
 			SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
 			resolver.setApplicationContext(this.applicationContext);
 			resolver.setPrefix(this.properties.getPrefix());
@@ -130,24 +131,36 @@ public class ThymeleafAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	protected static class ThymeleafDefaultConfiguration {
+
+		private final ThymeleafProperties properties;
+
+		private final Collection<ITemplateResolver> templateResolvers;
+
+		private final ObjectProvider<IDialect> dialects;
+
+		public ThymeleafDefaultConfiguration(ThymeleafProperties properties,
+				Collection<ITemplateResolver> templateResolvers, ObjectProvider<IDialect> dialectsProvider) {
+			this.properties = properties;
+			this.templateResolvers = templateResolvers;
+			this.dialects = dialectsProvider;
+		}
 
 		@Bean
 		@ConditionalOnMissingBean(ISpringTemplateEngine.class)
-		SpringTemplateEngine templateEngine(ThymeleafProperties properties,
-				ObjectProvider<ITemplateResolver> templateResolvers, ObjectProvider<IDialect> dialects) {
+		public SpringTemplateEngine templateEngine() {
 			SpringTemplateEngine engine = new SpringTemplateEngine();
-			engine.setEnableSpringELCompiler(properties.isEnableSpringElCompiler());
-			engine.setRenderHiddenMarkersBeforeCheckboxes(properties.isRenderHiddenMarkersBeforeCheckboxes());
-			templateResolvers.orderedStream().forEach(engine::addTemplateResolver);
-			dialects.orderedStream().forEach(engine::addDialect);
+			engine.setEnableSpringELCompiler(this.properties.isEnableSpringElCompiler());
+			engine.setRenderHiddenMarkersBeforeCheckboxes(this.properties.isRenderHiddenMarkersBeforeCheckboxes());
+			this.templateResolvers.forEach(engine::addTemplateResolver);
+			this.dialects.orderedStream().forEach(engine::addDialect);
 			return engine;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	@ConditionalOnProperty(name = "spring.thymeleaf.enabled", matchIfMissing = true)
 	static class ThymeleafWebMvcConfiguration {
@@ -155,33 +168,41 @@ public class ThymeleafAutoConfiguration {
 		@Bean
 		@ConditionalOnEnabledResourceChain
 		@ConditionalOnMissingFilterBean(ResourceUrlEncodingFilter.class)
-		FilterRegistrationBean<ResourceUrlEncodingFilter> resourceUrlEncodingFilter() {
+		public FilterRegistrationBean<ResourceUrlEncodingFilter> resourceUrlEncodingFilter() {
 			FilterRegistrationBean<ResourceUrlEncodingFilter> registration = new FilterRegistrationBean<>(
 					new ResourceUrlEncodingFilter());
 			registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ERROR);
 			return registration;
 		}
 
-		@Configuration(proxyBeanMethods = false)
+		@Configuration
 		static class ThymeleafViewResolverConfiguration {
+
+			private final ThymeleafProperties properties;
+
+			private final SpringTemplateEngine templateEngine;
+
+			ThymeleafViewResolverConfiguration(ThymeleafProperties properties, SpringTemplateEngine templateEngine) {
+				this.properties = properties;
+				this.templateEngine = templateEngine;
+			}
 
 			@Bean
 			@ConditionalOnMissingBean(name = "thymeleafViewResolver")
-			ThymeleafViewResolver thymeleafViewResolver(ThymeleafProperties properties,
-					SpringTemplateEngine templateEngine) {
+			public ThymeleafViewResolver thymeleafViewResolver() {
 				ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-				resolver.setTemplateEngine(templateEngine);
-				resolver.setCharacterEncoding(properties.getEncoding().name());
+				resolver.setTemplateEngine(this.templateEngine);
+				resolver.setCharacterEncoding(this.properties.getEncoding().name());
 				resolver.setContentType(
-						appendCharset(properties.getServlet().getContentType(), resolver.getCharacterEncoding()));
+						appendCharset(this.properties.getServlet().getContentType(), resolver.getCharacterEncoding()));
 				resolver.setProducePartialOutputWhileProcessing(
-						properties.getServlet().isProducePartialOutputWhileProcessing());
-				resolver.setExcludedViewNames(properties.getExcludedViewNames());
-				resolver.setViewNames(properties.getViewNames());
+						this.properties.getServlet().isProducePartialOutputWhileProcessing());
+				resolver.setExcludedViewNames(this.properties.getExcludedViewNames());
+				resolver.setViewNames(this.properties.getViewNames());
 				// This resolver acts as a fallback resolver (e.g. like a
 				// InternalResourceViewResolver) so it needs to have low precedence
 				resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);
-				resolver.setCache(properties.isCache());
+				resolver.setCache(this.properties.isCache());
 				return resolver;
 			}
 
@@ -199,38 +220,55 @@ public class ThymeleafAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnWebApplication(type = Type.REACTIVE)
 	@ConditionalOnProperty(name = "spring.thymeleaf.enabled", matchIfMissing = true)
 	static class ThymeleafReactiveConfiguration {
 
+		private final ThymeleafProperties properties;
+
+		private final Collection<ITemplateResolver> templateResolvers;
+
+		private final ObjectProvider<IDialect> dialects;
+
+		ThymeleafReactiveConfiguration(ThymeleafProperties properties, Collection<ITemplateResolver> templateResolvers,
+				ObjectProvider<IDialect> dialectsProvider) {
+			this.properties = properties;
+			this.templateResolvers = templateResolvers;
+			this.dialects = dialectsProvider;
+		}
+
 		@Bean
 		@ConditionalOnMissingBean(ISpringWebFluxTemplateEngine.class)
-		SpringWebFluxTemplateEngine templateEngine(ThymeleafProperties properties,
-				ObjectProvider<ITemplateResolver> templateResolvers, ObjectProvider<IDialect> dialects) {
+		public SpringWebFluxTemplateEngine templateEngine() {
 			SpringWebFluxTemplateEngine engine = new SpringWebFluxTemplateEngine();
-			engine.setEnableSpringELCompiler(properties.isEnableSpringElCompiler());
-			engine.setRenderHiddenMarkersBeforeCheckboxes(properties.isRenderHiddenMarkersBeforeCheckboxes());
-			templateResolvers.orderedStream().forEach(engine::addTemplateResolver);
-			dialects.orderedStream().forEach(engine::addDialect);
+			engine.setEnableSpringELCompiler(this.properties.isEnableSpringElCompiler());
+			engine.setRenderHiddenMarkersBeforeCheckboxes(this.properties.isRenderHiddenMarkersBeforeCheckboxes());
+			this.templateResolvers.forEach(engine::addTemplateResolver);
+			this.dialects.orderedStream().forEach(engine::addDialect);
 			return engine;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnWebApplication(type = Type.REACTIVE)
 	@ConditionalOnProperty(name = "spring.thymeleaf.enabled", matchIfMissing = true)
 	static class ThymeleafWebFluxConfiguration {
 
+		private final ThymeleafProperties properties;
+
+		ThymeleafWebFluxConfiguration(ThymeleafProperties properties) {
+			this.properties = properties;
+		}
+
 		@Bean
 		@ConditionalOnMissingBean(name = "thymeleafReactiveViewResolver")
-		ThymeleafReactiveViewResolver thymeleafViewResolver(ISpringWebFluxTemplateEngine templateEngine,
-				ThymeleafProperties properties) {
+		public ThymeleafReactiveViewResolver thymeleafViewResolver(ISpringWebFluxTemplateEngine templateEngine) {
 			ThymeleafReactiveViewResolver resolver = new ThymeleafReactiveViewResolver();
 			resolver.setTemplateEngine(templateEngine);
-			mapProperties(properties, resolver);
-			mapReactiveProperties(properties.getReactive(), resolver);
+			mapProperties(this.properties, resolver);
+			mapReactiveProperties(this.properties.getReactive(), resolver);
 			// This resolver acts as a fallback resolver (e.g. like a
 			// InternalResourceViewResolver) so it needs to have low precedence
 			resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);
@@ -255,49 +293,49 @@ public class ThymeleafAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(LayoutDialect.class)
-	static class ThymeleafWebLayoutConfiguration {
+	protected static class ThymeleafWebLayoutConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		LayoutDialect layoutDialect() {
+		public LayoutDialect layoutDialect() {
 			return new LayoutDialect();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(DataAttributeDialect.class)
-	static class DataAttributeDialectConfiguration {
+	protected static class DataAttributeDialectConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		DataAttributeDialect dialect() {
+		public DataAttributeDialect dialect() {
 			return new DataAttributeDialect();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ SpringSecurityDialect.class })
-	static class ThymeleafSecurityDialectConfiguration {
+	protected static class ThymeleafSecurityDialectConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		SpringSecurityDialect securityDialect() {
+		public SpringSecurityDialect securityDialect() {
 			return new SpringSecurityDialect();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(Java8TimeDialect.class)
-	static class ThymeleafJava8TimeDialect {
+	protected static class ThymeleafJava8TimeDialect {
 
 		@Bean
 		@ConditionalOnMissingBean
-		Java8TimeDialect java8TimeDialect() {
+		public Java8TimeDialect java8TimeDialect() {
 			return new Java8TimeDialect();
 		}
 

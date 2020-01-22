@@ -19,7 +19,7 @@ package org.springframework.boot.autoconfigure.security.reactive;
 import java.time.Duration;
 
 import org.assertj.core.api.AssertDelegateTarget;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.security.StaticResourceLocation;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -43,12 +43,12 @@ import static org.mockito.Mockito.mock;
  *
  * @author Madhura Bhave
  */
-class StaticResourceRequestTests {
+public class StaticResourceRequestTests {
 
 	private StaticResourceRequest resourceRequest = StaticResourceRequest.INSTANCE;
 
 	@Test
-	void atCommonLocationsShouldMatchCommonLocations() {
+	public void atCommonLocationsShouldMatchCommonLocations() {
 		ServerWebExchangeMatcher matcher = this.resourceRequest.atCommonLocations();
 		assertMatcher(matcher).matches("/css/file.css");
 		assertMatcher(matcher).matches("/js/file.js");
@@ -59,7 +59,7 @@ class StaticResourceRequestTests {
 	}
 
 	@Test
-	void atCommonLocationsWithExcludeShouldNotMatchExcluded() {
+	public void atCommonLocationsWithExcludeShouldNotMatchExcluded() {
 		ServerWebExchangeMatcher matcher = this.resourceRequest.atCommonLocations()
 				.excluding(StaticResourceLocation.CSS);
 		assertMatcher(matcher).doesNotMatch("/css/file.css");
@@ -67,20 +67,20 @@ class StaticResourceRequestTests {
 	}
 
 	@Test
-	void atLocationShouldMatchLocation() {
+	public void atLocationShouldMatchLocation() {
 		ServerWebExchangeMatcher matcher = this.resourceRequest.at(StaticResourceLocation.CSS);
 		assertMatcher(matcher).matches("/css/file.css");
 		assertMatcher(matcher).doesNotMatch("/js/file.js");
 	}
 
 	@Test
-	void atLocationsFromSetWhenSetIsNullShouldThrowException() {
+	public void atLocationsFromSetWhenSetIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.resourceRequest.at(null))
 				.withMessageContaining("Locations must not be null");
 	}
 
 	@Test
-	void excludeFromSetWhenSetIsNullShouldThrowException() {
+	public void excludeFromSetWhenSetIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.resourceRequest.atCommonLocations().excluding(null))
 				.withMessageContaining("Locations must not be null");
 	}
@@ -91,7 +91,7 @@ class StaticResourceRequestTests {
 		return assertThat(new RequestMatcherAssert(context, matcher));
 	}
 
-	static class RequestMatcherAssert implements AssertDelegateTarget {
+	private static class RequestMatcherAssert implements AssertDelegateTarget {
 
 		private final StaticApplicationContext context;
 
@@ -136,7 +136,7 @@ class StaticResourceRequestTests {
 
 	}
 
-	static class TestHttpWebHandlerAdapter extends HttpWebHandlerAdapter {
+	private static class TestHttpWebHandlerAdapter extends HttpWebHandlerAdapter {
 
 		TestHttpWebHandlerAdapter(WebHandler delegate) {
 			super(delegate);

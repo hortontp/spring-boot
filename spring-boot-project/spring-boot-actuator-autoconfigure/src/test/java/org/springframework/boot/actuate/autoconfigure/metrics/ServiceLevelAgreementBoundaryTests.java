@@ -17,7 +17,7 @@
 package org.springframework.boot.actuate.autoconfigure.metrics;
 
 import io.micrometer.core.instrument.Meter.Type;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,22 +26,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class ServiceLevelAgreementBoundaryTests {
+public class ServiceLevelAgreementBoundaryTests {
 
 	@Test
-	void getValueForTimerWhenFromLongShouldReturnMsToNanosValue() {
+	public void getValueForTimerWhenFromLongShouldReturnMsToNanosValue() {
 		ServiceLevelAgreementBoundary sla = ServiceLevelAgreementBoundary.valueOf(123L);
 		assertThat(sla.getValue(Type.TIMER)).isEqualTo(123000000);
 	}
 
 	@Test
-	void getValueForTimerWhenFromNumberStringShouldMsToNanosValue() {
+	public void getValueForTimerWhenFromNumberStringShouldMsToNanosValue() {
 		ServiceLevelAgreementBoundary sla = ServiceLevelAgreementBoundary.valueOf("123");
 		assertThat(sla.getValue(Type.TIMER)).isEqualTo(123000000);
 	}
 
 	@Test
-	void getValueForTimerWhenFromDurationStringShouldReturnDurationNanos() {
+	public void getValueForTimerWhenFromDurationStringShouldReturnDurationNanos() {
 		ServiceLevelAgreementBoundary sla = ServiceLevelAgreementBoundary.valueOf("123ms");
 		assertThat(sla.getValue(Type.TIMER)).isEqualTo(123000000);
 	}

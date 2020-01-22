@@ -57,7 +57,7 @@ final class DispatcherServletHandlerMappings {
 		this.applicationContext = applicationContext;
 	}
 
-	List<HandlerMapping> getHandlerMappings() {
+	public List<HandlerMapping> getHandlerMappings() {
 		List<HandlerMapping> handlerMappings = this.dispatcherServlet.getHandlerMappings();
 		if (handlerMappings == null) {
 			initializeDispatcherServletIfPossible();
@@ -79,7 +79,7 @@ final class DispatcherServletHandlerMappings {
 		}
 	}
 
-	String getName() {
+	public String getName() {
 		return this.name;
 	}
 

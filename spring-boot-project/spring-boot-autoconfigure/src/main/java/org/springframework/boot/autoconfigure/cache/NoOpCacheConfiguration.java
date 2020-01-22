@@ -28,13 +28,13 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnMissingBean(CacheManager.class)
 @Conditional(CacheCondition.class)
 class NoOpCacheConfiguration {
 
 	@Bean
-	NoOpCacheManager cacheManager() {
+	public NoOpCacheManager cacheManager() {
 		return new NoOpCacheManager();
 	}
 

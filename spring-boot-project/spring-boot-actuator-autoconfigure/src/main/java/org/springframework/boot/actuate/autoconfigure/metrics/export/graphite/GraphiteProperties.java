@@ -24,8 +24,7 @@ import io.micrometer.graphite.GraphiteProtocol;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} for configuring Graphite
- * metrics export.
+ * {@link ConfigurationProperties} for configuring Graphite metrics export.
  *
  * @author Jon Schneider
  * @author Stephane Nicoll

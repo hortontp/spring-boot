@@ -18,12 +18,14 @@ package org.springframework.boot.autoconfigure.web;
 
 import java.time.Duration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.web.ResourceProperties.Cache;
+import org.springframework.boot.testsupport.assertj.Matched;
 import org.springframework.http.CacheControl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.endsWith;
 
 /**
  * Tests for {@link ResourceProperties}.
@@ -31,53 +33,53 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Kristine Jetzke
  */
-class ResourcePropertiesTests {
+public class ResourcePropertiesTests {
 
 	private final ResourceProperties properties = new ResourceProperties();
 
 	@Test
-	void resourceChainNoCustomization() {
+	public void resourceChainNoCustomization() {
 		assertThat(this.properties.getChain().getEnabled()).isNull();
 	}
 
 	@Test
-	void resourceChainStrategyEnabled() {
+	public void resourceChainStrategyEnabled() {
 		this.properties.getChain().getStrategy().getFixed().setEnabled(true);
 		assertThat(this.properties.getChain().getEnabled()).isTrue();
 	}
 
 	@Test
-	void resourceChainEnabled() {
+	public void resourceChainEnabled() {
 		this.properties.getChain().setEnabled(true);
 		assertThat(this.properties.getChain().getEnabled()).isTrue();
 	}
 
 	@Test
-	void resourceChainDisabled() {
+	public void resourceChainDisabled() {
 		this.properties.getChain().setEnabled(false);
 		assertThat(this.properties.getChain().getEnabled()).isFalse();
 	}
 
 	@Test
-	void defaultStaticLocationsAllEndWithTrailingSlash() {
-		assertThat(this.properties.getStaticLocations()).allMatch((location) -> location.endsWith("/"));
+	public void defaultStaticLocationsAllEndWithTrailingSlash() {
+		assertThat(this.properties.getStaticLocations()).are(Matched.by(endsWith("/")));
 	}
 
 	@Test
-	void customStaticLocationsAreNormalizedToEndWithTrailingSlash() {
+	public void customStaticLocationsAreNormalizedToEndWithTrailingSlash() {
 		this.properties.setStaticLocations(new String[] { "/foo", "/bar", "/baz/" });
 		String[] actual = this.properties.getStaticLocations();
 		assertThat(actual).containsExactly("/foo/", "/bar/", "/baz/");
 	}
 
 	@Test
-	void emptyCacheControl() {
+	public void emptyCacheControl() {
 		CacheControl cacheControl = this.properties.getCache().getCachecontrol().toHttpCacheControl();
 		assertThat(cacheControl).isNull();
 	}
 
 	@Test
-	void cacheControlAllPropertiesSet() {
+	public void cacheControlAllPropertiesSet() {
 		Cache.Cachecontrol properties = this.properties.getCache().getCachecontrol();
 		properties.setMaxAge(Duration.ofSeconds(4));
 		properties.setCachePrivate(true);
@@ -95,7 +97,7 @@ class ResourcePropertiesTests {
 	}
 
 	@Test
-	void invalidCacheControlCombination() {
+	public void invalidCacheControlCombination() {
 		Cache.Cachecontrol properties = this.properties.getCache().getCachecontrol();
 		properties.setMaxAge(Duration.ofSeconds(4));
 		properties.setNoStore(true);

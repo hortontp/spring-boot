@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.metrics.export.datadog;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,10 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class DatadogPropertiesConfigAdapterTests {
+public class DatadogPropertiesConfigAdapterTests {
 
 	@Test
-	void uriCanBeSet() {
+	public void uriCanBeSet() {
 		DatadogProperties properties = new DatadogProperties();
 		properties.setUri("https://app.example.com/api/v1/series");
 		properties.setApiKey("my-key");

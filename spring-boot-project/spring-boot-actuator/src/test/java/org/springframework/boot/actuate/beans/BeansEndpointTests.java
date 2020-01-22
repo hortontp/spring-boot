@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class BeansEndpointTests {
+public class BeansEndpointTests {
 
 	@Test
-	void beansAreFound() {
+	public void beansAreFound() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(EndpointConfiguration.class);
 		contextRunner.run((context) -> {
@@ -59,7 +59,7 @@ class BeansEndpointTests {
 	}
 
 	@Test
-	void infrastructureBeansAreOmitted() {
+	public void infrastructureBeansAreOmitted() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(EndpointConfiguration.class);
 		contextRunner.run((context) -> {
@@ -78,7 +78,7 @@ class BeansEndpointTests {
 	}
 
 	@Test
-	void lazyBeansAreOmitted() {
+	public void lazyBeansAreOmitted() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withUserConfiguration(EndpointConfiguration.class, LazyBeanConfiguration.class);
 		contextRunner.run((context) -> {
@@ -90,7 +90,7 @@ class BeansEndpointTests {
 	}
 
 	@Test
-	void beansInParentContextAreFound() {
+	public void beansInParentContextAreFound() {
 		ApplicationContextRunner parentRunner = new ApplicationContextRunner()
 				.withUserConfiguration(BeanConfiguration.class);
 		parentRunner.run((parent) -> {
@@ -103,32 +103,32 @@ class BeansEndpointTests {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class EndpointConfiguration {
+	@Configuration
+	public static class EndpointConfiguration {
 
 		@Bean
-		BeansEndpoint endpoint(ConfigurableApplicationContext context) {
+		public BeansEndpoint endpoint(ConfigurableApplicationContext context) {
 			return new BeansEndpoint(context);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class BeanConfiguration {
 
 		@Bean
-		String bean() {
+		public String bean() {
 			return "bean";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class LazyBeanConfiguration {
 
 		@Lazy
 		@Bean
-		String lazyBean() {
+		public String lazyBean() {
 			return "lazyBean";
 		}
 

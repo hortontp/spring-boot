@@ -17,7 +17,6 @@
 package org.springframework.boot.actuate.autoconfigure.metrics.export.influx;
 
 import io.micrometer.influx.InfluxConfig;
-import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.properties.StepRegistryPropertiesTests;
 
@@ -28,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class InfluxPropertiesTests extends StepRegistryPropertiesTests {
+public class InfluxPropertiesTests extends StepRegistryPropertiesTests {
 
-	@Test
-	void defaultValuesAreConsistent() {
+	@Override
+	public void defaultValuesAreConsistent() {
 		InfluxProperties properties = new InfluxProperties();
 		InfluxConfig config = InfluxConfig.DEFAULT;
 		assertStepRegistryDefaultValues(properties, config);

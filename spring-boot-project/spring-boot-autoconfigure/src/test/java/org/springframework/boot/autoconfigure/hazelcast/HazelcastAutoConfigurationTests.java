@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.hazelcast;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -31,16 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
-class HazelcastAutoConfigurationTests {
+public class HazelcastAutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(HazelcastAutoConfiguration.class));
 
 	@Test
-	void defaultConfigFile() {
+	public void defaultConfigFile() {
 		// no hazelcast-client.xml and hazelcast.xml is present in root classpath
-		// this also asserts that XML has priority over YAML
-		// as both hazelcast.yaml and hazelcast.xml in test classpath.
 		this.contextRunner.run((context) -> {
 			Config config = context.getBean(HazelcastInstance.class).getConfig();
 			assertThat(config.getConfigurationUrl()).isEqualTo(new ClassPathResource("hazelcast.xml").getURL());

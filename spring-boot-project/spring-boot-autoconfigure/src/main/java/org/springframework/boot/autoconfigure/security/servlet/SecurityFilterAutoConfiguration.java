@@ -47,7 +47,7 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
  * @author Andy Wilkinson
  * @since 1.3.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(SecurityProperties.class)
 @ConditionalOnClass({ AbstractSecurityWebApplicationInitializer.class, SessionCreationPolicy.class })

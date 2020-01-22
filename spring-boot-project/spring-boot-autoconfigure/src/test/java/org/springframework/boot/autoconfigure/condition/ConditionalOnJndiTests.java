@@ -21,9 +21,9 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.jndi.JndiPropertiesHidingClassLoader;
 import org.springframework.boot.autoconfigure.jndi.TestableInitialContextFactory;
@@ -37,13 +37,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link ConditionalOnJndi @ConditionalOnJndi}
+ * Tests for {@link ConditionalOnJndi}
  *
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-class ConditionalOnJndiTests {
+public class ConditionalOnJndiTests {
 
 	private ClassLoader threadContextClassLoader;
 
@@ -53,14 +53,14 @@ class ConditionalOnJndiTests {
 
 	private MockableOnJndi condition = new MockableOnJndi();
 
-	@BeforeEach
-	void setupThreadContextClassLoader() {
+	@Before
+	public void setupThreadContextClassLoader() {
 		this.threadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(new JndiPropertiesHidingClassLoader(getClass().getClassLoader()));
 	}
 
-	@AfterEach
-	void close() {
+	@After
+	public void close() {
 		TestableInitialContextFactory.clearAll();
 		if (this.initialContextFactory != null) {
 			System.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.initialContextFactory);
@@ -72,27 +72,27 @@ class ConditionalOnJndiTests {
 	}
 
 	@Test
-	void jndiNotAvailable() {
+	public void jndiNotAvailable() {
 		this.contextRunner.withUserConfiguration(JndiAvailableConfiguration.class, JndiConditionConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void jndiAvailable() {
+	public void jndiAvailable() {
 		setupJndi();
 		this.contextRunner.withUserConfiguration(JndiAvailableConfiguration.class, JndiConditionConfiguration.class)
 				.run((context) -> assertThat(context).hasSingleBean(String.class));
 	}
 
 	@Test
-	void jndiLocationNotBound() {
+	public void jndiLocationNotBound() {
 		setupJndi();
 		this.contextRunner.withUserConfiguration(JndiConditionConfiguration.class)
 				.run((context) -> assertThat(context).doesNotHaveBean(String.class));
 	}
 
 	@Test
-	void jndiLocationBound() {
+	public void jndiLocationBound() {
 		setupJndi();
 		TestableInitialContextFactory.bind("java:/FooManager", new Object());
 		this.contextRunner.withUserConfiguration(JndiConditionConfiguration.class)
@@ -100,13 +100,13 @@ class ConditionalOnJndiTests {
 	}
 
 	@Test
-	void jndiLocationNotFound() {
+	public void jndiLocationNotFound() {
 		ConditionOutcome outcome = this.condition.getMatchOutcome(null, mockMetaData("java:/a"));
 		assertThat(outcome.isMatch()).isFalse();
 	}
 
 	@Test
-	void jndiLocationFound() {
+	public void jndiLocationFound() {
 		this.condition.setFoundLocation("java:/b");
 		ConditionOutcome outcome = this.condition.getMatchOutcome(null, mockMetaData("java:/a", "java:/b"));
 		assertThat(outcome.isMatch()).isTrue();
@@ -125,29 +125,29 @@ class ConditionalOnJndiTests {
 		return metadata;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJndi
 	static class JndiAvailableConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnJndi("java:/FooManager")
 	static class JndiConditionConfiguration {
 
 		@Bean
-		String foo() {
+		public String foo() {
 			return "foo";
 		}
 
 	}
 
-	static class MockableOnJndi extends OnJndiCondition {
+	private static class MockableOnJndi extends OnJndiCondition {
 
 		private boolean jndiAvailable = true;
 
@@ -168,7 +168,7 @@ class ConditionalOnJndiTests {
 			};
 		}
 
-		void setFoundLocation(String foundLocation) {
+		public void setFoundLocation(String foundLocation) {
 			this.foundLocation = foundLocation;
 		}
 

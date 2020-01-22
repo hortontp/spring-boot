@@ -48,7 +48,7 @@ class ArtemisEmbeddedConfigurationFactory {
 		this.properties = properties.getEmbedded();
 	}
 
-	Configuration createConfiguration() {
+	public Configuration createConfiguration() {
 		ConfigurationImpl configuration = new ConfigurationImpl();
 		configuration.setSecurityEnabled(false);
 		configuration.setPersistenceEnabled(this.properties.isPersistent());

@@ -25,7 +25,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.test.json.BasicJsonTester;
 
@@ -40,21 +40,21 @@ import static org.mockito.Mockito.verify;
  *
  * @author Phillip Webb
  */
-class JacksonJmxOperationResponseMapperTests {
+public class JacksonJmxOperationResponseMapperTests {
 
 	private JacksonJmxOperationResponseMapper mapper = new JacksonJmxOperationResponseMapper(null);
 
 	private final BasicJsonTester json = new BasicJsonTester(getClass());
 
 	@Test
-	void createWhenObjectMapperIsNullShouldUseDefaultObjectMapper() {
+	public void createWhenObjectMapperIsNullShouldUseDefaultObjectMapper() {
 		JacksonJmxOperationResponseMapper mapper = new JacksonJmxOperationResponseMapper(null);
 		Object mapped = mapper.mapResponse(Collections.singleton("test"));
 		assertThat(this.json.from(mapped.toString())).isEqualToJson("[test]");
 	}
 
 	@Test
-	void createWhenObjectMapperIsSpecifiedShouldUseObjectMapper() {
+	public void createWhenObjectMapperIsSpecifiedShouldUseObjectMapper() {
 		ObjectMapper objectMapper = spy(ObjectMapper.class);
 		JacksonJmxOperationResponseMapper mapper = new JacksonJmxOperationResponseMapper(objectMapper);
 		Set<String> response = Collections.singleton("test");
@@ -63,53 +63,53 @@ class JacksonJmxOperationResponseMapperTests {
 	}
 
 	@Test
-	void mapResponseTypeWhenCharSequenceShouldReturnString() {
+	public void mapResponseTypeWhenCharSequenceShouldReturnString() {
 		assertThat(this.mapper.mapResponseType(String.class)).isEqualTo(String.class);
 		assertThat(this.mapper.mapResponseType(StringBuilder.class)).isEqualTo(String.class);
 	}
 
 	@Test
-	void mapResponseTypeWhenArrayShouldReturnList() {
+	public void mapResponseTypeWhenArrayShouldReturnList() {
 		assertThat(this.mapper.mapResponseType(String[].class)).isEqualTo(List.class);
 		assertThat(this.mapper.mapResponseType(Object[].class)).isEqualTo(List.class);
 	}
 
 	@Test
-	void mapResponseTypeWhenCollectionShouldReturnList() {
+	public void mapResponseTypeWhenCollectionShouldReturnList() {
 		assertThat(this.mapper.mapResponseType(Collection.class)).isEqualTo(List.class);
 		assertThat(this.mapper.mapResponseType(Set.class)).isEqualTo(List.class);
 		assertThat(this.mapper.mapResponseType(List.class)).isEqualTo(List.class);
 	}
 
 	@Test
-	void mapResponseTypeWhenOtherShouldReturnMap() {
+	public void mapResponseTypeWhenOtherShouldReturnMap() {
 		assertThat(this.mapper.mapResponseType(ExampleBean.class)).isEqualTo(Map.class);
 	}
 
 	@Test
-	void mapResponseWhenNullShouldReturnNull() {
+	public void mapResponseWhenNullShouldReturnNull() {
 		assertThat(this.mapper.mapResponse(null)).isNull();
 	}
 
 	@Test
-	void mapResponseWhenCharSequenceShouldReturnString() {
+	public void mapResponseWhenCharSequenceShouldReturnString() {
 		assertThat(this.mapper.mapResponse(new StringBuilder("test"))).isEqualTo("test");
 	}
 
 	@Test
-	void mapResponseWhenArrayShouldReturnJsonArray() {
+	public void mapResponseWhenArrayShouldReturnJsonArray() {
 		Object mapped = this.mapper.mapResponse(new int[] { 1, 2, 3 });
 		assertThat(this.json.from(mapped.toString())).isEqualToJson("[1,2,3]");
 	}
 
 	@Test
-	void mapResponseWhenCollectionShouldReturnJsonArray() {
+	public void mapResponseWhenCollectionShouldReturnJsonArray() {
 		Object mapped = this.mapper.mapResponse(Arrays.asList("a", "b", "c"));
 		assertThat(this.json.from(mapped.toString())).isEqualToJson("[a,b,c]");
 	}
 
 	@Test
-	void mapResponseWhenOtherShouldReturnMap() {
+	public void mapResponseWhenOtherShouldReturnMap() {
 		ExampleBean bean = new ExampleBean();
 		bean.setName("boot");
 		Object mapped = this.mapper.mapResponse(bean);

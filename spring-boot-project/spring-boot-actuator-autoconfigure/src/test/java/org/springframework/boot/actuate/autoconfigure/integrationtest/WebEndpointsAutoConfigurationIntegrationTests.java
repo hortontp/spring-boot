@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.boot.actuate.autoconfigure.integrationtest;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
@@ -25,6 +25,7 @@ import org.springframework.boot.actuate.health.ReactiveHealthEndpointWebExtensio
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
@@ -34,6 +35,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.solr.SolrRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.jest.JestAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.hazelcast.HazelcastAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
@@ -51,16 +53,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-class WebEndpointsAutoConfigurationIntegrationTests {
+public class WebEndpointsAutoConfigurationIntegrationTests {
 
 	@Test
-	void healthEndpointWebExtensionIsAutoConfigured() {
+	public void healthEndpointWebExtensionIsAutoConfigured() {
 		servletWebRunner().run((context) -> context.getBean(WebEndpointTestApplication.class));
 		servletWebRunner().run((context) -> assertThat(context).hasSingleBean(HealthEndpointWebExtension.class));
 	}
 
 	@Test
-	void healthEndpointReactiveWebExtensionIsAutoConfigured() {
+	public void healthEndpointReactiveWebExtensionIsAutoConfigured() {
 		reactiveWebRunner()
 				.run((context) -> assertThat(context).hasSingleBean(ReactiveHealthEndpointWebExtension.class));
 	}
@@ -80,11 +82,11 @@ class WebEndpointsAutoConfigurationIntegrationTests {
 			Neo4jRepositoriesAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class,
 			MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class,
 			RepositoryRestMvcAutoConfiguration.class, HazelcastAutoConfiguration.class,
-			ElasticsearchDataAutoConfiguration.class, SolrRepositoriesAutoConfiguration.class,
-			SolrAutoConfiguration.class, RedisAutoConfiguration.class, RedisRepositoriesAutoConfiguration.class,
-			MetricsAutoConfiguration.class })
+			ElasticsearchAutoConfiguration.class, ElasticsearchDataAutoConfiguration.class, JestAutoConfiguration.class,
+			SolrRepositoriesAutoConfiguration.class, SolrAutoConfiguration.class, RedisAutoConfiguration.class,
+			RedisRepositoriesAutoConfiguration.class, MetricsAutoConfiguration.class })
 	@SpringBootConfiguration
-	static class WebEndpointTestApplication {
+	public static class WebEndpointTestApplication {
 
 	}
 

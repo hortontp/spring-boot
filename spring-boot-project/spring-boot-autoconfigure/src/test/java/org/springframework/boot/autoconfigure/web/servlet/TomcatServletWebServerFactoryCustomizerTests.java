@@ -17,8 +17,8 @@
 package org.springframework.boot.autoconfigure.web.servlet;
 
 import org.apache.catalina.Context;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-class TomcatServletWebServerFactoryCustomizerTests {
+public class TomcatServletWebServerFactoryCustomizerTests {
 
 	private TomcatServletWebServerFactoryCustomizer customizer;
 
@@ -44,8 +44,8 @@ class TomcatServletWebServerFactoryCustomizerTests {
 
 	private ServerProperties serverProperties;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.environment = new MockEnvironment();
 		this.serverProperties = new ServerProperties();
 		ConfigurationPropertySources.attach(this.environment);
@@ -53,13 +53,13 @@ class TomcatServletWebServerFactoryCustomizerTests {
 	}
 
 	@Test
-	void customTldSkip() {
+	public void customTldSkip() {
 		bind("server.tomcat.additional-tld-skip-patterns=foo.jar,bar.jar");
 		testCustomTldSkip("foo.jar", "bar.jar");
 	}
 
 	@Test
-	void customTldSkipAsList() {
+	public void customTldSkipAsList() {
 		bind("server.tomcat.additional-tld-skip-patterns[0]=biz.jar",
 				"server.tomcat.additional-tld-skip-patterns[1]=bah.jar");
 		testCustomTldSkip("biz.jar", "bah.jar");
@@ -72,7 +72,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
 	}
 
 	@Test
-	void redirectContextRootCanBeConfigured() {
+	public void redirectContextRootCanBeConfigured() {
 		bind("server.tomcat.redirect-context-root=false");
 		ServerProperties.Tomcat tomcat = this.serverProperties.getTomcat();
 		assertThat(tomcat.getRedirectContextRoot()).isFalse();
@@ -82,7 +82,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
 	}
 
 	@Test
-	void useRelativeRedirectsCanBeConfigured() {
+	public void useRelativeRedirectsCanBeConfigured() {
 		bind("server.tomcat.use-relative-redirects=true");
 		assertThat(this.serverProperties.getTomcat().getUseRelativeRedirects()).isTrue();
 		TomcatWebServer server = customizeAndGetServer();

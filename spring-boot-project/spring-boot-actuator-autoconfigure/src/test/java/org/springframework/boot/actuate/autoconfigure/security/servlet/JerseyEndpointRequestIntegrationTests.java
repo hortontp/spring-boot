@@ -16,7 +16,7 @@
 package org.springframework.boot.actuate.autoconfigure.security.servlet;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -35,10 +35,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  *
  * @author Madhura Bhave
  */
-class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrationTests {
+public class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestIntegrationTests {
 
 	@Test
-	void toLinksWhenApplicationPathSetShouldMatch() {
+	public void toLinksWhenApplicationPathSetShouldMatch() {
 		getContextRunner().withPropertyValues("spring.jersey.application-path=/admin").run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/admin/actuator/").exchange().expectStatus().isOk();
@@ -47,7 +47,7 @@ class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestInteg
 	}
 
 	@Test
-	void toEndpointWhenApplicationPathSetShouldMatch() {
+	public void toEndpointWhenApplicationPathSetShouldMatch() {
 		getContextRunner().withPropertyValues("spring.jersey.application-path=/admin").run((context) -> {
 			WebTestClient webTestClient = getWebTestClient(context);
 			webTestClient.get().uri("/admin/actuator/e1").exchange().expectStatus().isOk();
@@ -55,7 +55,7 @@ class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestInteg
 	}
 
 	@Test
-	void toAnyEndpointWhenApplicationPathSetShouldMatch() {
+	public void toAnyEndpointWhenApplicationPathSetShouldMatch() {
 		getContextRunner()
 				.withPropertyValues("spring.jersey.application-path=/admin", "spring.security.user.password=password")
 				.run((context) -> {
@@ -67,7 +67,7 @@ class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestInteg
 	}
 
 	@Test
-	void toAnyEndpointShouldMatchServletEndpoint() {
+	public void toAnyEndpointShouldMatchServletEndpoint() {
 		getContextRunner().withPropertyValues("spring.security.user.password=password",
 				"management.endpoints.web.exposure.include=se1").run((context) -> {
 					WebTestClient webTestClient = getWebTestClient(context);
@@ -81,7 +81,7 @@ class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestInteg
 	}
 
 	@Test
-	void toAnyEndpointWhenApplicationPathSetShouldMatchServletEndpoint() {
+	public void toAnyEndpointWhenApplicationPathSetShouldMatchServletEndpoint() {
 		getContextRunner().withPropertyValues("spring.jersey.application-path=/admin",
 				"spring.security.user.password=password", "management.endpoints.web.exposure.include=se1")
 				.run((context) -> {
@@ -108,12 +108,12 @@ class JerseyEndpointRequestIntegrationTests extends AbstractEndpointRequestInteg
 	static class JerseyEndpointConfiguration {
 
 		@Bean
-		TomcatServletWebServerFactory tomcat() {
+		public TomcatServletWebServerFactory tomcat() {
 			return new TomcatServletWebServerFactory(0);
 		}
 
 		@Bean
-		ResourceConfig resourceConfig() {
+		public ResourceConfig resourceConfig() {
 			return new ResourceConfig();
 		}
 

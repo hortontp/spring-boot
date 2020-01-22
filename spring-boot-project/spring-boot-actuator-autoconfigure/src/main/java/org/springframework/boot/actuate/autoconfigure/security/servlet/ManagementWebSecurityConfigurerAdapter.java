@@ -19,7 +19,6 @@ package org.springframework.boot.actuate.autoconfigure.security.servlet;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -35,17 +34,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  *
  * @author Madhura Bhave
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 class ManagementWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests((requests) -> {
-			requests.requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll();
-			requests.anyRequest().authenticated();
-		});
-		http.formLogin(Customizer.withDefaults());
-		http.httpBasic(Customizer.withDefaults());
+		http.authorizeRequests().requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class))
+				.permitAll().anyRequest().authenticated().and().formLogin().and().httpBasic();
 	}
 
 }

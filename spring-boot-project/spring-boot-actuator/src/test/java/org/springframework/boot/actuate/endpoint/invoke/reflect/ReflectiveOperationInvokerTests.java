@@ -18,13 +18,12 @@ package org.springframework.boot.actuate.endpoint.invoke.reflect;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.endpoint.InvocationContext;
 import org.springframework.boot.actuate.endpoint.OperationType;
 import org.springframework.boot.actuate.endpoint.SecurityContext;
-import org.springframework.boot.actuate.endpoint.http.ApiVersion;
 import org.springframework.boot.actuate.endpoint.invoke.MissingParametersException;
 import org.springframework.boot.actuate.endpoint.invoke.ParameterValueMapper;
 import org.springframework.lang.Nullable;
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
-class ReflectiveOperationInvokerTests {
+public class ReflectiveOperationInvokerTests {
 
 	private Example target;
 
@@ -48,37 +47,37 @@ class ReflectiveOperationInvokerTests {
 
 	private ParameterValueMapper parameterValueMapper;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.target = new Example();
-		this.operationMethod = new OperationMethod(ReflectionUtils.findMethod(Example.class, "reverse",
-				ApiVersion.class, SecurityContext.class, String.class), OperationType.READ);
+		this.operationMethod = new OperationMethod(ReflectionUtils.findMethod(Example.class, "reverse", String.class),
+				OperationType.READ);
 		this.parameterValueMapper = (parameter, value) -> (value != null) ? value.toString() : null;
 	}
 
 	@Test
-	void createWhenTargetIsNullShouldThrowException() {
+	public void createWhenTargetIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReflectiveOperationInvoker(null, this.operationMethod, this.parameterValueMapper))
 				.withMessageContaining("Target must not be null");
 	}
 
 	@Test
-	void createWhenOperationMethodIsNullShouldThrowException() {
+	public void createWhenOperationMethodIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReflectiveOperationInvoker(this.target, null, this.parameterValueMapper))
 				.withMessageContaining("OperationMethod must not be null");
 	}
 
 	@Test
-	void createWhenParameterValueMapperIsNullShouldThrowException() {
+	public void createWhenParameterValueMapperIsNullShouldThrowException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReflectiveOperationInvoker(this.target, this.operationMethod, null))
 				.withMessageContaining("ParameterValueMapper must not be null");
 	}
 
 	@Test
-	void invokeShouldInvokeMethod() {
+	public void invokeShouldInvokeMethod() {
 		ReflectiveOperationInvoker invoker = new ReflectiveOperationInvoker(this.target, this.operationMethod,
 				this.parameterValueMapper);
 		Object result = invoker
@@ -87,7 +86,7 @@ class ReflectiveOperationInvokerTests {
 	}
 
 	@Test
-	void invokeWhenMissingNonNullableArgumentShouldThrowException() {
+	public void invokeWhenMissingNonNullableArgumentShouldThrowException() {
 		ReflectiveOperationInvoker invoker = new ReflectiveOperationInvoker(this.target, this.operationMethod,
 				this.parameterValueMapper);
 		assertThatExceptionOfType(MissingParametersException.class).isThrownBy(() -> invoker
@@ -95,9 +94,9 @@ class ReflectiveOperationInvokerTests {
 	}
 
 	@Test
-	void invokeWhenMissingNullableArgumentShouldInvoke() {
-		OperationMethod operationMethod = new OperationMethod(ReflectionUtils.findMethod(Example.class,
-				"reverseNullable", ApiVersion.class, SecurityContext.class, String.class), OperationType.READ);
+	public void invokeWhenMissingNullableArgumentShouldInvoke() {
+		OperationMethod operationMethod = new OperationMethod(
+				ReflectionUtils.findMethod(Example.class, "reverseNullable", String.class), OperationType.READ);
 		ReflectiveOperationInvoker invoker = new ReflectiveOperationInvoker(this.target, operationMethod,
 				this.parameterValueMapper);
 		Object result = invoker
@@ -106,7 +105,7 @@ class ReflectiveOperationInvokerTests {
 	}
 
 	@Test
-	void invokeShouldResolveParameters() {
+	public void invokeShouldResolveParameters() {
 		ReflectiveOperationInvoker invoker = new ReflectiveOperationInvoker(this.target, this.operationMethod,
 				this.parameterValueMapper);
 		Object result = invoker
@@ -116,15 +115,11 @@ class ReflectiveOperationInvokerTests {
 
 	static class Example {
 
-		String reverse(ApiVersion apiVersion, SecurityContext securityContext, String name) {
-			assertThat(apiVersion).isEqualTo(ApiVersion.LATEST);
-			assertThat(securityContext).isNotNull();
+		String reverse(String name) {
 			return new StringBuilder(name).reverse().toString();
 		}
 
-		String reverseNullable(ApiVersion apiVersion, SecurityContext securityContext, @Nullable String name) {
-			assertThat(apiVersion).isEqualTo(ApiVersion.LATEST);
-			assertThat(securityContext).isNotNull();
+		String reverseNullable(@Nullable String name) {
 			return new StringBuilder(String.valueOf(name)).reverse().toString();
 		}
 

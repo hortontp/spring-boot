@@ -41,7 +41,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.log.LogMessage;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.servlet.view.groovy.GroovyMarkupConfig;
 import org.springframework.web.servlet.view.groovy.GroovyMarkupConfigurer;
@@ -58,7 +57,7 @@ import org.springframework.web.servlet.view.groovy.GroovyMarkupViewResolver;
  * @author Brian Clozel
  * @since 1.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(MarkupTemplateEngine.class)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties(GroovyTemplateProperties.class)
@@ -66,7 +65,7 @@ public class GroovyTemplateAutoConfiguration {
 
 	private static final Log logger = LogFactory.getLog(GroovyTemplateAutoConfiguration.class);
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(GroovyMarkupConfigurer.class)
 	public static class GroovyMarkupConfiguration {
 
@@ -74,10 +73,13 @@ public class GroovyTemplateAutoConfiguration {
 
 		private final GroovyTemplateProperties properties;
 
+		private final MarkupTemplateEngine templateEngine;
+
 		public GroovyMarkupConfiguration(ApplicationContext applicationContext, GroovyTemplateProperties properties,
 				ObjectProvider<MarkupTemplateEngine> templateEngine) {
 			this.applicationContext = applicationContext;
 			this.properties = properties;
+			this.templateEngine = templateEngine.getIfAvailable();
 		}
 
 		@PostConstruct
@@ -85,10 +87,9 @@ public class GroovyTemplateAutoConfiguration {
 			if (this.properties.isCheckTemplateLocation() && !isUsingGroovyAllJar()) {
 				TemplateLocation location = new TemplateLocation(this.properties.getResourceLoaderPath());
 				if (!location.exists(this.applicationContext)) {
-					logger.warn(LogMessage.format(
-							"Cannot find template location: %s (please add some templates, check your Groovy "
-									+ "configuration, or set spring.groovy.template.check-template-location=false)",
-							location));
+					logger.warn("Cannot find template location: " + location
+							+ " (please add some templates, check your Groovy "
+							+ "configuration, or set spring.groovy.template." + "check-template-location=false)");
 				}
 			}
 		}
@@ -104,7 +105,10 @@ public class GroovyTemplateAutoConfiguration {
 			try {
 				ProtectionDomain domain = MarkupTemplateEngine.class.getProtectionDomain();
 				CodeSource codeSource = domain.getCodeSource();
-				return codeSource != null && codeSource.getLocation().toString().contains("-all");
+				if (codeSource != null && codeSource.getLocation().toString().contains("-all")) {
+					return true;
+				}
+				return false;
 			}
 			catch (Exception ex) {
 				return false;
@@ -114,27 +118,35 @@ public class GroovyTemplateAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(GroovyMarkupConfig.class)
 		@ConfigurationProperties(prefix = "spring.groovy.template.configuration")
-		public GroovyMarkupConfigurer groovyMarkupConfigurer(ObjectProvider<MarkupTemplateEngine> templateEngine) {
+		public GroovyMarkupConfigurer groovyMarkupConfigurer() {
 			GroovyMarkupConfigurer configurer = new GroovyMarkupConfigurer();
 			configurer.setResourceLoaderPath(this.properties.getResourceLoaderPath());
 			configurer.setCacheTemplates(this.properties.isCache());
-			templateEngine.ifAvailable(configurer::setTemplateEngine);
+			if (this.templateEngine != null) {
+				configurer.setTemplateEngine(this.templateEngine);
+			}
 			return configurer;
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass({ Servlet.class, LocaleContextHolder.class, UrlBasedViewResolver.class })
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	@ConditionalOnProperty(name = "spring.groovy.template.enabled", matchIfMissing = true)
 	public static class GroovyWebConfiguration {
 
+		private final GroovyTemplateProperties properties;
+
+		public GroovyWebConfiguration(GroovyTemplateProperties properties) {
+			this.properties = properties;
+		}
+
 		@Bean
 		@ConditionalOnMissingBean(name = "groovyMarkupViewResolver")
-		public GroovyMarkupViewResolver groovyMarkupViewResolver(GroovyTemplateProperties properties) {
+		public GroovyMarkupViewResolver groovyMarkupViewResolver() {
 			GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
-			properties.applyToMvcViewResolver(resolver);
+			this.properties.applyToMvcViewResolver(resolver);
 			return resolver;
 		}
 

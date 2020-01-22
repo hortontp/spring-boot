@@ -20,7 +20,6 @@ import java.io.File;
 
 import javax.jms.Message;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
@@ -52,30 +51,40 @@ import org.springframework.util.StringUtils;
  * @author Andy Wilkinson
  * @author Kazuki Shimizu
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableConfigurationProperties(JtaProperties.class)
 @ConditionalOnClass({ JtaTransactionManager.class, BitronixContext.class })
 @ConditionalOnMissingBean(PlatformTransactionManager.class)
 class BitronixJtaConfiguration {
 
+	private final JtaProperties jtaProperties;
+
+	private final TransactionManagerCustomizers transactionManagerCustomizers;
+
+	BitronixJtaConfiguration(JtaProperties jtaProperties,
+			ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+		this.jtaProperties = jtaProperties;
+		this.transactionManagerCustomizers = transactionManagerCustomizers.getIfAvailable();
+	}
+
 	@Bean
 	@ConditionalOnMissingBean
 	@ConfigurationProperties(prefix = "spring.jta.bitronix.properties")
-	bitronix.tm.Configuration bitronixConfiguration(JtaProperties jtaProperties) {
+	public bitronix.tm.Configuration bitronixConfiguration() {
 		bitronix.tm.Configuration config = TransactionManagerServices.getConfiguration();
-		if (StringUtils.hasText(jtaProperties.getTransactionManagerId())) {
-			config.setServerId(jtaProperties.getTransactionManagerId());
+		if (StringUtils.hasText(this.jtaProperties.getTransactionManagerId())) {
+			config.setServerId(this.jtaProperties.getTransactionManagerId());
 		}
-		File logBaseDir = getLogBaseDir(jtaProperties);
+		File logBaseDir = getLogBaseDir();
 		config.setLogPart1Filename(new File(logBaseDir, "part1.btm").getAbsolutePath());
 		config.setLogPart2Filename(new File(logBaseDir, "part2.btm").getAbsolutePath());
 		config.setDisableJmx(true);
 		return config;
 	}
 
-	private File getLogBaseDir(JtaProperties jtaProperties) {
-		if (StringUtils.hasLength(jtaProperties.getLogDir())) {
-			return new File(jtaProperties.getLogDir());
+	private File getLogBaseDir() {
+		if (StringUtils.hasLength(this.jtaProperties.getLogDir())) {
+			return new File(this.jtaProperties.getLogDir());
 		}
 		File home = new ApplicationHome().getDir();
 		return new File(home, "transaction-logs");
@@ -83,38 +92,39 @@ class BitronixJtaConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(TransactionManager.class)
-	BitronixTransactionManager bitronixTransactionManager(bitronix.tm.Configuration configuration) {
+	public BitronixTransactionManager bitronixTransactionManager(bitronix.tm.Configuration configuration) {
 		// Inject configuration to force ordering
 		return TransactionManagerServices.getTransactionManager();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(XADataSourceWrapper.class)
-	BitronixXADataSourceWrapper xaDataSourceWrapper() {
+	public BitronixXADataSourceWrapper xaDataSourceWrapper() {
 		return new BitronixXADataSourceWrapper();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	static BitronixDependentBeanFactoryPostProcessor bitronixDependentBeanFactoryPostProcessor() {
+	public static BitronixDependentBeanFactoryPostProcessor bitronixDependentBeanFactoryPostProcessor() {
 		return new BitronixDependentBeanFactoryPostProcessor();
 	}
 
 	@Bean
-	JtaTransactionManager transactionManager(UserTransaction userTransaction, TransactionManager transactionManager,
-			ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
-		JtaTransactionManager jtaTransactionManager = new JtaTransactionManager(userTransaction, transactionManager);
-		transactionManagerCustomizers.ifAvailable((customizers) -> customizers.customize(jtaTransactionManager));
+	public JtaTransactionManager transactionManager(TransactionManager transactionManager) {
+		JtaTransactionManager jtaTransactionManager = new JtaTransactionManager(transactionManager);
+		if (this.transactionManagerCustomizers != null) {
+			this.transactionManagerCustomizers.customize(jtaTransactionManager);
+		}
 		return jtaTransactionManager;
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@ConditionalOnClass(Message.class)
 	static class BitronixJtaJmsConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(XAConnectionFactoryWrapper.class)
-		BitronixXAConnectionFactoryWrapper xaConnectionFactoryWrapper() {
+		public BitronixXAConnectionFactoryWrapper xaConnectionFactoryWrapper() {
 			return new BitronixXAConnectionFactoryWrapper();
 		}
 

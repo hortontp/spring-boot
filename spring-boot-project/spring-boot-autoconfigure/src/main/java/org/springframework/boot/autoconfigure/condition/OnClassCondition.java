@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,21 +46,9 @@ class OnClassCondition extends FilteringSpringBootCondition {
 	@Override
 	protected final ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
 			AutoConfigurationMetadata autoConfigurationMetadata) {
-		// Split the work and perform half in a background thread if more than one
-		// processor is available. Using a single additional thread seems to offer the
-		// best performance. More threads make things worse.
-		if (Runtime.getRuntime().availableProcessors() > 1) {
-			return resolveOutcomesThreaded(autoConfigurationClasses, autoConfigurationMetadata);
-		}
-		else {
-			OutcomesResolver outcomesResolver = new StandardOutcomesResolver(autoConfigurationClasses, 0,
-					autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
-			return outcomesResolver.resolveOutcomes();
-		}
-	}
-
-	private ConditionOutcome[] resolveOutcomesThreaded(String[] autoConfigurationClasses,
-			AutoConfigurationMetadata autoConfigurationMetadata) {
+		// Split the work and perform half in a background thread. Using a single
+		// additional thread seems to offer the best performance. More threads make
+		// things worse
 		int split = autoConfigurationClasses.length / 2;
 		OutcomesResolver firstHalfResolver = createOutcomesResolver(autoConfigurationClasses, 0, split,
 				autoConfigurationMetadata);
@@ -164,7 +152,7 @@ class OnClassCondition extends FilteringSpringBootCondition {
 
 	}
 
-	private static final class StandardOutcomesResolver implements OutcomesResolver {
+	private final class StandardOutcomesResolver implements OutcomesResolver {
 
 		private final String[] autoConfigurationClasses;
 

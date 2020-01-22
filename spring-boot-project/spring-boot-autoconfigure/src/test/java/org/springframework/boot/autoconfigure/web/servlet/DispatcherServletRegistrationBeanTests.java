@@ -18,7 +18,7 @@ package org.springframework.boot.autoconfigure.web.servlet;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -31,31 +31,31 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Phillip Webb
  */
-class DispatcherServletRegistrationBeanTests {
+public class DispatcherServletRegistrationBeanTests {
 
 	@Test
-	void createWhenPathIsNullThrowsException() {
+	public void createWhenPathIsNullThrowsException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DispatcherServletRegistrationBean(new DispatcherServlet(), null))
 				.withMessageContaining("Path must not be null");
 	}
 
 	@Test
-	void getPathReturnsPath() {
+	public void getPathReturnsPath() {
 		DispatcherServletRegistrationBean bean = new DispatcherServletRegistrationBean(new DispatcherServlet(),
 				"/test");
 		assertThat(bean.getPath()).isEqualTo("/test");
 	}
 
 	@Test
-	void getUrlMappingsReturnsSinglePathMappedPattern() {
+	public void getUrlMappingsReturnsSinglePathMappedPattern() {
 		DispatcherServletRegistrationBean bean = new DispatcherServletRegistrationBean(new DispatcherServlet(),
 				"/test");
 		assertThat(bean.getUrlMappings()).containsOnly("/test/*");
 	}
 
 	@Test
-	void setUrlMappingsCannotBeCalled() {
+	public void setUrlMappingsCannotBeCalled() {
 		DispatcherServletRegistrationBean bean = new DispatcherServletRegistrationBean(new DispatcherServlet(),
 				"/test");
 		assertThatExceptionOfType(UnsupportedOperationException.class)
@@ -63,7 +63,7 @@ class DispatcherServletRegistrationBeanTests {
 	}
 
 	@Test
-	void addUrlMappingsCannotBeCalled() {
+	public void addUrlMappingsCannotBeCalled() {
 		DispatcherServletRegistrationBean bean = new DispatcherServletRegistrationBean(new DispatcherServlet(),
 				"/test");
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> bean.addUrlMappings("/test"));

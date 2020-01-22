@@ -79,7 +79,7 @@ public class RunCommand extends OptionParsingCommand {
 			this.quietOption = option(Arrays.asList("quiet", "q"), "Quiet logging");
 		}
 
-		void stop() {
+		public void stop() {
 			synchronized (this.monitor) {
 				if (this.runner != null) {
 					this.runner.stop();

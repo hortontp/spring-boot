@@ -32,8 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface ExposableControllerEndpoint extends ExposableEndpoint<Operation>, PathMappedEndpoint {
 
 	/**
-	 * Return the source controller that contains {@link RequestMapping @RequestMapping}
-	 * methods.
+	 * Return the source controller that contains {@link RequestMapping} methods.
 	 * @return the source controller
 	 */
 	Object getController();

@@ -110,20 +110,16 @@ abstract class RedisConnectionConfiguration {
 		return config;
 	}
 
-	protected final RedisProperties getProperties() {
-		return this.properties;
-	}
-
 	private List<RedisNode> createSentinels(RedisProperties.Sentinel sentinel) {
 		List<RedisNode> nodes = new ArrayList<>();
 		for (String node : sentinel.getNodes()) {
 			try {
 				String[] parts = StringUtils.split(node, ":");
 				Assert.state(parts.length == 2, "Must be defined as 'host:port'");
-				nodes.add(new RedisNode(parts[0], Integer.parseInt(parts[1])));
+				nodes.add(new RedisNode(parts[0], Integer.valueOf(parts[1])));
 			}
 			catch (RuntimeException ex) {
-				throw new IllegalStateException("Invalid redis sentinel property '" + node + "'", ex);
+				throw new IllegalStateException("Invalid redis sentinel " + "property '" + node + "'", ex);
 			}
 		}
 		return nodes;
@@ -148,7 +144,7 @@ abstract class RedisConnectionConfiguration {
 		}
 	}
 
-	static class ConnectionInfo {
+	protected static class ConnectionInfo {
 
 		private final URI uri;
 
@@ -156,25 +152,25 @@ abstract class RedisConnectionConfiguration {
 
 		private final String password;
 
-		ConnectionInfo(URI uri, boolean useSsl, String password) {
+		public ConnectionInfo(URI uri, boolean useSsl, String password) {
 			this.uri = uri;
 			this.useSsl = useSsl;
 			this.password = password;
 		}
 
-		boolean isUseSsl() {
+		public boolean isUseSsl() {
 			return this.useSsl;
 		}
 
-		String getHostName() {
+		public String getHostName() {
 			return this.uri.getHost();
 		}
 
-		int getPort() {
+		public int getPort() {
 			return this.uri.getPort();
 		}
 
-		String getPassword() {
+		public String getPassword() {
 			return this.password;
 		}
 

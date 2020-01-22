@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package org.springframework.boot.autoconfigure.web.format;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 import org.springframework.format.datetime.DateFormatter;
 import org.springframework.format.datetime.DateFormatterRegistrar;
+import org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
 import org.springframework.format.number.money.CurrencyUnitFormatter;
@@ -38,8 +38,8 @@ import org.springframework.util.StringUtils;
  * applications for formatting and converting values to/from the web.
  * <p>
  * This service replaces the default implementations provided by
- * {@link org.springframework.web.servlet.config.annotation.EnableWebMvc @EnableWebMvc}
- * and {@link org.springframework.web.reactive.config.EnableWebFlux @EnableWebFlux}.
+ * {@link org.springframework.web.servlet.config.annotation.EnableWebMvc} and
+ * {@link org.springframework.web.reactive.config.EnableWebFlux}.
  *
  * @author Brian Clozel
  * @since 2.0.0
@@ -49,7 +49,8 @@ public class WebConversionService extends DefaultFormattingConversionService {
 	private static final boolean JSR_354_PRESENT = ClassUtils.isPresent("javax.money.MonetaryAmount",
 			WebConversionService.class.getClassLoader());
 
-	private static final Log logger = LogFactory.getLog(WebConversionService.class);
+	private static final boolean JODA_TIME_PRESENT = ClassUtils.isPresent("org.joda.time.LocalDate",
+			WebConversionService.class.getClassLoader());
 
 	private final String dateFormat;
 
@@ -77,6 +78,9 @@ public class WebConversionService extends DefaultFormattingConversionService {
 			addFormatterForFieldAnnotation(new Jsr354NumberFormatAnnotationFormatterFactory());
 		}
 		registerJsr310();
+		if (JODA_TIME_PRESENT) {
+			registerJodaTime();
+		}
 		registerJavaDate();
 	}
 
@@ -87,6 +91,14 @@ public class WebConversionService extends DefaultFormattingConversionService {
 					DateTimeFormatter.ofPattern(this.dateFormat).withResolverStyle(ResolverStyle.SMART));
 		}
 		dateTime.registerFormatters(this);
+	}
+
+	private void registerJodaTime() {
+		JodaTimeFormatterRegistrar jodaTime = new JodaTimeFormatterRegistrar();
+		if (this.dateFormat != null) {
+			jodaTime.setDateFormatter(new DateTimeFormatterBuilder().appendPattern(this.dateFormat).toFormatter());
+		}
+		jodaTime.registerFormatters(this);
 	}
 
 	private void registerJavaDate() {

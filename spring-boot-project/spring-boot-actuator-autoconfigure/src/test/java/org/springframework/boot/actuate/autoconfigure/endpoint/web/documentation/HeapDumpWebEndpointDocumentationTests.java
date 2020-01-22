@@ -19,7 +19,7 @@ package org.springframework.boot.actuate.autoconfigure.endpoint.web.documentatio
 import java.io.FileWriter;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.actuate.management.HeapDumpWebEndpoint;
 import org.springframework.context.annotation.Bean;
@@ -39,10 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Andy Wilkinson
  */
-class HeapDumpWebEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
+public class HeapDumpWebEndpointDocumentationTests extends MockMvcEndpointDocumentationTests {
 
 	@Test
-	void heapDump() throws Exception {
+	public void heapDump() throws Exception {
 		this.mockMvc.perform(get("/actuator/heapdump")).andExpect(status().isOk())
 				.andDo(document("heapdump", new CurlRequestSnippet(CliDocumentation.multiLineFormat()) {
 
@@ -56,12 +56,12 @@ class HeapDumpWebEndpointDocumentationTests extends MockMvcEndpointDocumentation
 				}));
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import(BaseDocumentationConfiguration.class)
 	static class TestConfiguration {
 
 		@Bean
-		HeapDumpWebEndpoint endpoint() {
+		public HeapDumpWebEndpoint endpoint() {
 			return new HeapDumpWebEndpoint() {
 
 				@Override

@@ -26,8 +26,8 @@ import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ServletEndpointRegistrarTests {
+public class ServletEndpointRegistrarTests {
 
 	@Mock
 	private ServletContext servletContext;
@@ -60,35 +60,35 @@ class ServletEndpointRegistrarTests {
 	@Captor
 	private ArgumentCaptor<Servlet> servlet;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		given(this.servletContext.addServlet(any(String.class), any(Servlet.class))).willReturn(this.dynamic);
 	}
 
 	@Test
-	void createWhenServletEndpointsIsNullShouldThrowException() {
+	public void createWhenServletEndpointsIsNullShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ServletEndpointRegistrar(null, null))
 				.withMessageContaining("ServletEndpoints must not be null");
 	}
 
 	@Test
-	void onStartupShouldRegisterServlets() throws ServletException {
+	public void onStartupShouldRegisterServlets() throws ServletException {
 		assertBasePath(null, "/test/*");
 	}
 
 	@Test
-	void onStartupWhenHasBasePathShouldIncludeBasePath() throws ServletException {
+	public void onStartupWhenHasBasePathShouldIncludeBasePath() throws ServletException {
 		assertBasePath("/actuator", "/actuator/test/*");
 	}
 
 	@Test
-	void onStartupWhenHasEmptyBasePathShouldPrefixWithSlash() throws ServletException {
+	public void onStartupWhenHasEmptyBasePathShouldPrefixWithSlash() throws ServletException {
 		assertBasePath("", "/test/*");
 	}
 
 	@Test
-	void onStartupWhenHasRootBasePathShouldNotAddDuplicateSlash() throws ServletException {
+	public void onStartupWhenHasRootBasePathShouldNotAddDuplicateSlash() throws ServletException {
 		assertBasePath("/", "/test/*");
 	}
 
@@ -102,28 +102,12 @@ class ServletEndpointRegistrarTests {
 	}
 
 	@Test
-	void onStartupWhenHasInitParametersShouldRegisterInitParameters() throws Exception {
+	public void onStartupWhenHasInitParametersShouldRegisterInitParameters() throws Exception {
 		ExposableServletEndpoint endpoint = mockEndpoint(
 				new EndpointServlet(TestServlet.class).withInitParameter("a", "b"));
 		ServletEndpointRegistrar registrar = new ServletEndpointRegistrar("/actuator", Collections.singleton(endpoint));
 		registrar.onStartup(this.servletContext);
 		verify(this.dynamic).setInitParameters(Collections.singletonMap("a", "b"));
-	}
-
-	@Test
-	void onStartupWhenHasLoadOnStartupShouldRegisterLoadOnStartup() throws Exception {
-		ExposableServletEndpoint endpoint = mockEndpoint(new EndpointServlet(TestServlet.class).withLoadOnStartup(7));
-		ServletEndpointRegistrar registrar = new ServletEndpointRegistrar("/actuator", Collections.singleton(endpoint));
-		registrar.onStartup(this.servletContext);
-		verify(this.dynamic).setLoadOnStartup(7);
-	}
-
-	@Test
-	void onStartupWhenHasNotLoadOnStartupShouldRegisterDefaultValue() throws Exception {
-		ExposableServletEndpoint endpoint = mockEndpoint(new EndpointServlet(TestServlet.class));
-		ServletEndpointRegistrar registrar = new ServletEndpointRegistrar("/actuator", Collections.singleton(endpoint));
-		registrar.onStartup(this.servletContext);
-		verify(this.dynamic).setLoadOnStartup(-1);
 	}
 
 	private ExposableServletEndpoint mockEndpoint(EndpointServlet endpointServlet) {
@@ -134,7 +118,7 @@ class ServletEndpointRegistrarTests {
 		return endpoint;
 	}
 
-	static class TestServlet extends GenericServlet {
+	public static class TestServlet extends GenericServlet {
 
 		@Override
 		public void service(ServletRequest req, ServletResponse res) {

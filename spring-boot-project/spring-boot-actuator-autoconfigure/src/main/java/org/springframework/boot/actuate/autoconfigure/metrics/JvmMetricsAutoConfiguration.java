@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,10 +37,11 @@ import org.springframework.context.annotation.Configuration;
  * @author Stephane Nicoll
  * @since 2.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureAfter(MetricsAutoConfiguration.class)
 @ConditionalOnClass(MeterRegistry.class)
 @ConditionalOnBean(MeterRegistry.class)
+@ConditionalOnProperty(value = "management.metrics.binders.jvm.enabled", matchIfMissing = true)
 public class JvmMetricsAutoConfiguration {
 
 	@Bean

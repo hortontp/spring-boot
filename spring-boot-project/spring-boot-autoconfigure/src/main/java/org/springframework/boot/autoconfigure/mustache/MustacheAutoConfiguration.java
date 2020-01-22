@@ -42,7 +42,7 @@ import org.springframework.core.env.Environment;
  * @author Brian Clozel
  * @since 1.2.2
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass(Mustache.class)
 @EnableConfigurationProperties(MustacheProperties.class)
 @Import({ MustacheServletWebConfiguration.class, MustacheReactiveWebConfiguration.class })
@@ -52,10 +52,14 @@ public class MustacheAutoConfiguration {
 
 	private final MustacheProperties mustache;
 
+	private final Environment environment;
+
 	private final ApplicationContext applicationContext;
 
-	public MustacheAutoConfiguration(MustacheProperties mustache, ApplicationContext applicationContext) {
+	public MustacheAutoConfiguration(MustacheProperties mustache, Environment environment,
+			ApplicationContext applicationContext) {
 		this.mustache = mustache;
+		this.environment = environment;
 		this.applicationContext = applicationContext;
 	}
 
@@ -63,9 +67,9 @@ public class MustacheAutoConfiguration {
 	public void checkTemplateLocationExists() {
 		if (this.mustache.isCheckTemplateLocation()) {
 			TemplateLocation location = new TemplateLocation(this.mustache.getPrefix());
-			if (!location.exists(this.applicationContext) && logger.isWarnEnabled()) {
+			if (!location.exists(this.applicationContext)) {
 				logger.warn("Cannot find template location: " + location
-						+ " (please add some templates, check your Mustache configuration, or set spring.mustache."
+						+ " (please add some templates, check your Mustache " + "configuration, or set spring.mustache."
 						+ "check-template-location=false)");
 			}
 		}
@@ -73,13 +77,13 @@ public class MustacheAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Mustache.Compiler mustacheCompiler(TemplateLoader mustacheTemplateLoader, Environment environment) {
-		return Mustache.compiler().withLoader(mustacheTemplateLoader).withCollector(collector(environment));
+	public Mustache.Compiler mustacheCompiler(TemplateLoader mustacheTemplateLoader) {
+		return Mustache.compiler().withLoader(mustacheTemplateLoader).withCollector(collector());
 	}
 
-	private Collector collector(Environment environment) {
+	private Collector collector() {
 		MustacheEnvironmentCollector collector = new MustacheEnvironmentCollector();
-		collector.setEnvironment(environment);
+		collector.setEnvironment(this.environment);
 		return collector;
 	}
 

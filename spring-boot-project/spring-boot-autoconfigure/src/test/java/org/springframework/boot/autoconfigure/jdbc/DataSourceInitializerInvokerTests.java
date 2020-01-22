@@ -26,7 +26,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-class DataSourceInitializerInvokerTests {
+public class DataSourceInitializerInvokerTests {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
@@ -63,7 +63,7 @@ class DataSourceInitializerInvokerTests {
 					"spring.datasource.url:jdbc:hsqldb:mem:init-" + UUID.randomUUID());
 
 	@Test
-	void dataSourceInitialized() {
+	public void dataSourceInitialized() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always").run((context) -> {
 			assertThat(context).hasSingleBean(DataSource.class);
 			DataSource dataSource = context.getBean(DataSource.class);
@@ -73,7 +73,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void initializationAppliesToCustomDataSource() {
+	public void initializationAppliesToCustomDataSource() {
 		this.contextRunner.withUserConfiguration(OneDataSource.class)
 				.withPropertyValues("spring.datasource.initialization-mode:always").run((context) -> {
 					assertThat(context).hasSingleBean(DataSource.class);
@@ -87,7 +87,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithExplicitScript() {
+	public void dataSourceInitializedWithExplicitScript() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always",
 				"spring.datasource.schema:" + getRelativeLocationFor("schema.sql"),
 				"spring.datasource.data:" + getRelativeLocationFor("data.sql")).run((context) -> {
@@ -100,7 +100,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithMultipleScripts() {
+	public void dataSourceInitializedWithMultipleScripts() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always",
 				"spring.datasource.schema:" + getRelativeLocationFor("schema.sql") + ","
 						+ getRelativeLocationFor("another.sql"),
@@ -115,7 +115,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithExplicitSqlScriptEncoding() {
+	public void dataSourceInitializedWithExplicitSqlScriptEncoding() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always",
 				"spring.datasource.sqlScriptEncoding:UTF-8",
 				"spring.datasource.schema:" + getRelativeLocationFor("encoding-schema.sql"),
@@ -133,12 +133,12 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void initializationDisabled() {
+	public void initializationDisabled() {
 		this.contextRunner.run(assertInitializationIsDisabled());
 	}
 
 	@Test
-	void initializationDoesNotApplyWithSeveralDataSources() {
+	public void initializationDoesNotApplyWithSeveralDataSources() {
 		this.contextRunner.withUserConfiguration(TwoDataSources.class)
 				.withPropertyValues("spring.datasource.initialization-mode:always").run((context) -> {
 					assertThat(context.getBeanNamesForType(DataSource.class)).hasSize(2);
@@ -168,7 +168,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithSchemaCredentials() {
+	public void dataSourceInitializedWithSchemaCredentials() {
 		this.contextRunner
 				.withPropertyValues("spring.datasource.initialization-mode:always",
 						"spring.datasource.sqlScriptEncoding:UTF-8",
@@ -182,7 +182,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithDataCredentials() {
+	public void dataSourceInitializedWithDataCredentials() {
 		this.contextRunner
 				.withPropertyValues("spring.datasource.initialization-mode:always",
 						"spring.datasource.sqlScriptEncoding:UTF-8",
@@ -196,7 +196,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void multipleScriptsAppliedInLexicalOrder() {
+	public void multipleScriptsAppliedInLexicalOrder() {
 		new ApplicationContextRunner(() -> {
 			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 			context.setResourceLoader(new ReverseOrderResourceLoader(new DefaultResourceLoader()));
@@ -204,8 +204,8 @@ class DataSourceInitializerInvokerTests {
 		}).withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
 				.withPropertyValues("spring.datasource.initialization-mode=always",
 						"spring.datasource.url:jdbc:hsqldb:mem:testdb-" + new Random().nextInt(),
-						"spring.datasource.schema:classpath*:" + getRelativeLocationFor("lexical-schema-*.sql"),
-						"spring.datasource.data:classpath*:" + getRelativeLocationFor("data.sql"))
+						"spring.datasource.schema:" + getRelativeLocationFor("lexical-schema-*.sql"),
+						"spring.datasource.data:" + getRelativeLocationFor("data.sql"))
 				.run((context) -> {
 					DataSource dataSource = context.getBean(DataSource.class);
 					assertThat(dataSource).isInstanceOf(HikariDataSource.class);
@@ -216,7 +216,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void testDataSourceInitializedWithInvalidSchemaResource() {
+	public void testDataSourceInitializedWithInvalidSchemaResource() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always",
 				"spring.datasource.schema:classpath:does/not/exist.sql").run((context) -> {
 					assertThat(context).hasFailed();
@@ -227,7 +227,7 @@ class DataSourceInitializerInvokerTests {
 	}
 
 	@Test
-	void dataSourceInitializedWithInvalidDataResource() {
+	public void dataSourceInitializedWithInvalidDataResource() {
 		this.contextRunner.withPropertyValues("spring.datasource.initialization-mode:always",
 				"spring.datasource.schema:" + getRelativeLocationFor("schema.sql"),
 				"spring.datasource.data:classpath:does/not/exist.sql").run((context) -> {
@@ -242,21 +242,21 @@ class DataSourceInitializerInvokerTests {
 		return ClassUtils.addResourcePathToPackagePath(getClass(), resource);
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class OneDataSource {
+	@Configuration
+	protected static class OneDataSource {
 
 		@Bean
-		DataSource oneDataSource() {
+		public DataSource oneDataSource() {
 			return new TestDataSource();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class TwoDataSources extends OneDataSource {
+	@Configuration
+	protected static class TwoDataSources extends OneDataSource {
 
 		@Bean
-		DataSource twoDataSource() {
+		public DataSource twoDataSource() {
 			return new TestDataSource();
 		}
 
@@ -266,7 +266,7 @@ class DataSourceInitializerInvokerTests {
 	 * {@link ResourcePatternResolver} used to ensure consistently wrong resource
 	 * ordering.
 	 */
-	static class ReverseOrderResourceLoader implements ResourcePatternResolver {
+	private static class ReverseOrderResourceLoader implements ResourcePatternResolver {
 
 		private final ResourcePatternResolver resolver;
 

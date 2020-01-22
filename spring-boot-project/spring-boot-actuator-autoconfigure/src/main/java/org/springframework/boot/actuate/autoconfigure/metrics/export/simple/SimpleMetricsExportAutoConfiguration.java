@@ -41,7 +41,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Jon Schneider
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureAfter(MetricsAutoConfiguration.class)
 @AutoConfigureBefore(CompositeMeterRegistryAutoConfiguration.class)
 @ConditionalOnBean(Clock.class)

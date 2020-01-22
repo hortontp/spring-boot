@@ -16,15 +16,12 @@
 
 package org.springframework.boot.autoconfigure.security.servlet;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Rule;
+import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -33,8 +30,7 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConf
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -48,35 +44,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Integration test to ensure {@link SecurityFilterAutoConfiguration} doesn't cause early
  * initialization.
  *
  * @author Phillip Webb
  */
-@ExtendWith(OutputCaptureExtension.class)
-class SecurityFilterAutoConfigurationEarlyInitializationTests {
+public class SecurityFilterAutoConfigurationEarlyInitializationTests {
 
-	private static final Pattern PASSWORD_PATTERN = Pattern.compile("^Using generated security password: (.*)$",
-			Pattern.MULTILINE);
+	@Rule
+	public OutputCapture outputCapture = new OutputCapture();
 
 	@Test
-	void testSecurityFilterDoesNotCauseEarlyInitialization(CapturedOutput output) {
+	public void testSecurityFilterDoesNotCauseEarlyInitialization() {
 		try (AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext()) {
 			TestPropertyValues.of("server.port:0").applyTo(context);
 			context.register(Config.class);
 			context.refresh();
 			int port = context.getWebServer().getPort();
-			Matcher password = PASSWORD_PATTERN.matcher(output);
-			assertThat(password.find()).isTrue();
-			new TestRestTemplate("user", password.group(1)).getForEntity("http://localhost:" + port, Object.class);
+			String password = this.outputCapture.toString().split("Using generated security password: ")[1]
+					.split("\n")[0].trim();
+			new TestRestTemplate("user", password).getForEntity("http://localhost:" + port, Object.class);
 			// If early initialization occurred a ConverterNotFoundException is thrown
+
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@Import({ DeserializerBean.class, JacksonModuleBean.class, ExampleController.class, ConverterBean.class })
 	@ImportAutoConfiguration({ WebMvcAutoConfiguration.class, JacksonAutoConfiguration.class,
 			HttpMessageConvertersAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
@@ -85,7 +79,7 @@ class SecurityFilterAutoConfigurationEarlyInitializationTests {
 	static class Config {
 
 		@Bean
-		TomcatServletWebServerFactory webServerFactory() {
+		public TomcatServletWebServerFactory webServerFactory() {
 			TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 			factory.setPort(0);
 			return factory;
@@ -93,36 +87,36 @@ class SecurityFilterAutoConfigurationEarlyInitializationTests {
 
 	}
 
-	static class SourceType {
+	public static class SourceType {
 
 		public String foo;
 
 	}
 
-	static class DestinationType {
+	public static class DestinationType {
 
 		public String bar;
 
 	}
 
 	@Component
-	static class JacksonModuleBean extends SimpleModule {
+	public static class JacksonModuleBean extends SimpleModule {
 
 		private static final long serialVersionUID = 1L;
 
-		JacksonModuleBean(DeserializerBean myDeser) {
+		public JacksonModuleBean(DeserializerBean myDeser) {
 			addDeserializer(SourceType.class, myDeser);
 		}
 
 	}
 
 	@Component
-	static class DeserializerBean extends StdDeserializer<SourceType> {
+	public static class DeserializerBean extends StdDeserializer<SourceType> {
 
 		@Autowired
 		ConversionService conversionService;
 
-		DeserializerBean() {
+		public DeserializerBean() {
 			super(SourceType.class);
 		}
 
@@ -134,20 +128,20 @@ class SecurityFilterAutoConfigurationEarlyInitializationTests {
 	}
 
 	@RestController
-	static class ExampleController {
+	public static class ExampleController {
 
 		@Autowired
 		private ConversionService conversionService;
 
 		@RequestMapping("/")
-		void convert() {
+		public void convert() {
 			this.conversionService.convert(new SourceType(), DestinationType.class);
 		}
 
 	}
 
 	@Component
-	static class ConverterBean implements Converter<SourceType, DestinationType> {
+	public static class ConverterBean implements Converter<SourceType, DestinationType> {
 
 		@Override
 		public DestinationType convert(SourceType source) {

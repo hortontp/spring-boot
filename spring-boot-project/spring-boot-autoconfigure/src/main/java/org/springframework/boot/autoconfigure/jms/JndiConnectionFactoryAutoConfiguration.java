@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  * @since 1.2.0
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @AutoConfigureBefore(JmsAutoConfiguration.class)
 @ConditionalOnClass(JmsTemplate.class)
 @ConditionalOnMissingBean(ConnectionFactory.class)
@@ -54,19 +54,27 @@ public class JndiConnectionFactoryAutoConfiguration {
 	// Keep these in sync with the condition below
 	private static final String[] JNDI_LOCATIONS = { "java:/JmsXA", "java:/XAConnectionFactory" };
 
-	@Bean
-	public ConnectionFactory connectionFactory(JmsProperties properties) throws NamingException {
-		JndiLocatorDelegate jndiLocatorDelegate = JndiLocatorDelegate.createDefaultResourceRefLocator();
-		if (StringUtils.hasLength(properties.getJndiName())) {
-			return jndiLocatorDelegate.lookup(properties.getJndiName(), ConnectionFactory.class);
-		}
-		return findJndiConnectionFactory(jndiLocatorDelegate);
+	private final JmsProperties properties;
+
+	private final JndiLocatorDelegate jndiLocatorDelegate;
+
+	public JndiConnectionFactoryAutoConfiguration(JmsProperties properties) {
+		this.properties = properties;
+		this.jndiLocatorDelegate = JndiLocatorDelegate.createDefaultResourceRefLocator();
 	}
 
-	private ConnectionFactory findJndiConnectionFactory(JndiLocatorDelegate jndiLocatorDelegate) {
+	@Bean
+	public ConnectionFactory connectionFactory() throws NamingException {
+		if (StringUtils.hasLength(this.properties.getJndiName())) {
+			return this.jndiLocatorDelegate.lookup(this.properties.getJndiName(), ConnectionFactory.class);
+		}
+		return findJndiConnectionFactory();
+	}
+
+	private ConnectionFactory findJndiConnectionFactory() {
 		for (String name : JNDI_LOCATIONS) {
 			try {
-				return jndiLocatorDelegate.lookup(name, ConnectionFactory.class);
+				return this.jndiLocatorDelegate.lookup(name, ConnectionFactory.class);
 			}
 			catch (NamingException ex) {
 				// Swallow and continue

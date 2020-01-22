@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,20 @@
 
 package org.springframework.boot.actuate.metrics.web.client;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.stream.StreamSupport;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MockClock;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.springframework.boot.actuate.metrics.AutoTimer;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
@@ -48,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jon Schneider
  * @author Brian Clozel
  */
-class MetricsRestTemplateCustomizerTests {
+public class MetricsRestTemplateCustomizerTests {
 
 	private MeterRegistry registry;
 
@@ -58,24 +53,25 @@ class MetricsRestTemplateCustomizerTests {
 
 	private MetricsRestTemplateCustomizer customizer;
 
-	@BeforeEach
-	void setup() {
+	@Before
+	public void setup() {
 		this.registry = new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 		this.restTemplate = new RestTemplate();
 		this.mockServer = MockRestServiceServer.createServer(this.restTemplate);
 		this.customizer = new MetricsRestTemplateCustomizer(this.registry,
-				new DefaultRestTemplateExchangeTagsProvider(), "http.client.requests", AutoTimer.ENABLED);
+				new DefaultRestTemplateExchangeTagsProvider(), "http.client.requests");
 		this.customizer.customize(this.restTemplate);
 	}
 
 	@Test
-	void interceptRestTemplate() {
+	public void interceptRestTemplate() {
 		this.mockServer.expect(MockRestRequestMatchers.requestTo("/test/123"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
 				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
 		String result = this.restTemplate.getForObject("/test/{id}", String.class, 123);
-		assertThat(this.registry.find("http.client.requests").meters())
-				.anySatisfy((m) -> assertThat(m.getId().getTags().stream().map(Tag::getKey)).doesNotContain("bucket"));
+		assertThat(this.registry.find("http.client.requests").meters()).anySatisfy(
+				(m) -> assertThat(StreamSupport.stream(m.getId().getTags().spliterator(), false).map(Tag::getKey))
+						.doesNotContain("bucket"));
 		assertThat(this.registry.get("http.client.requests").tags("method", "GET", "uri", "/test/{id}", "status", "200")
 				.timer().count()).isEqualTo(1);
 		assertThat(result).isEqualTo("OK");
@@ -83,7 +79,7 @@ class MetricsRestTemplateCustomizerTests {
 	}
 
 	@Test
-	void avoidDuplicateRegistration() {
+	public void avoidDuplicateRegistration() {
 		this.customizer.customize(this.restTemplate);
 		assertThat(this.restTemplate.getInterceptors()).hasSize(1);
 		this.customizer.customize(this.restTemplate);
@@ -91,7 +87,7 @@ class MetricsRestTemplateCustomizerTests {
 	}
 
 	@Test
-	void normalizeUriToContainLeadingSlash() {
+	public void normalizeUriToContainLeadingSlash() {
 		this.mockServer.expect(MockRestRequestMatchers.requestTo("/test/123"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
 				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
@@ -102,7 +98,7 @@ class MetricsRestTemplateCustomizerTests {
 	}
 
 	@Test
-	void interceptRestTemplateWithUri() throws URISyntaxException {
+	public void interceptRestTemplateWithUri() throws URISyntaxException {
 		this.mockServer.expect(MockRestRequestMatchers.requestTo("http://localhost/test/123"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
 				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
@@ -110,47 +106,6 @@ class MetricsRestTemplateCustomizerTests {
 		assertThat(result).isEqualTo("OK");
 		this.registry.get("http.client.requests").tags("uri", "/test/123").timer();
 		this.mockServer.verify();
-	}
-
-	@Test
-	void interceptNestedRequest() {
-		this.mockServer.expect(MockRestRequestMatchers.requestTo("/test/123"))
-				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
-
-		RestTemplate nestedRestTemplate = new RestTemplate();
-		MockRestServiceServer nestedMockServer = MockRestServiceServer.createServer(nestedRestTemplate);
-		nestedMockServer.expect(MockRestRequestMatchers.requestTo("/nestedTest/124"))
-				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
-		this.customizer.customize(nestedRestTemplate);
-
-		TestInterceptor testInterceptor = new TestInterceptor(nestedRestTemplate);
-		this.restTemplate.getInterceptors().add(testInterceptor);
-
-		this.restTemplate.getForObject("/test/{id}", String.class, 123);
-		this.registry.get("http.client.requests").tags("uri", "/test/{id}").timer();
-		this.registry.get("http.client.requests").tags("uri", "/nestedTest/{nestedId}").timer();
-
-		this.mockServer.verify();
-		nestedMockServer.verify();
-	}
-
-	private static final class TestInterceptor implements ClientHttpRequestInterceptor {
-
-		private final RestTemplate restTemplate;
-
-		private TestInterceptor(RestTemplate restTemplate) {
-			this.restTemplate = restTemplate;
-		}
-
-		@Override
-		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-				throws IOException {
-			this.restTemplate.getForObject("/nestedTest/{nestedId}", String.class, 124);
-			return execution.execute(request, body);
-		}
-
 	}
 
 }

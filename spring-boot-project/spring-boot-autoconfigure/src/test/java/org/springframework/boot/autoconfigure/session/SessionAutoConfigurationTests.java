@@ -22,7 +22,7 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -53,13 +53,13 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Vedran Pavic
  */
-class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTests {
+public class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTests {
 
 	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(SessionAutoConfiguration.class));
 
 	@Test
-	void contextFailsIfMultipleStoresAreAvailable() {
+	public void contextFailsIfMultipleStoresAreAvailable() {
 		this.contextRunner.run((context) -> {
 			assertThat(context).hasFailed();
 			assertThat(context).getFailure().hasCauseInstanceOf(NonUniqueSessionRepositoryException.class);
@@ -69,7 +69,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void contextFailsIfStoreTypeNotAvailable() {
+	public void contextFailsIfStoreTypeNotAvailable() {
 		this.contextRunner.withPropertyValues("spring.session.store-type=jdbc").run((context) -> {
 			assertThat(context).hasFailed();
 			assertThat(context).getFailure().hasCauseInstanceOf(SessionRepositoryUnavailableException.class);
@@ -79,13 +79,13 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void autoConfigurationDisabledIfStoreTypeSetToNone() {
+	public void autoConfigurationDisabledIfStoreTypeSetToNone() {
 		this.contextRunner.withPropertyValues("spring.session.store-type=none")
 				.run((context) -> assertThat(context).doesNotHaveBean(SessionRepository.class));
 	}
 
 	@Test
-	void backOffIfSessionRepositoryIsPresent() {
+	public void backOffIfSessionRepositoryIsPresent() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
 				.withPropertyValues("spring.session.store-type=redis").run((context) -> {
 					MapSessionRepository repository = validateSessionRepository(context, MapSessionRepository.class);
@@ -94,7 +94,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void autoConfigWhenSpringSessionTimeoutIsSetShouldUseThat() {
+	public void autoConfigWhenSpringSessionTimeoutIsSetShouldUseThat() {
 		this.contextRunner
 				.withUserConfiguration(ServerPropertiesConfiguration.class, SessionRepositoryConfiguration.class)
 				.withPropertyValues("server.servlet.session.timeout=1", "spring.session.timeout=3")
@@ -103,7 +103,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void autoConfigWhenSpringSessionTimeoutIsNotSetShouldUseServerSessionTimeout() {
+	public void autoConfigWhenSpringSessionTimeoutIsNotSetShouldUseServerSessionTimeout() {
 		this.contextRunner
 				.withUserConfiguration(ServerPropertiesConfiguration.class, SessionRepositoryConfiguration.class)
 				.withPropertyValues("server.servlet.session.timeout=3")
@@ -113,7 +113,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void filterIsRegisteredWithAsyncErrorAndRequestDispatcherTypes() {
+	public void filterIsRegisteredWithAsyncErrorAndRequestDispatcherTypes() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class).run((context) -> {
 			FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
 			assertThat(registration.getFilter()).isSameAs(context.getBean(SessionRepositoryFilter.class));
@@ -123,7 +123,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void filterOrderCanBeCustomizedWithCustomStore() {
+	public void filterOrderCanBeCustomizedWithCustomStore() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
 				.withPropertyValues("spring.session.servlet.filter-order=123").run((context) -> {
 					FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
@@ -133,7 +133,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void filterDispatcherTypesCanBeCustomized() {
+	public void filterDispatcherTypesCanBeCustomized() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
 				.withPropertyValues("spring.session.servlet.filter-dispatcher-types=error, request").run((context) -> {
 					FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
@@ -143,7 +143,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void sessionCookieConfigurationIsAppliedToAutoConfiguredCookieSerializer() {
+	public void sessionCookieConfigurationIsAppliedToAutoConfiguredCookieSerializer() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
 				.withPropertyValues("server.servlet.session.cookie.name=sid",
 						"server.servlet.session.cookie.domain=spring", "server.servlet.session.cookie.path=/test",
@@ -161,7 +161,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void autoConfiguredCookieSerializerIsUsedBySessionRepositoryFilter() {
+	public void autoConfiguredCookieSerializerIsUsedBySessionRepositoryFilter() {
 		this.contextRunner.withUserConfiguration(SessionRepositoryConfiguration.class)
 				.withPropertyValues("server.port=0").run((context) -> {
 					SessionRepositoryFilter<?> filter = context.getBean(SessionRepositoryFilter.class);
@@ -174,7 +174,7 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresACookieSerializer() {
+	public void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresACookieSerializer() {
 		this.contextRunner.withUserConfiguration(UserProvidedCookieSerializerConfiguration.class).run((context) -> {
 			assertThat(context).hasSingleBean(DefaultCookieSerializer.class);
 			assertThat(context).hasBean("myCookieSerializer");
@@ -182,38 +182,38 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 	}
 
 	@Test
-	void cookiesSerializerIsAutoConfiguredWhenUserConfiguresCookieHttpSessionIdResolver() {
+	public void cookiesSerializerIsAutoConfiguredWhenUserConfiguresCookieHttpSessionIdResolver() {
 		this.contextRunner.withUserConfiguration(UserProvidedCookieHttpSessionStrategyConfiguration.class)
 				.run((context) -> assertThat(context.getBeansOfType(DefaultCookieSerializer.class)).isNotEmpty());
 	}
 
 	@Test
-	void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresHeaderHttpSessionIdResolver() {
+	public void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresHeaderHttpSessionIdResolver() {
 		this.contextRunner.withUserConfiguration(UserProvidedHeaderHttpSessionStrategyConfiguration.class)
 				.run((context) -> assertThat(context.getBeansOfType(DefaultCookieSerializer.class)).isEmpty());
 	}
 
 	@Test
-	void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresCustomHttpSessionIdResolver() {
+	public void autoConfiguredCookieSerializerBacksOffWhenUserConfiguresCustomHttpSessionIdResolver() {
 		this.contextRunner.withUserConfiguration(UserProvidedCustomHttpSessionStrategyConfiguration.class)
 				.run((context) -> assertThat(context.getBeansOfType(DefaultCookieSerializer.class)).isEmpty());
 	}
 
 	@Test
-	void autoConfiguredCookieSerializerIsConfiguredWithRememberMeRequestAttribute() {
-		this.contextRunner.withBean(SpringSessionRememberMeServicesConfiguration.class).run((context) -> {
+	public void autoConfiguredCookieSerializerIsConfiguredWithRememberMeRequestAttribute() {
+		this.contextRunner.withUserConfiguration(SpringSessionRememberMeServicesConfiguration.class).run((context) -> {
 			DefaultCookieSerializer cookieSerializer = context.getBean(DefaultCookieSerializer.class);
 			assertThat(cookieSerializer).hasFieldOrPropertyWithValue("rememberMeRequestAttribute",
 					SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class SessionRepositoryConfiguration {
 
 		@Bean
-		MapSessionRepository mySessionRepository() {
+		public MapSessionRepository mySessionRepository() {
 			return new MapSessionRepository(Collections.emptyMap());
 		}
 
@@ -224,56 +224,56 @@ class SessionAutoConfigurationTests extends AbstractSessionAutoConfigurationTest
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class UserProvidedCookieSerializerConfiguration extends SessionRepositoryConfiguration {
 
 		@Bean
-		DefaultCookieSerializer myCookieSerializer() {
+		public DefaultCookieSerializer myCookieSerializer() {
 			return new DefaultCookieSerializer();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class UserProvidedCookieHttpSessionStrategyConfiguration extends SessionRepositoryConfiguration {
 
 		@Bean
-		CookieHttpSessionIdResolver httpSessionStrategy() {
+		public CookieHttpSessionIdResolver httpSessionStrategy() {
 			return new CookieHttpSessionIdResolver();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class UserProvidedHeaderHttpSessionStrategyConfiguration extends SessionRepositoryConfiguration {
 
 		@Bean
-		HeaderHttpSessionIdResolver httpSessionStrategy() {
+		public HeaderHttpSessionIdResolver httpSessionStrategy() {
 			return HeaderHttpSessionIdResolver.xAuthToken();
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class UserProvidedCustomHttpSessionStrategyConfiguration extends SessionRepositoryConfiguration {
 
 		@Bean
-		HttpSessionIdResolver httpSessionStrategy() {
+		public HttpSessionIdResolver httpSessionStrategy() {
 			return mock(HttpSessionIdResolver.class);
 		}
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	@EnableSpringHttpSession
 	static class SpringSessionRememberMeServicesConfiguration extends SessionRepositoryConfiguration {
 
 		@Bean
-		SpringSessionRememberMeServices rememberMeServices() {
+		public SpringSessionRememberMeServices rememberMeServices() {
 			return new SpringSessionRememberMeServices();
 		}
 

@@ -36,6 +36,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
+import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jdbc.SchemaManagementProvider;
 import org.springframework.boot.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
@@ -59,7 +60,7 @@ import org.springframework.util.ClassUtils;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @EnableConfigurationProperties(HibernateProperties.class)
 @ConditionalOnSingleCandidate(DataSource.class)
 class HibernateJpaConfiguration extends JpaBaseConfiguration {
@@ -87,13 +88,14 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
 
 	HibernateJpaConfiguration(DataSource dataSource, JpaProperties jpaProperties,
 			ConfigurableListableBeanFactory beanFactory, ObjectProvider<JtaTransactionManager> jtaTransactionManager,
+			ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers,
 			HibernateProperties hibernateProperties,
 			ObjectProvider<Collection<DataSourcePoolMetadataProvider>> metadataProviders,
 			ObjectProvider<SchemaManagementProvider> providers,
 			ObjectProvider<PhysicalNamingStrategy> physicalNamingStrategy,
 			ObjectProvider<ImplicitNamingStrategy> implicitNamingStrategy,
 			ObjectProvider<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
-		super(dataSource, jpaProperties, jtaTransactionManager);
+		super(dataSource, jpaProperties, jtaTransactionManager, transactionManagerCustomizers);
 		this.hibernateProperties = hibernateProperties;
 		this.defaultDdlAutoProvider = new HibernateDefaultDdlAutoProvider(providers);
 		this.poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders.getIfAvailable());
@@ -182,9 +184,8 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
 			// NoClassDefFoundError can happen if Hibernate 4.2 is used and some
 			// containers (e.g. JBoss EAP 6) wrap it in the superclass LinkageError
 			if (!isUsingJndi()) {
-				throw new IllegalStateException(
-						"Unable to set Hibernate JTA platform, are you using the correct " + "version of Hibernate?",
-						ex);
+				throw new IllegalStateException("Unable to set Hibernate JTA " + "platform, are you using the correct "
+						+ "version of Hibernate?", ex);
 			}
 			// Assume that Hibernate will use JNDI
 			if (logger.isDebugEnabled()) {

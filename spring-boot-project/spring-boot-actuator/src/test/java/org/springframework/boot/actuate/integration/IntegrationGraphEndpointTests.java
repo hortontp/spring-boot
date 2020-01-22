@@ -16,7 +16,11 @@
 
 package org.springframework.boot.actuate.integration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.integration.graph.Graph;
 import org.springframework.integration.graph.IntegrationGraphServer;
@@ -31,25 +35,32 @@ import static org.mockito.Mockito.verify;
  *
  * @author Tim Ysewyn
  */
-class IntegrationGraphEndpointTests {
+public class IntegrationGraphEndpointTests {
 
-	private final IntegrationGraphServer server = mock(IntegrationGraphServer.class);
+	@Mock
+	private IntegrationGraphServer integrationGraphServer;
 
-	private final IntegrationGraphEndpoint endpoint = new IntegrationGraphEndpoint(this.server);
+	@InjectMocks
+	private IntegrationGraphEndpoint integrationGraphEndpoint;
+
+	@Before
+	public void setUp() {
+		MockitoAnnotations.initMocks(this);
+	}
 
 	@Test
-	void readOperationShouldReturnGraph() {
+	public void readOperationShouldReturnGraph() {
 		Graph mockedGraph = mock(Graph.class);
-		given(this.server.getGraph()).willReturn(mockedGraph);
-		Graph graph = this.endpoint.graph();
-		verify(this.server).getGraph();
+		given(this.integrationGraphServer.getGraph()).willReturn(mockedGraph);
+		Graph graph = this.integrationGraphEndpoint.graph();
+		verify(this.integrationGraphServer).getGraph();
 		assertThat(graph).isEqualTo(mockedGraph);
 	}
 
 	@Test
-	void writeOperationShouldRebuildGraph() {
-		this.endpoint.rebuild();
-		verify(this.server).rebuild();
+	public void writeOperationShouldRebuildGraph() {
+		this.integrationGraphEndpoint.rebuild();
+		verify(this.integrationGraphServer).rebuild();
 	}
 
 }
